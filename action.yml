@@ -1,5 +1,5 @@
 # action.yml
-name: 'Front'
+name: 'Turkish Trade House'
 description: 'Docker image'
 runs:
   using: 'docker'
