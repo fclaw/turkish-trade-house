@@ -4,11 +4,10 @@ let
    python3 = pkgs.python3;
    python = pkgs.python;
    git = pkgs.git;
-   jdk = pkgs.jdk;
    ps = pkgs.purescript;
 in
 pkgs.mkShell { 
-  buildInputs = [ git nodejs jdk ps ];
+  buildInputs = [ git nodejs ps ];
   shellHook = ''
     npm install spago
     npm install --save-exact esbuild
