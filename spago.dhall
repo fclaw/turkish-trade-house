@@ -24,7 +24,6 @@
   , "aff"
   , "maybe"
   , "safe-coerce"
-  -- , "datetime"
   , "affjax-web"
   , "affjax"
   , "foreign-object"
@@ -33,6 +32,8 @@
   , "now" 
   , "tuples"
   , "formatters"
+  , "datetime"
+  , "exceptions"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
