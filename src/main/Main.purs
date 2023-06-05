@@ -2,9 +2,9 @@ module Main (main) where
 
 import Prelude (Unit, bind, ($), void, when, (/=), pure, discard, (>>=))
 
-import App.Data.Route (routeCodec)
-import App.Component.Root as Root
-import App.Data.Config as Cfg
+import TTH.Data.Route (routeCodec)
+import TTH.Component.Root as Root
+import TTH.Data.Config as Cfg
 
 import Effect (Effect)
 import Halogen.Aff as HA

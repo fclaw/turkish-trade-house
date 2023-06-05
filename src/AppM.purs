@@ -17,9 +17,9 @@ module AppM (AppM(..), runAppM) where
 
 import Prelude
 
-import App.Capability.Navigate
-import App.Data.Route as Route
-import App.Data.Config
+import TTH.Capability.Navigate
+import TTH.Data.Route as Route
+import TTH.Data.Config
 
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)

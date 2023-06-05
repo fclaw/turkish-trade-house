@@ -1,4 +1,4 @@
-module App.Page.Service ( component ) where
+module TTH.Page.Service ( component ) where
 
 import Prelude
 

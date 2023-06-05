@@ -9,7 +9,7 @@
 -- |
 -- | For more information about the library and to read the tutorial, see:
 -- | https://github.com/natefaubion/purescript-routing-duplex/tree/v0.2.0
-module App.Data.Route
+module TTH.Data.Route
   ( Route(..)
   , routeCodec
   ) where

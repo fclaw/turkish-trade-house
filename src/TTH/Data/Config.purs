@@ -1,4 +1,4 @@
-module App.Data.Config
+module TTH.Data.Config
   ( Config(..)
   , LogLevel(..)
   , logLevelToString
