@@ -5,7 +5,7 @@
 -- |
 -- | To learn more about why we use capabilities and this architecture, please see the guide:
 -- | https://thomashoneyman.com/guides/real-world-halogen/push-effects-to-the-edges/
-module TTH.Capability.LogMessages
+module TTHouse.Capability.LogMessages
   ( class LogMessages
   , logMessage
   , debugHush
@@ -19,8 +19,8 @@ module TTH.Capability.LogMessages
 
 import Prelude
 
-import TTH.Capability.Now (class Now)
-import TTH.Data.Log (Log, LogReason(..), mkLog)
+import TTHouse.Capability.Now (class Now)
+import TTHouse.Data.Log (Log, LogReason(..), mkLog)
 import Control.Monad.Trans.Class (lift)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))

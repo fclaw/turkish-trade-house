@@ -1,4 +1,4 @@
-module TTH.Page.Error ( component ) where
+module TTHouse.Page.Error ( component ) where
 
 import Prelude
 

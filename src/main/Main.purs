@@ -2,9 +2,9 @@ module Main (main) where
 
 import Prelude (Unit, bind, ($), void, when, (/=), pure, discard, (>>=))
 
-import TTH.Data.Route (routeCodec)
-import TTH.Component.Root as Root
-import TTH.Data.Config as Cfg
+import TTHouse.Data.Route (routeCodec)
+import TTHouse.Component.Root as Root
+import TTHouse.Data.Config as Cfg
 
 import Store as Store
 import Effect (Effect)

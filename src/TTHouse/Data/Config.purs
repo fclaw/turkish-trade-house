@@ -1,4 +1,4 @@
-module TTH.Data.Config
+module TTHouse.Data.Config
   ( Config(..)
   , LogLevel(..)
   , logLevelToString

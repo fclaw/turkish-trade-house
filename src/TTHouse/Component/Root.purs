@@ -3,7 +3,7 @@
 -- | given a particular `Route` and to manage the user's location in the application.
 -- |
 -- | See `Main` to understand how this component is used as the root of the application.
-module TTH.Component.Root
+module TTHouse.Component.Root
   ( Action(..)
   , ChildSlots
   , Query(..)
@@ -14,13 +14,13 @@ module TTH.Component.Root
 
 import Prelude
 
-import TTH.Component.Utils (OpaqueSlot)
-import TTH.Data.Route (Route(..), routeCodec)
-import TTH.Page.Home as Home
-import TTH.Page.Service as Service
-import TTH.Page.About as About
-import TTH.Page.Error as Error
-import TTH.Capability.Navigate
+import TTHouse.Component.Utils (OpaqueSlot)
+import TTHouse.Data.Route (Route(..), routeCodec)
+import TTHouse.Page.Home as Home
+import TTHouse.Page.Service as Service
+import TTHouse.Page.About as About
+import TTHouse.Page.Error as Error
+import TTHouse.Capability.Navigate
 
 import Data.Either (hush)
 import Data.Foldable (elem)

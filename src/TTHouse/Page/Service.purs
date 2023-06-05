@@ -1,4 +1,4 @@
-module TTH.Page.About ( component ) where
+module TTHouse.Page.Service ( component ) where
 
 import Prelude
 
@@ -20,7 +20,7 @@ component =
       }
     }
 
-handleAction Initialize = H.liftEffect $ window >>= document >>= setTitle "About | TTH" 
+handleAction Initialize = H.liftEffect $ window >>= document >>= setTitle "Service | TTH" 
 
-render = HH.div_ [HH.text "about"] 
+render = HH.div_ [HH.text "service"] 
   

@@ -4,7 +4,7 @@
 -- |
 -- | To learn more about why we use capabilities and this architecture, please see the guide:
 -- | https://thomashoneyman.com/guides/real-world-halogen/push-effects-to-the-edges/
-module TTH.Capability.Navigate
+module TTHouse.Capability.Navigate
   ( class Navigate
   , navigate
   )
@@ -12,7 +12,7 @@ module TTH.Capability.Navigate
 
 import Prelude
 
-import TTH.Data.Route (Route)
+import TTHouse.Data.Route (Route)
 
 import Control.Monad.Trans.Class (lift)
 import Halogen (HalogenM)

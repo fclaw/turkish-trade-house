@@ -15,7 +15,7 @@
 -- | The `Conduit.Capability.LogMessages` module describes the higher-level interface to log an
 -- | error or message that is used throughout the rest of the application. I'd recommend reading
 -- | through that module as well.
-module TTH.Data.Log
+module TTHouse.Data.Log
   ( LogReason(..)
   , message
   , reason
@@ -25,7 +25,7 @@ module TTH.Data.Log
 
 import Prelude
 
-import TTH.Capability.Now (class Now, nowDateTime)
+import TTHouse.Capability.Now (class Now, nowDateTime)
 import Data.DateTime (DateTime)
 import Data.Either (either)
 import Data.Foldable (fold)

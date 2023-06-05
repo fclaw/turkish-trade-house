@@ -17,12 +17,12 @@ module AppM (AppM(..), runAppM) where
 
 import Prelude
 
-import TTH.Capability.Navigate
-import TTH.Data.Route as Route
-import TTH.Data.Config
-import TTH.Capability.LogMessages
-import TTH.Capability.Now
-import TTH.Data.Log
+import TTHouse.Capability.Navigate
+import TTHouse.Data.Route as Route
+import TTHouse.Data.Config
+import TTHouse.Capability.LogMessages
+import TTHouse.Capability.Now
+import TTHouse.Data.Log
 
 import Store as Store
 import Effect.Aff (Aff, catchError)

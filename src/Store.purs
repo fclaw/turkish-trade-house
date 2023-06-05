@@ -11,7 +11,7 @@ module Store
 
 import Prelude
 
-import TTH.Data.Config (Config)
+import TTHouse.Data.Config (Config)
 import Data.Maybe (Maybe(..))
 import Affjax (Error)
 
