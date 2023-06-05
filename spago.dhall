@@ -32,6 +32,7 @@
   , "functions"
   , "now" 
   , "tuples"
+  , "formatters"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

@@ -20,8 +20,12 @@ import Prelude
 import TTH.Capability.Navigate
 import TTH.Data.Route as Route
 import TTH.Data.Config
+import TTH.Capability.LogMessages
+import TTH.Capability.Now
+import TTH.Data.Log
 
-import Effect.Aff (Aff)
+import Store as Store
+import Effect.Aff (Aff, catchError)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
 import Halogen as H
@@ -40,6 +44,8 @@ import Effect.Console as C
 import Data.Maybe
 import Data.Function.Uncurried (runFn2)
 import Effect.Aff.Class
+import Control.Monad.Error.Class (class MonadError)
+import Effect.Exception as E
 
 
 -- | In the capability modules (`Conduit.Capability.*`), we wrote some abstract, high-level
@@ -74,10 +80,10 @@ import Effect.Aff.Class
 -- | instances for our capabilities. We're able to combine these monads because `StoreT` is a
 -- | monad transformer. Monad transformers are too large a topic to delve into here; for now, it's
 -- | enough to know that they let you combine the abilities of two or more monads.
-newtype AppM a = AppM (Aff a)
+newtype AppM a = AppM (StoreT Store.Action Store.Store Aff a)
 
-runAppM :: forall q i o. H.Component q i o AppM -> Aff (H.Component q i o Aff)
-runAppM = pure <<< coerce
+runAppM :: forall q i o. Store.Store -> H.Component q i o AppM -> Aff (H.Component q i o Aff)
+runAppM store = runStoreT store Store.reduce <<< coerce
 
 -- | We can get a monad out of our `AppM` type essentially for free by deferring to the underlying
 -- | `ReaderT` instances. PureScript allows any newtype to re-use the type class instances of the
@@ -106,6 +112,8 @@ derive newtype instance bindAppM :: Bind AppM
 derive newtype instance monadAppM :: Monad AppM
 derive newtype instance monadEffectAppM :: MonadEffect AppM
 derive newtype instance monadAffAppM :: MonadAff AppM
+derive newtype instance monadStoreAppM :: MonadStore Store.Action Store.Store AppM
+derive newtype instance monadErrorAppM :: MonadError E.Error AppM 
 
 -- | Our app uses hash-based routing, so to navigate from place to place, we'll just set the hash.
 -- | Note how our navigation capability uses our routing data type rather than let you set any
@@ -113,3 +121,47 @@ derive newtype instance monadAffAppM :: MonadAff AppM
 -- | the auth token. Navigating home will take care of emptying the reference to the current user.
 instance navigateAppM :: Navigate AppM where
   navigate = liftEffect <<< setHash <<< print Route.routeCodec
+
+-- | Next up: logging. Ideally we'd use a logging service, but for the time being, we'll just log
+-- | to the console. We'll rely on our global environment to decide whether to log all messages
+-- | (`Dev`) or just important messages (`Prod`).
+instance logMessagesAppM :: LogMessages AppM where
+  logMessage log = do
+    { config } <- getStore
+    let { logLevel, telegramHost, telegramBot, telegramChat } = config
+    case logLevel, reason log of
+      Prod, Debug -> pure unit
+      _, _ -> do
+        let url_msg = telegramHost <> telegramBot <> "/sendMessage"
+        let
+          body =
+            AXB.FormURLEncoded $
+              AXD.FormURLEncoded
+                [ Tuple "chat_id" (pure telegramChat)
+                , Tuple "text" (pure ("`" <> message log <> "`"))
+                , Tuple "parse_mode" (pure "markdown")
+                ]
+        flip catchError (logError <<< show) $ 
+          void $ H.liftAff $ AX.post AX.json url_msg (pure body)
+          
+
+-- | We're finally ready to write concrete implementations for each of our abstract capabilities.
+-- | For an in-depth description of each capability, please refer to the relevant `Capability.*`
+-- | module for the capability that interests you.
+
+-- | First up: the `Now` capability, which allows us to retrieve the current time. In our
+-- | production monad, we'll rely on existing functions that run in the `Effect` (synchronous
+-- | effects) monad and use the `liftEffect` function so that they run in `AppM` instead. This is
+-- | made possible because our `AppM` type implements the `MonadEffect` type class.
+-- |
+-- | ```purescript
+-- | liftEffect :: forall a m. MonadEffect m => Effect a -> m a
+-- | ```
+-- |
+-- | In our test monad, we won't perform effects -- we'll just return a hard-coded time so that we
+-- | can ensure tests are reproducible.
+instance nowAppM :: Now AppM where
+  now = liftEffect Now.now
+  nowDate = liftEffect Now.nowDate
+  nowTime = liftEffect Now.nowTime
+  nowDateTime = liftEffect Now.nowDateTime

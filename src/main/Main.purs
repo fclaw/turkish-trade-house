@@ -6,6 +6,7 @@ import TTH.Data.Route (routeCodec)
 import TTH.Component.Root as Root
 import TTH.Data.Config as Cfg
 
+import Store as Store
 import Effect (Effect)
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
@@ -36,6 +37,11 @@ main config =
     -- reference to the <body> tag as soon as it exists.
     body <- HA.awaitBody
 
+    -- We now have the three pieces of information necessary to configure our app. Let's create
+    -- a record that matches the `Store` type our application requires by filling in these three
+    -- fields. If our environment type ever changes, we'll get a compiler error here.
+    let initialStore = { config: config, affjaxError: Nothing }
+
     -- With our app environment ready to go, we can prepare the router to run as our root component.
     --
     -- But wait! Our router is configured to run in a monad that supports all our capabilities like
@@ -45,7 +51,7 @@ main config =
     -- But Halogen only knows how to run components in the `Aff` (asynchronous effects) monad. `Aff`
     -- has no idea how to interpret our capabilities. We need a way to change our router component so
     -- that it runs in `Aff` instead of `AppM`. We can do that with `runAppM`:
-    rootComponent <- AppM.runAppM $ Root.component
+    rootComponent <- AppM.runAppM initialStore Root.component
 
     -- Now we have the two things we need to run a Halogen application: a reference to an HTML element
     -- and the component to run there.
