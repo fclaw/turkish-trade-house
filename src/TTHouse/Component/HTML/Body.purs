@@ -38,10 +38,10 @@ contentWrapper content =
      [
         HH.tr_
         [
-           HH.td_ 
+           HH.td_
            [
-              content
-           ]
+              HH.div_ [ content ]
+           ] 
         ]
      ]
   ,  HH.tfoot_ 
