@@ -6,20 +6,21 @@ module TTHouse.Page.Home
 
 import Prelude
 
-import TTHouse.Capability.LogMessages
+import TTHouse.Component.HamburgerMenu (proxy)
 
 import Halogen as H
 import Halogen.HTML as HH
 import Web.HTML.HTMLDocument (setTitle)
 import Web.HTML.Window (document)
 import Web.HTML (window)
+import Type.Proxy (Proxy(..))
 
 data Action = Initialize
 
-component mkBody =
+component menu mkBody =
   H.mkComponent
     { initialState: identity
-    , render: const $ mkBody content
+    , render: const $ HH.div_ [HH.slot_ proxy unit menu unit, mkBody content ]
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
       , initialize = pure Initialize 

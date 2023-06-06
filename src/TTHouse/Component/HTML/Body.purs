@@ -1,6 +1,8 @@
 module TTHouse.Component.HTML.Body
   ( Body
+  , BodyHtml(..)
   , Content
+  , Footer
   , Header
   , mkBodyHtml
   )
@@ -8,6 +10,7 @@ module TTHouse.Component.HTML.Body
 
 import Prelude
 
+import Halogen as H
 import Halogen.HTML as HH
 import TTHouse.Component.HTML.Utils (css)
 import Halogen.HTML.Properties.Extended as HPExt
@@ -18,8 +21,10 @@ type Header i p = HH.HTML i p
 type Body i p = HH.HTML i p
 type Footer i p = HH.HTML i p
 
-mkBodyHtml :: forall i p. Header i p -> Footer i p -> Content i p -> Body i p
-mkBodyHtml header footer content = HH.div_ [ header, footer, contentWrapper content ]
+type BodyHtml = { header :: forall i p . Header i p, footer :: forall i p . Footer i p }
+
+mkBodyHtml { header, footer } content = 
+  HH.div_ [ header, footer, contentWrapper content ]
 
 contentWrapper content =
   HH.table_ 

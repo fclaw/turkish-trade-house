@@ -25,7 +25,8 @@ import TTHouse.Capability.LogMessages (class LogMessages)
 import TTHouse.Capability.Now (class Now)
 import TTHouse.Component.HTML.Header as Header
 import TTHouse.Component.HTML.Footer as Footer
-import TTHouse.Component.HTML.Body (mkBodyHtml)
+import TTHouse.Component.HamburgerMenu as HamburgerMenu
+import TTHouse.Component.HTML.Body as Body
 
 import Data.Either (hush)
 import Data.Foldable (elem)
@@ -88,6 +89,10 @@ component = H.mkComponent
     H.modify_ _ { route = Just dest }
     pure $ Just a
 
+
+
+params = { header: Header.html, footer: Footer.html }
+
 render :: forall m
   . MonadAff m
   => Navigate m 
@@ -95,8 +100,8 @@ render :: forall m
   => Now m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just Home } = HH.slot_ (Proxy :: _ "home") unit (Home.component (mkBodyHtml Header.html Footer.html)) unit
+render { route: Just Home } = HH.slot_ (Proxy :: _ "home") unit (Home.component HamburgerMenu.component (Body.mkBodyHtml params)) unit
 render { route: Just Error } = HH.slot_ (Proxy :: _ "error") unit Error.component unit
-render { route: Just About } = HH.slot_ (Proxy :: _ "about") unit (About.component (mkBodyHtml Header.html Footer.html)) unit
-render { route: Just Service } = HH.slot_ (Proxy :: _ "service") unit (Service.component (mkBodyHtml Header.html Footer.html)) unit
+render { route: Just About } = HH.slot_ (Proxy :: _ "about") unit (About.component HamburgerMenu.component (Body.mkBodyHtml params)) unit
+render { route: Just Service } = HH.slot_ (Proxy :: _ "service") unit (Service.component HamburgerMenu.component (Body.mkBodyHtml params)) unit
 render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]
