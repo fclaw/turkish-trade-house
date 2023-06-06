@@ -1,12 +1,13 @@
 module TTHouse.Page.About
   ( Action(..)
   , component
+  , proxy
   )
   where
 
 import Prelude
 
-import TTHouse.Component.HamburgerMenu (proxy)
+import TTHouse.Component.HamburgerMenu as HamburgerMenu
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -15,12 +16,14 @@ import Web.HTML.Window (document)
 import Web.HTML (window)
 import Type.Proxy (Proxy(..))
 
+proxy = Proxy :: _ "about"
+
 data Action = Initialize
 
-component menu mkBody =
+component mkBody =
   H.mkComponent
     { initialState: identity
-    , render: const $ HH.div_ [HH.slot_ proxy unit menu unit, mkBody content ]
+    , render: const $ HH.div_ [HH.slot_ HamburgerMenu.proxy unit HamburgerMenu.component unit, mkBody content ]
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
       , initialize = pure Initialize 

@@ -1,9 +1,16 @@
-module TTHouse.Page.Error ( component ) where
+module TTHouse.Page.Error
+  ( component
+  , proxy
+  )
+  where
 
 import Prelude
 
 import Halogen as H
 import Halogen.HTML as HH
+import Type.Proxy (Proxy(..))
+
+proxy = Proxy :: _ "error"
 
 component =
   H.mkComponent

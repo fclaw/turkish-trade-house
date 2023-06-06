@@ -36,6 +36,9 @@
   , "exceptions"
   , "web-html"
   , "fork"
+  , "dom-indexed"
+  , "arrays"
+  , "enums"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

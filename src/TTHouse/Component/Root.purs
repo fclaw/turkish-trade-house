@@ -89,8 +89,6 @@ component = H.mkComponent
     H.modify_ _ { route = Just dest }
     pure $ Just a
 
-
-
 params = { header: Header.html, footer: Footer.html }
 
 render :: forall m
@@ -100,8 +98,8 @@ render :: forall m
   => Now m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just Home } = HH.slot_ (Proxy :: _ "home") unit (Home.component HamburgerMenu.component (Body.mkBodyHtml params)) unit
-render { route: Just Error } = HH.slot_ (Proxy :: _ "error") unit Error.component unit
-render { route: Just About } = HH.slot_ (Proxy :: _ "about") unit (About.component HamburgerMenu.component (Body.mkBodyHtml params)) unit
-render { route: Just Service } = HH.slot_ (Proxy :: _ "service") unit (Service.component HamburgerMenu.component (Body.mkBodyHtml params)) unit
+render { route: Just Home } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params)) unit
+render { route: Just Error } = HH.slot_ Error.proxy unit Error.component unit
+render { route: Just About } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params)) unit
+render { route: Just Service } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params)) unit
 render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]

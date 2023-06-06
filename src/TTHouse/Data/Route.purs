@@ -22,14 +22,20 @@ import Routing.Duplex (RouteDuplex', as, root, segment, param)
 import Routing.Duplex.Generic (noArgs, sum)
 import Routing.Duplex.Generic.Syntax ((/))
 import Data.Show
+import Data.Enum
+import Data.Maybe
+import Data.Bounded
+import Data.Enum.Generic (genericFromEnum, genericToEnum, genericSucc, genericPred, genericCardinality)
+
+import Undefined
 
 -- | We'll represent routes in our application with a simple sum type. As the application grows,
 -- | you might want to swap this out with an extensible sum type with `Variant` and have several
 -- | sub-sections. For our small MVP this type will work just fine and will prevent us from trying
 -- | to send users to non-existent routes.
 data Route
-  = Home
-  | Error
+  = Error
+  | Home
   | About
   | Service 
 
@@ -42,6 +48,19 @@ instance showRoute :: Show Route where
   show Error = "error"
   show About = "about"
   show Service = "service"
+
+instance enumRoute :: Enum Route where 
+  succ = genericSucc
+  pred = genericPred 
+
+instance boundedEnumRoute :: BoundedEnum Route where 
+  cardinality = genericCardinality
+  toEnum = genericToEnum
+  fromEnum = genericFromEnum
+
+instance boundedRoute :: Bounded Route where 
+  top = Service
+  bottom = Error
 
 -- | Next, we'll define a bidirectional codec for our route parsing. Our single codec will handle
 -- | both parsing browser locations and serializing our data type to a browser location. We'll skip
