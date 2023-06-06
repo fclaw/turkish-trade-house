@@ -2,6 +2,8 @@ module TTHouse.Page.Home ( component ) where
 
 import Prelude
 
+import TTHouse.Capability.LogMessages
+
 import Halogen as H
 import Halogen.HTML as HH
 import Web.HTML.HTMLDocument (setTitle)

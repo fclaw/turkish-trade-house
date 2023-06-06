@@ -1,29 +1,25 @@
 module Main (main) where
 
-import Prelude (Unit, bind, ($), void, when, (/=), pure, discard, (>>=))
+import Prelude (Unit, bind, ($), void, when, (/=), flip, (<<<))
 
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
 import TTHouse.Data.Config as Cfg
 
-import Store as Store
 import Effect (Effect)
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
-import Undefined (undefined)
-import Data.Maybe
-import Effect.Aff (launchAff_, Aff)
+import Data.Maybe (Maybe (..))
+import Effect.Aff (launchAff_)
 import Halogen (liftEffect)
 import Halogen as H
-import Halogen.Aff as HA
-import Halogen.VDom.Driver (runUI)
 import AppM as AppM
 import Data.Unit
 import Routing.Hash (matchesWith)
 import Routing.Duplex (parse)
-import Data.Traversable (for)
+import Control.Monad.Error.Class (catchError)
 
-import Effect.Console
+import Effect.Console (logShow)
 
 main :: Cfg.Config -> Effect Unit
 main config =
@@ -82,4 +78,6 @@ main config =
     -- https://github.com/slamdata/purescript-routing/blob/v8.0.0/GUIDE.md
     -- https://github.com/natefaubion/purescript-routing-duplex/blob/v0.2.0/README.md
     void $ liftEffect $ matchesWith (parse routeCodec) \old new ->
-      when (old /= Just new) $ launchAff_ $ void $ halogenIO.query $ H.mkTell $ Root.Navigate new
+      when (old /= Just new) $ launchAff_ $
+       flip catchError (liftEffect <<< logShow) $
+         void $ halogenIO.query $ H.mkTell $ Root.Navigate new

@@ -35,6 +35,7 @@
   , "datetime"
   , "exceptions"
   , "web-html"
+  , "fork"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

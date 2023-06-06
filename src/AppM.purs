@@ -25,7 +25,7 @@ import TTHouse.Capability.Now
 import TTHouse.Data.Log
 
 import Store as Store
-import Effect.Aff (Aff, catchError)
+import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
 import Halogen as H
@@ -46,7 +46,10 @@ import Data.Function.Uncurried (runFn2)
 import Effect.Aff.Class
 import Control.Monad.Error.Class (class MonadError)
 import Effect.Exception as E
+import Data.Either
+import Control.Monad.Fork.Class (fork)
 
+import Effect.Console
 
 -- | In the capability modules (`Conduit.Capability.*`), we wrote some abstract, high-level
 -- | interfaces for business logic that tends to be highly effectful, like resource management and
@@ -140,10 +143,8 @@ instance logMessagesAppM :: LogMessages AppM where
                 [ Tuple "chat_id" (pure telegramChat)
                 , Tuple "text" (pure ("`" <> message log <> "`"))
                 , Tuple "parse_mode" (pure "markdown")
-                ]
-        flip catchError (logError <<< show) $ 
-          void $ H.liftAff $ AX.post AX.json url_msg (pure body)
-          
+                ] 
+        void $ H.liftAff $ fork $ AX.post AX.json url_msg (pure body)
 
 -- | We're finally ready to write concrete implementations for each of our abstract capabilities.
 -- | For an in-depth description of each capability, please refer to the relevant `Capability.*`
