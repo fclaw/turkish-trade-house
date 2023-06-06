@@ -10,6 +10,7 @@ pkgs.mkShell {
   buildInputs = [ git nodejs ps ];
   shellHook = ''
     npm install spago
+    npm install purs-tidy
     npm install --save-exact esbuild
     npm install @openapitools/openapi-generator-cli -D
     npm install querystring

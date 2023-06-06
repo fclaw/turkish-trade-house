@@ -27,12 +27,12 @@ mkBody header content =
     HH.div 
     [ css "x-el x-el-div x-el c1-1 c1-2 c1-3 c1-4 c1-5 c1-6 c1-7 c1-8 c1-9 c1-a c1-b c1-c c1-d c1-e c1-f c1-g c1-1 c1-2 c1-b c1-c c1-d c1-e c1-f c1-g"
     , HPExt.id "page-134569"
-    , HPExt.dataUx "Page"
+    , HPExt.data_ux "Page"
     ]
     [
         HH.div 
         [ css "x-el x-el-div page-inner c1-1 c1-2 c1-b c1-c c1-d c1-e c1-f c1-g"
-        , HPExt.dataUx "Block"
+        , HPExt.data_ux "Block"
         ]
         [ header, content ]
     ]
