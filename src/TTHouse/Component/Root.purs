@@ -21,6 +21,8 @@ import TTHouse.Page.Service as Service
 import TTHouse.Page.About as About
 import TTHouse.Page.Error as Error
 import TTHouse.Capability.Navigate
+import TTHouse.Capability.LogMessages (class LogMessages)
+import TTHouse.Capability.Now (class Now)
 
 import Data.Either (hush)
 import Data.Foldable (elem)
@@ -58,6 +60,8 @@ component
   :: forall m
    . MonadAff m
   => Navigate m
+  => LogMessages m
+  => Now m
   => H.Component Query Unit Void m
 component = H.mkComponent
   { initialState: const { route: Nothing }
@@ -84,6 +88,8 @@ component = H.mkComponent
 render :: forall m
   . MonadAff m
   => Navigate m 
+  => LogMessages m
+  => Now m
   => State
   -> H.ComponentHTML Action ChildSlots m
 render { route: Just Home } = HH.slot_ (Proxy :: _ "home") unit Home.component unit
