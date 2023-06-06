@@ -1,4 +1,8 @@
-module TTHouse.Page.About ( component ) where
+module TTHouse.Page.About
+  ( Action(..)
+  , component
+  )
+  where
 
 import Prelude
 
@@ -10,10 +14,10 @@ import Web.HTML (window)
 
 data Action = Initialize
 
-component =
+component mkBody =
   H.mkComponent
     { initialState: identity
-    , render: const  render
+    , render: const $ mkBody content
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
       , initialize = pure Initialize 
@@ -22,5 +26,4 @@ component =
 
 handleAction Initialize = H.liftEffect $ window >>= document >>= setTitle "About | TTH" 
 
-render = HH.div_ [HH.text "about"] 
-  
+content = HH.text "about"

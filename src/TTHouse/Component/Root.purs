@@ -23,6 +23,8 @@ import TTHouse.Page.Error as Error
 import TTHouse.Capability.Navigate
 import TTHouse.Capability.LogMessages (class LogMessages)
 import TTHouse.Capability.Now (class Now)
+import TTHouse.Component.HTML.Header (header)
+import TTHouse.Component.HTML.Body (mkBody)
 
 import Data.Either (hush)
 import Data.Foldable (elem)
@@ -92,8 +94,8 @@ render :: forall m
   => Now m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just Home } = HH.slot_ (Proxy :: _ "home") unit Home.component unit
+render { route: Just Home } = HH.slot_ (Proxy :: _ "home") unit (Home.component (mkBody header)) unit
 render { route: Just Error } = HH.slot_ (Proxy :: _ "error") unit Error.component unit
-render { route: Just About } = HH.slot_ (Proxy :: _ "about") unit About.component unit
-render { route: Just Service } = HH.slot_ (Proxy :: _ "service") unit Service.component unit
+render { route: Just About } = HH.slot_ (Proxy :: _ "about") unit (About.component (mkBody header)) unit
+render { route: Just Service } = HH.slot_ (Proxy :: _ "service") unit (Service.component (mkBody header)) unit
 render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]
