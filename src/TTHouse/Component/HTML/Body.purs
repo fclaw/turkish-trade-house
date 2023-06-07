@@ -27,7 +27,7 @@ mkBodyHtml { header, footer } content =
   HH.div_ [ header, footer, contentWrapper content ]
 
 contentWrapper content =
-  HH.table_ 
+  HH.table_
   [
      HH.thead_ 
      [

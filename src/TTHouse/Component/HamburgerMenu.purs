@@ -56,7 +56,7 @@ handleAction (GetWindowWidth w) = H.modify_ \s -> s { outerWinwidth = pure w }
 
 -- I piggyback on the following implementation https://codepen.io/alvarotrigo/pen/PoJGObg
 render { outerWinwidth } 
-  | fromMaybe true $ map ((>) 200) (outerWinwidth) =
+  | fromMaybe true $ map ((>) 500) (outerWinwidth) =
       HH.div_
       [
          HH.input [HPExt.type_ InputCheckbox, css "toggler"]
