@@ -2,5 +2,5 @@
     "telegramBot": "bot2096396660:AAFgPJkIGmBOgbWuzvyejPJJo7-HpFgr2CY",
     "telegramChat": "-934720023",
     "telegramHost": "https://api.telegram.org/",
-    "toTelegram": true
+    "toTelegram": false
 }

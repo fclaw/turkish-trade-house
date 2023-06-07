@@ -55,19 +55,21 @@ handleAction Initialise = void $ H.subscribe =<< subscribe GetWindowWidth
 handleAction (GetWindowWidth w) = H.modify_ \s -> s { outerWinwidth = pure w }
 
 -- I piggyback on the following implementation https://codepen.io/alvarotrigo/pen/PoJGObg
-render _ = 
-  HH.div_ 
-  [
-     HH.input [HPExt.type_ InputCheckbox, css "toggler"]
-  ,  HH.div [css "hamburger"] [HH.div_ []]
-  ,  HH.div [css "menu"]
-     [
-        HH.div_
-        [
-            HH.ul_ (map item (fromEnum Home .. fromEnum Service) )
-        ]
-     ]  
-  ]
+render { outerWinwidth } 
+  | fromMaybe true $ map ((>) 200) (outerWinwidth) =
+      HH.div_
+      [
+         HH.input [HPExt.type_ InputCheckbox, css "toggler"]
+      ,  HH.div [css "hamburger"] [HH.div_ []]
+      ,  HH.div [css "menu"]
+         [
+            HH.div_
+            [
+                  HH.ul_ (map item (fromEnum Home .. fromEnum Service) )
+            ]
+         ]     
+      ]
+  | otherwise = HH.div_ []   
 
 item idx = HH.li_ [HH.a [safeHref (mkRoute idx) ] [HH.text (show (mkRoute idx))] ] 
   where mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
