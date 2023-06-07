@@ -21,7 +21,7 @@ import TTHouse.Page.Service as Service
 import TTHouse.Page.About as About
 import TTHouse.Page.Error as Error
 import TTHouse.Capability.Navigate
-import TTHouse.Capability.LogMessages (class LogMessages)
+import TTHouse.Capability.LogMessages (class LogMessages, logDebug)
 import TTHouse.Capability.Now (class Now)
 import TTHouse.Component.HTML.Header as Header
 import TTHouse.Component.HTML.Footer as Footer
@@ -36,13 +36,14 @@ import Halogen (liftEffect)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.Store.Connect (Connected, connect)
-import Halogen.Store.Monad (class MonadStore)
+import Halogen.Store.Monad (class MonadStore, getStore)
 import Halogen.Store.Select (selectEq)
 import Routing.Duplex as RD
 import Routing.Hash (getHash)
 import Type.Proxy (Proxy(..))
 import Undefined
 import Halogen.HTML.Properties as HP
+import Store (Store, printStore)
 
 data Query a = Navigate Route a
 
@@ -61,11 +62,12 @@ type ChildSlots =
   )
 
 component
-  :: forall m
+  :: forall m a
    . MonadAff m
   => Navigate m
   => LogMessages m
   => Now m
+  => MonadStore a Store m
   => H.Component Query Unit Void m
 component = H.mkComponent
   { initialState: const { route: Nothing }
@@ -79,11 +81,12 @@ component = H.mkComponent
   where
   handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
   handleAction Initialize = do
+    store <- getStore
+    logDebug $ printStore store
     -- first we'll get the route the user landed on
     initialRoute <- hush <<< (RD.parse routeCodec) <$> liftEffect getHash
     -- then we'll navigate to the new route (also setting the hash)
     navigate $ fromMaybe Home initialRoute
-
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
     H.modify_ _ { route = Just dest }

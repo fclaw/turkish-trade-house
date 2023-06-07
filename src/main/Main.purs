@@ -20,14 +20,18 @@ import Routing.Duplex (parse)
 import Control.Monad.Error.Class (catchError)
 import TTHouse.Web.Platform (getPlatform)
 import Data.Function.Uncurried (runFn1)
+import Web.HTML.Navigator (userAgent)
+import Web.HTML.Window (navigator)
+import Web.HTML (window)
 
-import Undefined
 import Effect.Console (logShow)
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 
+ 
+  ua <- window >>= navigator >>= userAgent
+  pl <- runFn1 getPlatform ua
 
-  _ <- runFn1 getPlatform undefined
   HA.runHalogenAff do
 
     -- To run our Halogen app, we'll need two things:
@@ -41,7 +45,7 @@ main cfg = do
     -- We now have the three pieces of information necessary to configure our app. Let's create
     -- a record that matches the `Store` type our application requires by filling in these three
     -- fields. If our environment type ever changes, we'll get a compiler error here.
-    let initialStore = { config: cfg, affjaxError: Nothing }
+    let initialStore = { config: cfg, affjaxError: Nothing, platform: pl }
 
     -- With our app environment ready to go, we can prepare the router to run as our root component.
     --

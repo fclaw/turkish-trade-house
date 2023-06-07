@@ -1,3 +1,3 @@
 import Bowser, * as e from './Bowser/src/bowser.js';
 
-export const getPlatform = () => { return function () { Bowser.getParser().getPlatformType()}; };
+export const getPlatform = function (ua) { return function () { return Bowser.getParser(ua).getPlatformType(); }; };

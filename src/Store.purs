@@ -4,8 +4,9 @@
 -- | called a "store" by convention.
 module Store
   ( Action(..)
+  , Store(..)
+  , printStore
   , reduce
-  , Store (..)
   )
   where
 
@@ -13,7 +14,10 @@ import Prelude
 
 import TTHouse.Data.Config (Config)
 import Data.Maybe (Maybe(..))
-import Affjax (Error)
+import Affjax (Error, printError)
+import Data.Argonaut.Core (stringify)
+import Data.Argonaut.Encode.Class (encodeJson)
+import Data.Maybe
 
 -- | We can now construct our central state which will be available to all
 -- | components (if they opt-in).
@@ -21,7 +25,12 @@ import Affjax (Error)
 -- | First, we'll use a `LogLevel` flag to indicate whether we'd like to log
 -- | everything (`Dev`) or only critical messages (`Prod`). Next, we'll maintain
 -- | a configurable base URL. We'll also hold on to the currently-logged-in user.
-type Store = { config :: Config, affjaxError :: Maybe Error }
+type Store = { config :: Config, affjaxError :: Maybe Error, platform :: String }
+
+printStore store = 
+  "{config: " <> stringify (encodeJson (_.config store)) <> 
+  ", affjaxError: " <> fromMaybe mempty (map printError (_.affjaxError store)) <> 
+  ", platform: " <> _.platform store <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that
