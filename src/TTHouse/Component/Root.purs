@@ -25,7 +25,7 @@ import TTHouse.Capability.LogMessages (class LogMessages)
 import TTHouse.Capability.Now (class Now)
 import TTHouse.Component.HTML.Header as Header
 import TTHouse.Component.HTML.Footer as Footer
-import TTHouse.Component.HamburgerMenu as HamburgerMenu
+import TTHouse.Component.Menu.Hamburger as HamburgerMenu
 import TTHouse.Component.HTML.Body as Body
 
 import Data.Either (hush)

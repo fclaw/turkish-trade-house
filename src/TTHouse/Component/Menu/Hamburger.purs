@@ -1,4 +1,4 @@
-module TTHouse.Component.HamburgerMenu ( component, proxy ) where
+module TTHouse.Component.Menu.Hamburger ( component, proxy ) where
 
 import Prelude
 

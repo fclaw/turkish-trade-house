@@ -7,7 +7,7 @@ module TTHouse.Page.About
 
 import Prelude
 
-import TTHouse.Component.HamburgerMenu as HamburgerMenu
+import TTHouse.Component.Menu.Hamburger as HamburgerMenu
 
 import Halogen as H
 import Halogen.HTML as HH
