@@ -18,15 +18,16 @@ import Data.Unit
 import Routing.Hash (matchesWith)
 import Routing.Duplex (parse)
 import Control.Monad.Error.Class (catchError)
-import Web.Platform (getPlatform)
+import TTHouse.Web.Platform (getPlatform)
 import Data.Function.Uncurried (runFn1)
 
+import Undefined
 import Effect.Console (logShow)
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 
 
-  _ <- runFn1 $ getPlatform undefined
+  _ <- runFn1 getPlatform undefined
   HA.runHalogenAff do
 
     -- To run our Halogen app, we'll need two things:

@@ -1,4 +1,4 @@
-module Web.Platform (getPlatform) where
+module TTHouse.Web.Platform (getPlatform) where
 
 import Prelude
 

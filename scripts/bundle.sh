@@ -9,8 +9,8 @@ go() {
    yes | rm node_modules/purescript/purs.bin
    cp $(which purs) node_modules/purescript 
    mv node_modules/purescript/purs node_modules/purescript/purs.bin
-   cp -r src/lib/Web/Bowser output/Web
    spago build
+   cp -r src/lib/TTHouse/Web/Bowser ./output/TTHouse.Web.Platform
    node esbuild.mjs
 }
 

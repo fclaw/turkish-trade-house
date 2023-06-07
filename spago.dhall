@@ -37,8 +37,6 @@
   , "dom-indexed"
   , "arrays"
   , "enums"
-  , "halogen-subscriptions"
-  , "tailrec"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
