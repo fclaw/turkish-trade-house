@@ -131,20 +131,18 @@ instance navigateAppM :: Navigate AppM where
 instance logMessagesAppM :: LogMessages AppM where
   logMessage log = do
     { config } <- getStore
-    let { logLevel, telegramHost, telegramBot, telegramChat } = config
-    case logLevel, reason log of
-      Prod, Debug -> pure unit
-      _, _ -> do
-        let url_msg = telegramHost <> telegramBot <> "/sendMessage"
-        let
-          body =
-            AXB.FormURLEncoded $
-              AXD.FormURLEncoded
-                [ Tuple "chat_id" (pure telegramChat)
-                , Tuple "text" (pure ("`" <> message log <> "`"))
-                , Tuple "parse_mode" (pure "markdown")
-                ] 
-        void $ H.liftAff $ fork $ AX.post AX.json url_msg (pure body)
+    let { telegramHost, telegramBot, telegramChat, toTelegram } = config
+    let url_msg = telegramHost <> telegramBot <> "/sendMessage"
+    let
+      body =
+        AXB.FormURLEncoded $
+          AXD.FormURLEncoded
+            [ Tuple "chat_id" (pure telegramChat)
+            , Tuple "text" (pure ("`" <> message log <> "`"))
+            , Tuple "parse_mode" (pure "markdown")
+            ] 
+    when toTelegram $ void $ H.liftAff $ fork $ AX.post AX.json url_msg (pure body)
+    H.liftEffect $ logShow $ message log
 
 -- | We're finally ready to write concrete implementations for each of our abstract capabilities.
 -- | For an in-depth description of each capability, please refer to the relevant `Capability.*`

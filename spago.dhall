@@ -11,7 +11,6 @@
   , "foldable-traversable"
   -- , "formatters"
   , "halogen"
-  , "newtype"
   , "prelude"
   -- , "profunctor"
   -- , "strings"
@@ -26,7 +25,6 @@
   , "safe-coerce"
   , "affjax-web"
   , "affjax"
-  , "foreign-object"
   , "form-urlencoded"
   , "functions"
   , "now" 
@@ -39,6 +37,8 @@
   , "dom-indexed"
   , "arrays"
   , "enums"
+  , "halogen-subscriptions"
+  , "tailrec"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

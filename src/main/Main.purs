@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Prelude (Unit, bind, ($), void, when, (/=), flip, (<<<))
+import Prelude
 
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
@@ -22,7 +22,7 @@ import Control.Monad.Error.Class (catchError)
 import Effect.Console (logShow)
 
 main :: Cfg.Config -> Effect Unit
-main config =
+main cfg = do 
   HA.runHalogenAff do
 
     -- To run our Halogen app, we'll need two things:
@@ -36,7 +36,7 @@ main config =
     -- We now have the three pieces of information necessary to configure our app. Let's create
     -- a record that matches the `Store` type our application requires by filling in these three
     -- fields. If our environment type ever changes, we'll get a compiler error here.
-    let initialStore = { config: config, affjaxError: Nothing }
+    let initialStore = { config: cfg, affjaxError: Nothing }
 
     -- With our app environment ready to go, we can prepare the router to run as our root component.
     --
