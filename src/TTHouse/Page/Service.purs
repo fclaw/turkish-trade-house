@@ -7,8 +7,6 @@ module TTHouse.Page.Service
 
 import Prelude
 
-import TTHouse.Component.Menu.Hamburger as HamburgerMenu
-
 import Halogen as H
 import Halogen.HTML as HH
 import Web.HTML.HTMLDocument (setTitle)
@@ -23,7 +21,7 @@ data Action = Initialize
 component mkBody =
   H.mkComponent
     { initialState: identity
-    , render: const $ HH.div_ [HH.slot_ HamburgerMenu.proxy unit HamburgerMenu.component unit, mkBody content ]
+    , render: const $ HH.div_ [mkBody content]
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
       , initialize = pure Initialize 

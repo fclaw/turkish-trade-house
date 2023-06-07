@@ -17,5 +17,6 @@ api.json
 openapitools.json
 
 src/App/Api/Foreign
+src/lib/Web/Bowser
 
 app/*.js
