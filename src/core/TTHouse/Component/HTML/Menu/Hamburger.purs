@@ -30,5 +30,5 @@ html r =
 mkItem route idx = HH.li_ [HH.a [safeHref (mkRoute idx), isDisabled (mkRoute idx == route)] [HH.text (show (mkRoute idx))] ] 
   where 
     mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
-    isDisabled true = HPExt.style "pointer-events: none; cursor: default;"
+    isDisabled true = HPExt.style "cursor: not-allowed;"
     isDisabled false = HPExt.style mempty
