@@ -1,4 +1,11 @@
-module TTHouse.Component.HTML.Utils where
+module TTHouse.Component.HTML.Utils
+  ( css
+  , maybeElem
+  , safeHref
+  , whenElem
+  , whenElemf
+  )
+  where
 
 import Prelude
 
@@ -27,6 +34,10 @@ maybeElem _ _ = HH.text ""
 -- | PureScript is a strict language. If we want to conditionally display an element, then we
 -- | should hide the evaluation behind a function, which won't be evaluated right away, in order
 -- | to minimize the work performed each render.
-whenElem :: forall p i. Boolean -> (Unit -> HH.HTML p i) -> HH.HTML p i
-whenElem cond f = if cond then f unit else HH.text ""
+whenElemf :: forall p i. Boolean -> (Unit -> HH.HTML p i) -> HH.HTML p i
+whenElemf cond f = if cond then f unit else HH.text ""
+
+whenElem :: forall p i. Boolean -> HH.HTML p i -> HH.HTML p i
+whenElem cond el = if cond then el else HH.div_ []
+
 
