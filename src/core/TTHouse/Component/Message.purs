@@ -4,6 +4,7 @@ import Prelude
 
 import TTHouse.Component.HTML.Utils (css, whenElem)
 import Halogen.HTML.Properties.Extended as HPExt
+import TTHouse.Api.Sendgrid as Sendgrid 
 
 import Halogen as H
 import Halogen.HTML as HH

@@ -36,7 +36,7 @@ main cfg = do
   ua <- window >>= navigator >>= userAgent
   pl <- map readPlatform $ runFn1 getPlatform ua
   
-  when (isNothing pl) $ throwError $ Excep.error "platform type is unknown"  
+  when (isNothing pl) $ throwError $ Excep.error "platform type is unknown"
 
   HA.runHalogenAff do
 

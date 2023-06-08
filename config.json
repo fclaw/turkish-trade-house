@@ -2,5 +2,10 @@
     "telegramBot": "bot2096396660:AAFgPJkIGmBOgbWuzvyejPJJo7-HpFgr2CY",
     "telegramChat": "-934720023",
     "telegramHost": "https://api.telegram.org/",
-    "toTelegram": false
+    "toTelegram": false,
+    "sendGrid": {
+        "apiKey": "687609c4fcmshcfd97d8b72c40edp100d24jsne547f1788ca2",
+        "spiHost": "rapidprod-sendgrid-v1.p.rapidapi.com",
+        "spiUrl": "https://rapidprod-sendgrid-v1.p.rapidapi.com/mail/send"
+    }
 }
