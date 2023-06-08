@@ -13,16 +13,13 @@ import Data.Array ((..))
 import Data.Enum (fromEnum, toEnum)
 import DOM.HTML.Indexed.InputType
 
--- taken from bootstrap (https://getbootstrap.com/docs/4.0/components/navbar/)
+-- taken from: https://codepen.io/albizan/pen/mMWdWZ
 html =
-    HH.div [HPExt.id "top"]
-    [
-        HH.nav [css "navbar navbar-expand-lg navbar-light bg-light"]
-        [
-            HH.div [css "collapse navbar-collapse", HPExt.id "navbarNavAltMarkup"]
-            [
-                HH.div [css "navbar-nav"]
-                [HH.ul_ (map mkItem (fromEnum Home .. fromEnum Service) )]
-            ]           
-        ]
-    ]
+  HH.div [HPExt.style "float: right; width: 300px"]
+  [
+     HH.nav [css "nav"]
+     [
+         HH.div [css "main_list", HPExt.id "mainListDiv"]
+         [HH.ul [css "navlinks"] (map mkItem (fromEnum Home .. fromEnum Service) )] 
+     ]
+  ]

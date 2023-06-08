@@ -22,7 +22,8 @@ html =
     ,   HH.div [css "hamburger"] [HH.div_ []]
     ,   HH.div [css "menu"]
         [
-            HH.div_ [HH.ul_ (map mkItem (fromEnum Home .. fromEnum Service) )]
+            HH.div [HPExt.style "#position: relative; #top: -50%;margin:0 auto;width:200px"] 
+            [HH.ul_ (map mkItem (fromEnum Home .. fromEnum Service) )]
         ]     
     ]
 
