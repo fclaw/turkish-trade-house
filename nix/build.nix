@@ -5,9 +5,10 @@ let
    python = pkgs.python;
    git = pkgs.git;
    ps = pkgs.purescript;
+   jdk = pkgs.jdk;
 in
 pkgs.mkShell { 
-  buildInputs = [ git nodejs ps ];
+  buildInputs = [ git nodejs ps jdk ];
   shellHook = ''
     npm install spago
     npm install purs-tidy

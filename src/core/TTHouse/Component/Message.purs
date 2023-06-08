@@ -5,6 +5,7 @@ import Prelude
 import TTHouse.Component.HTML.Utils (css, whenElem)
 import Halogen.HTML.Properties.Extended as HPExt
 import TTHouse.Api.Sendgrid as Sendgrid 
+import TTHouse.Capability.LogMessages (logError)
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -13,16 +14,20 @@ import Type.Proxy (Proxy(..))
 import Data.Maybe
 import Web.Event.Event (preventDefault)
 import Web.UIEvent.MouseEvent (toEvent, MouseEvent)
+import Effect.Aff (try)
+import Data.Either
 
 proxy = Proxy :: _ "message"
 
-data Action = ShowUp MouseEvent | Hide MouseEvent
+data Action = ShowUp | Hide | Submit MouseEvent
 
 type State = 
     { isFormUp :: Boolean
     , name :: Maybe String
     , email :: Maybe String
     , enquiry :: Maybe String
+    , error :: Maybe String
+    , isSent :: Boolean
     }
 
 component =
@@ -31,18 +36,27 @@ component =
        { isFormUp: false
        , name: Nothing
        , email: Nothing
-       , enquiry: Nothing }
+       , enquiry: Nothing
+       , error: Nothing
+       , isSent: false }
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction }
     }
     where 
-      handleAction (ShowUp ev) = do 
-        H.liftEffect $ preventDefault $ toEvent ev
+      handleAction ShowUp =
         H.modify_ _ { isFormUp = true }
-      handleAction (Hide ev) = do
-        H.liftEffect $ preventDefault $ toEvent ev
+      handleAction Hide =
         H.modify_ _ { isFormUp = false }
+      handleAction (Submit ev) = do 
+        H.liftEffect $ preventDefault $ toEvent ev
+        let handleSubmit (Right _) = H.modify_ _ { isSent = true }
+            handleSubmit (Left e) = do
+              H.modify_ _ { isSent = true, error = pure "error" }
+              logError $ show e
+        {name, email, enquiry} <- H.get
+        res <- H.liftAff $ try $ Sendgrid.send name email enquiry
+        handleSubmit res
 
 -- https://codepen.io/fclaw/pen/BaGyKpB
 render { isFormUp } = 
@@ -51,13 +65,13 @@ render { isFormUp } =
      whenElem (not isFormUp) $ 
        HH.span 
        [ HPExt.style "font-size: 60px; cursor: pointer; font-weight: bold;"
-       , HE.onClick ShowUp
+       , HE.onClick (const ShowUp)
        ] [HH.text "?"]
   ,  whenElem isFormUp $ HH.div [css "form"] [form]
   ]
 
 form = 
-  HH.form [ HE.onMouseLeave Hide ] 
+  HH.form [ HE.onMouseLeave (const Hide) ] 
   [ 
       HH.fieldset_
       [ 
@@ -86,6 +100,7 @@ form =
         [ HPExt.type_ HPExt.InputSubmit
         , HPExt.value "Sumbit"
         , css "btn" 
+        , HE.onClick Submit
         ]
     ]
   ]

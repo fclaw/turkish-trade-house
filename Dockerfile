@@ -30,7 +30,9 @@ COPY --chown=nix:nix . .
 
 RUN . /home/nix/.nix-profile/etc/profile.d/nix.sh && \ 
       nix-env -i purescript && \
-      nix-shell ./nix/build.nix --log-format bar-with-logs --command "npm install && npm run bundle"
+      nix-shell ./nix/build.nix \ 
+      --log-format bar-with-logs --command \
+     "npm install npm run generate_api -- https://raw.githubusercontent.com/sendgrid/sendgrid-oai/main/oai_v3_stoplight.json api-sendgrid.json SendGrid && && npm run bundle"
 
 FROM base as main
 

@@ -12,11 +12,11 @@ node_modules
 package-lock.json
 *.lock
 
-api.json
-
 openapitools.json
 
-src/App/Api/Foreign
+src/core/TTHouse/Api/Foreign/SendGrid
 src/lib/TTHouse/Web/Bowser
 
 app/*.js
+
+api*.json
