@@ -27,6 +27,7 @@ import TTHouse.Component.HTML.Header as Header
 import TTHouse.Component.HTML.Footer as Footer
 import TTHouse.Component.HTML.Body as Body
 import TTHouse.Component.HTML.Menu.Hamburger as HamburgerMenu
+import TTHouse.Component.HTML.Menu.Navbar as NavbarMenu
 
 import Data.Either (hush)
 import Data.Foldable (elem)
@@ -43,13 +44,11 @@ import Routing.Hash (getHash)
 import Type.Proxy (Proxy(..))
 import Undefined
 import Halogen.HTML.Properties as HP
-import Store (Store, printStore)
+import Store (Store, printStore, Platform)
 
 data Query a = Navigate Route a
 
-type State =
-  { route :: Maybe Route
-  }
+type State = { route :: Maybe Route }
 
 data Action
   = Initialize
@@ -89,24 +88,29 @@ component = H.mkComponent
     navigate $ fromMaybe Home initialRoute
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
-    H.modify_ _ { route = Just dest }
+    H.modify_ _ { route = pure dest }
     pure $ Just a
 
 params = 
   { header: Header.html
   , footer: Footer.html
   , hamburger: HamburgerMenu.html
+  , navbar: NavbarMenu.html
   }
 
-render :: forall m
+render :: forall m a
   . MonadAff m
   => Navigate m 
   => LogMessages m
   => Now m
+  => MonadStore a Store m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just Home } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params)) unit
+render { route: Just Home } = 
+  HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params)) unit
 render { route: Just Error } = HH.slot_ Error.proxy unit Error.component unit
-render { route: Just About } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params)) unit
-render { route: Just Service } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params)) unit
+render { route: Just About } = 
+  HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params)) unit
+render { route: Just Service } = 
+  HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params)) unit
 render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]

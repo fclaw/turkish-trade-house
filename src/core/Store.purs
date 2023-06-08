@@ -4,8 +4,10 @@
 -- | called a "store" by convention.
 module Store
   ( Action(..)
+  , Platform(..)
   , Store(..)
   , printStore
+  , readPlatform
   , reduce
   )
   where
@@ -18,6 +20,20 @@ import Affjax (Error, printError)
 import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Encode.Class (encodeJson)
 import Data.Maybe
+import Undefined
+
+data Platform = Desktop | Mobile
+
+derive instance eqPlatform :: Eq Platform
+derive instance ordPlatform :: Ord Platform
+
+readPlatform "desktop" = Desktop
+readPlatform "mobile" = Mobile
+readPlatform _ = undefined
+
+instance showPlatform :: Show Platform where
+  show Desktop = "desktop"
+  show Mobile = "mobile" 
 
 -- | We can now construct our central state which will be available to all
 -- | components (if they opt-in).
@@ -25,12 +41,16 @@ import Data.Maybe
 -- | First, we'll use a `LogLevel` flag to indicate whether we'd like to log
 -- | everything (`Dev`) or only critical messages (`Prod`). Next, we'll maintain
 -- | a configurable base URL. We'll also hold on to the currently-logged-in user.
-type Store = { config :: Config, affjaxError :: Maybe Error, platform :: String }
+type Store = 
+     { config :: Config
+     , affjaxError :: Maybe Error
+     , platform :: Platform
+     }
 
 printStore store = 
   "{config: " <> stringify (encodeJson (_.config store)) <> 
   ", affjaxError: " <> fromMaybe mempty (map printError (_.affjaxError store)) <> 
-  ", platform: " <> _.platform store <> "}"
+  ", platform: " <> show (_.platform store) <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that

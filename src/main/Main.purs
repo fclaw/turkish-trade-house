@@ -23,6 +23,7 @@ import Data.Function.Uncurried (runFn1)
 import Web.HTML.Navigator (userAgent)
 import Web.HTML.Window (navigator)
 import Web.HTML (window)
+import Store (readPlatform)
 
 import Effect.Console (logShow)
 
@@ -30,7 +31,7 @@ main :: Cfg.Config -> Effect Unit
 main cfg = do 
  
   ua <- window >>= navigator >>= userAgent
-  pl <- runFn1 getPlatform ua
+  pl <- map readPlatform $ runFn1 getPlatform ua
 
   HA.runHalogenAff do
 

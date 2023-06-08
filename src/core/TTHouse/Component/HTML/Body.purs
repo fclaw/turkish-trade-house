@@ -15,7 +15,6 @@ import Halogen.HTML as HH
 import TTHouse.Component.HTML.Utils (css)
 import Halogen.HTML.Properties.Extended as HPExt
 
-
 type Content i p = HH.HTML i p
 type Header i p = HH.HTML i p 
 type Body i p = HH.HTML i p
@@ -23,12 +22,11 @@ type Footer i p = HH.HTML i p
 
 type BodyHtml = 
      { header :: forall i p . Header i p
-     , footer :: forall i p . Footer i p 
-     , hamburger :: forall i p . HH.HTML i p
+     , footer :: forall i p . Footer i p
      }
 
-mkBodyHtml { header, footer, hamburger } content = 
-  HH.div_ [ hamburger, header, footer, contentWrapper content ]
+mkBodyHtml { header, footer, hamburger, navbar } platform width content = 
+  HH.div_ [ header platform width, footer, contentWrapper content ]
 
 contentWrapper content =
   HH.table_
