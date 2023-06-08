@@ -12,9 +12,9 @@ import Halogen.HTML.Properties.Extended as HPExt
 import Store (Platform (..))
 
 html :: forall i p. Platform -> Int -> HH.HTML i p
-html pl w = HH.div [css "page-header", HP.style "text-align: center"] [showMenu pl w]
+html pl w = HH.div [css "page-header"] [showMenu pl w]
 
-showMenu Mobile _ = HH.div_ [Hamburger.html]
+showMenu Mobile _ = Hamburger.html
 showMenu _ w 
   | w > 500 = Navbar.html
-  | otherwise = HH.div_ [Hamburger.html]
+  | otherwise = Hamburger.html

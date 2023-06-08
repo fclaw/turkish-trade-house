@@ -7,6 +7,8 @@ module TTHouse.Page.Home
 
 import Prelude
 
+import TTHouse.Page.Subscription.WinResize as WinResize 
+
 import Halogen as H
 import Halogen.HTML as HH
 import Web.HTML.HTMLDocument (setTitle)
@@ -15,12 +17,11 @@ import Web.HTML (window)
 import Type.Proxy (Proxy(..))
 import Store (Platform)
 import Data.Maybe
-import Undefined
-import Halogen.Store.Monad (class MonadStore, getStore)
+import Halogen.Store.Monad (getStore)
 
 proxy = Proxy :: _ "home"
 
-data Action = Initialize
+data Action = Initialize | WinResize Int
 
 type State = { winWidth :: Maybe Int, platform :: Maybe Platform }
 
@@ -42,5 +43,7 @@ component mkBody =
         w <- H.liftEffect $ window >>= innerWidth
         H.modify_ _ { platform = pure platform, winWidth = pure w }
         H.liftEffect $ window >>= document >>= setTitle "TTH" 
+        void $ H.subscribe =<< WinResize.subscribe WinResize
+      handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
 
 content = HH.text "home"

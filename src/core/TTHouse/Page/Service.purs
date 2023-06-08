@@ -7,6 +7,8 @@ module TTHouse.Page.Service
 
 import Prelude
 
+import TTHouse.Page.Subscription.WinResize as WinResize
+
 import Halogen as H
 import Halogen.HTML as HH
 import Web.HTML.HTMLDocument (setTitle)
@@ -15,11 +17,11 @@ import Web.HTML (window)
 import Type.Proxy (Proxy(..))
 import Store (Platform)
 import Data.Maybe
-import Undefined
+import Halogen.Store.Monad (getStore)
 
 proxy = Proxy :: _ "service"
 
-data Action = Initialize
+data Action = Initialize | WinResize Int
 
 type State = { winWidth :: Maybe Int, platform :: Maybe Platform  }
 
@@ -35,7 +37,14 @@ component mkBody =
     where 
       render {winWidth: Just w, platform: Just p} = 
         HH.div_ [mkBody p w content]
-      render _ = undefined
+      render _ = HH.div_ []
+      handleAction Initialize = do
+        { platform } <- getStore
+        w <- H.liftEffect $ window >>= innerWidth
+        H.modify_ _ { platform = pure platform, winWidth = pure w }
+        H.liftEffect $ window >>= document >>= setTitle "TTH" 
+        void $ H.subscribe =<< WinResize.subscribe WinResize
+      handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
 
 handleAction Initialize = H.liftEffect $ window >>= document >>= setTitle "Service | TTH" 
 
