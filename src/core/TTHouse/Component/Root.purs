@@ -106,11 +106,11 @@ render :: forall m a
   => MonadStore a Store m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just Home } = 
-  HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params)) unit
+render { route: Just r@Home } = 
+  HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r)) unit
 render { route: Just Error } = HH.slot_ Error.proxy unit Error.component unit
-render { route: Just About } = 
-  HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params)) unit
-render { route: Just Service } = 
-  HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params)) unit
+render { route: Just r@About } = 
+  HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@Service } = 
+  HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r)) unit
 render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]

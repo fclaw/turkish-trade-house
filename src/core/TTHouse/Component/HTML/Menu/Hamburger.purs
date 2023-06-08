@@ -15,7 +15,7 @@ import Data.Maybe
 import Undefined
 
 -- I piggyback on the following implementation https://codepen.io/alvarotrigo/pen/PoJGObg
-html =
+html r =
     HH.div_
     [
         HH.input [HPExt.type_ InputCheckbox, css "toggler"]
@@ -23,9 +23,12 @@ html =
     ,   HH.div [css "menu"]
         [
             HH.div [HPExt.style "#position: relative; #top: -50%;margin:0 auto;width:200px"] 
-            [HH.ul_ (map mkItem (fromEnum Home .. fromEnum Service) )]
+            [HH.ul_ (map (mkItem r) (fromEnum Home .. fromEnum Service) )]
         ]     
     ]
 
-mkItem idx = HH.li_ [HH.a [safeHref (mkRoute idx) ] [HH.text (show (mkRoute idx))] ] 
-  where mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
+mkItem route idx = HH.li_ [HH.a [safeHref (mkRoute idx), isDisabled (mkRoute idx == route)] [HH.text (show (mkRoute idx))] ] 
+  where 
+    mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
+    isDisabled true = HPExt.style "pointer-events: none; cursor: default;"
+    isDisabled false = HPExt.style mempty
