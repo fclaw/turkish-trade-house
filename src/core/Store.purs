@@ -27,9 +27,9 @@ data Platform = Desktop | Mobile
 derive instance eqPlatform :: Eq Platform
 derive instance ordPlatform :: Ord Platform
 
-readPlatform "desktop" = Desktop
-readPlatform "mobile" = Mobile
-readPlatform _ = undefined
+readPlatform "desktop" = Just Desktop
+readPlatform "mobile" = Just Mobile
+readPlatform _ = Nothing
 
 instance showPlatform :: Show Platform where
   show Desktop = "desktop"

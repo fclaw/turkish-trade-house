@@ -17,13 +17,16 @@ import AppM as AppM
 import Data.Unit
 import Routing.Hash (matchesWith)
 import Routing.Duplex (parse)
-import Control.Monad.Error.Class (catchError)
+import Control.Monad.Error.Class (catchError, throwError)
 import TTHouse.Web.Platform (getPlatform)
 import Data.Function.Uncurried (runFn1)
 import Web.HTML.Navigator (userAgent)
 import Web.HTML.Window (navigator)
 import Web.HTML (window)
 import Store (readPlatform)
+import Data.Maybe
+import Effect.Exception as Excep
+import Undefined
 
 import Effect.Console (logShow)
 
@@ -32,6 +35,8 @@ main cfg = do
  
   ua <- window >>= navigator >>= userAgent
   pl <- map readPlatform $ runFn1 getPlatform ua
+  
+  when (isNothing pl) $ throwError $ Excep.error "platform type is unknown"  
 
   HA.runHalogenAff do
 
@@ -46,7 +51,7 @@ main cfg = do
     -- We now have the three pieces of information necessary to configure our app. Let's create
     -- a record that matches the `Store` type our application requires by filling in these three
     -- fields. If our environment type ever changes, we'll get a compiler error here.
-    let initialStore = { config: cfg, affjaxError: Nothing, platform: pl }
+    let initialStore = { config: cfg, affjaxError: Nothing, platform: fromMaybe undefined pl }
 
     -- With our app environment ready to go, we can prepare the router to run as our root component.
     --
