@@ -8,7 +8,7 @@ let
    jdk = pkgs.jdk;
 in
 pkgs.mkShell { 
-  buildInputs = [ git nodejs ps jdk ];
+  buildInputs = [ git nodejs ps jdk python3 ];
   shellHook = ''
     npm install spago
     npm install purs-tidy

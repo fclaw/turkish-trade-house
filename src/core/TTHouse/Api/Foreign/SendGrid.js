@@ -16,16 +16,20 @@ export const mkMailSendApi = function(api) {
     }
 }
 
-export const mkPOSTMailSendRequest = 
-  function(xs, email, subject, content) {
-    return () => { return new e.POSTMailSendRequest(xs, email, subject, content); };
-  }
+export const mkPOSTMailSendRequest =
+    function(xs, email, subject, content) {
+        return () => {
+            return new e.POSTMailSendRequest(xs, email, subject, content);
+        };
+    }
 
-export const send = 
-  function(req, api) {
-    return function (onError, onOk) { 
-        api.pOSTMailSend(req).then(onOk).catch(onError) 
-    };
-  }
+export const send =
+    function(req, api) {
+        return function(onError, onOk) {
+            api.pOSTMailSend(req).then(onOk).catch(onError)
+        };
+    }
 
-export const print = function(obj) { return JSON.stringify(obj); }
+export const print = function(obj) {
+    return JSON.stringify(obj);
+}
