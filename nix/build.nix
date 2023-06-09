@@ -14,6 +14,7 @@ pkgs.mkShell {
     npm install purs-tidy
     npm install --save-exact esbuild
     npm install @openapitools/openapi-generator-cli -D
+    npm install js-beautify
     npm install querystring
     npm install superagent
     export PATH="./node_modules/.bin:$PATH"
