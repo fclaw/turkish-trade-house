@@ -63,12 +63,12 @@ component =
         {name, email, enquiry} <- H.get
         req <- H.liftEffect $ 
                  runFn4 Sendgrid.mkPOSTMailSendRequest 
-                 (singleton undefined) 
-                 undefined 
-                 undefined 
-                 undefined
+                 (singleton {to: Sendgrid.Email {email: "fasc"}, subject: "test"}) 
+                 (Sendgrid.Email {email: "wedf"})
+                 "qweds" 
+                 "wqew"
         logDebug $ Sendgrid.print req         
-        res <- Request.make undefined Sendgrid.mkMailSendApi $ runFn2 Sendgrid.send req
+        res <- Request.make "ewqdsf" Sendgrid.mkMailSendApi $ runFn2 Sendgrid.send req
         handleSubmit res
 
 -- https://codepen.io/fclaw/pen/BaGyKpB
