@@ -41,6 +41,7 @@
   , "tailrec"
   , "web-events"
   , "web-uievents"
+  , "foreign"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

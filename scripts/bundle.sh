@@ -11,6 +11,7 @@ go() {
    mv node_modules/purescript/purs node_modules/purescript/purs.bin
    spago build
    cp -r src/lib/TTHouse/Web/Bowser ./output/TTHouse.Web.Platform
+   cp -r src/core/TTHouse/Api/Foreign/SendGrid ./output/TTHouse.Api.Foreign.SendGrid
    node esbuild.mjs
 }
 

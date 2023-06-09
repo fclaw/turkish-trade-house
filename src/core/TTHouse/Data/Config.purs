@@ -13,8 +13,7 @@ import Data.Either
 
 type SendGrid = 
      { apiKey :: String
-     , spiHost :: String
-     , spiUrl :: String
+     , apiId :: String
      }
 
 sendGridToJson :: SendGrid -> Json

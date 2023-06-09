@@ -4,8 +4,9 @@ import Prelude
 
 import TTHouse.Component.HTML.Utils (css, whenElem)
 import Halogen.HTML.Properties.Extended as HPExt
-import TTHouse.Api.Sendgrid as Sendgrid 
+import TTHouse.Api.Foreign.SendGrid as Sendgrid 
 import TTHouse.Capability.LogMessages (logError)
+import TTHouse.Api.Foreign.Request as Request
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -16,6 +17,9 @@ import Web.Event.Event (preventDefault)
 import Web.UIEvent.MouseEvent (toEvent, MouseEvent)
 import Effect.Aff (try)
 import Data.Either
+import Data.Function.Uncurried (runFn5)
+import Undefined
+import Data.Array.NonEmpty (singleton)
 
 proxy = Proxy :: _ "message"
 
@@ -55,7 +59,8 @@ component =
               H.modify_ _ { isSent = true, error = pure "error" }
               logError $ show e
         {name, email, enquiry} <- H.get
-        res <- H.liftAff $ try $ Sendgrid.send name email enquiry
+        res <- Request.make undefined Sendgrid.mkMailSendApi $ 
+                runFn5 Sendgrid.send (singleton undefined) undefined undefined undefined
         handleSubmit res
 
 -- https://codepen.io/fclaw/pen/BaGyKpB
