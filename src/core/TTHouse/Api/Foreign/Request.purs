@@ -23,5 +23,5 @@ make
   (api -> AC.EffectFnAff Foreign) -> 
   m (Either Error Foreign)
 make key mkApi runApi = do
- api <- H.liftEffect $ do runFn1 mkApiClient key >>= mkApi
- H.liftAff $ try $ AC.fromEffectFnAff $ runApi api
+  api <- H.liftEffect $ do runFn1 mkApiClient key >>= mkApi
+  H.liftAff $ try $ AC.fromEffectFnAff $ runApi api

@@ -3,7 +3,7 @@ module TTHouse.Api.Foreign.SendGrid where
 
 import Prelude
 
-import Data.Function.Uncurried (Fn1, Fn5)
+import Data.Function.Uncurried (Fn1, Fn4, Fn2)
 import Foreign (Foreign)
 import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Effect (Effect)
@@ -11,6 +11,7 @@ import Effect.Aff.Compat as AC
 
 foreign import data ApiClient :: Type
 foreign import data MailSendApi :: Type
+foreign import data POSTMailSendRequest :: Type
 
 type ApiKey = String
 
@@ -25,4 +26,8 @@ type Content = String
 
 foreign import mkMailSendApi :: Fn1 ApiClient (Effect MailSendApi)
 
-foreign import send :: Fn5 (NonEmptyArray Personalization) Email Subject Content MailSendApi (AC.EffectFnAff Foreign)
+foreign import mkPOSTMailSendRequest :: Fn4 (NonEmptyArray Personalization) Email Subject Content (Effect POSTMailSendRequest)
+
+foreign import send :: Fn2 POSTMailSendRequest MailSendApi (AC.EffectFnAff Foreign)
+
+foreign import print :: forall a . Fn1 a String
