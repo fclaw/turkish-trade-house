@@ -22,6 +22,8 @@ import Data.Array.NonEmpty (singleton)
 import Data.Argonaut.Encode
 import Data.Argonaut.Core (stringify)
 import Halogen.Store.Monad (getStore)
+import Effect.Aff (Milliseconds(..), delay)
+import Effect.Aff.Class (liftAff)
 
 proxy = Proxy :: _ "message"
 
@@ -31,6 +33,7 @@ data Action =
      | FillName String 
      | FillEmail String 
      | FillEnquiry String
+     | RollBack
 
 type State = 
     { isFormUp :: Boolean
@@ -71,6 +74,7 @@ component =
                 , name = Nothing
                 , enquiry = Nothing
                 , error = Nothing }
+              handleAction RollBack    
             handleSubmit (Left e) = do
               H.modify_ _ { 
                   isSent = true
@@ -97,6 +101,9 @@ component =
       handleAction (FillName v) = H.modify_ _ { name = Just v }
       handleAction (FillEmail v) = H.modify_ _ { email = Just v }
       handleAction (FillEnquiry v) = H.modify_ _ { enquiry = Just v }
+      handleAction RollBack = do 
+        liftAff $ delay $ Milliseconds 2000.0
+        H.modify_ _ { isFormUp = false, isSent = false }
 
 validate nameM emailM enquiryM = do
   name <- nameM
