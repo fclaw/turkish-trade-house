@@ -40,8 +40,8 @@
   , "halogen-subscriptions"
   , "tailrec"
   , "web-events"
-  , "web-uievents"
   , "foreign"
+  , "foreign-object"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

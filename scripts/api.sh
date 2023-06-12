@@ -10,7 +10,6 @@ generate() {
   openapi-generator-cli \
   generate -i $file -g javascript -o src/core/TTHouse/Api/Foreign/$api \
   --additional-properties=usePromises=true,emitModelMethods=true
-   python ./scripts/api_replace_broken_lines.py
    find src/ -type f -name "*.js" -exec js-beautify -r {} \;
 }
 
