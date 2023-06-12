@@ -3,8 +3,5 @@
     "telegramChat": "-934720023",
     "telegramHost": "https://api.telegram.org/",
     "toTelegram": false,
-    "sendGrid": {
-        "apiKey": "687609c4fcmshcfd97d8b72c40edp100d24jsne547f1788ca2",
-        "apiId": "TavxJnrwSPi9hVsUYLXIQg"
-    }
+    "scaffoldHost": "https://back-g52bgv5bua-ew.a.run.app"
 }
