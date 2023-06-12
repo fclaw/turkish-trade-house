@@ -144,10 +144,11 @@ form =
           ]
       ,   HH.div [css "form-group"] 
           [ 
-              HH.input 
+              HH.textarea
               [ HPExt.placeholder "Message"
-              , HPExt.type_ HPExt.InputText
               , HE.onValueInput FillEnquiry
+              , HPExt.rows 10
+              , HPExt.style "resize:none"
               ]
           ] 
       ,   HH.input 
