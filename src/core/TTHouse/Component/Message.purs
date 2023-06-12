@@ -86,7 +86,7 @@ component =
           Just { email, name, enquiry } -> do
             req <- H.liftEffect $ 
                     runFn1 Scaffold.mkScaffoldApiControllerSendGridSendMailRequest
-                    { from: Scaffold.Email {email: email}
+                    { from: email
                     , personalization: name
                     , subject: "enquiry"
                     , body: enquiry }

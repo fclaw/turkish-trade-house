@@ -25,17 +25,12 @@ foreign import printError :: Error -> String
 
 foreign import mkApiClient :: Fn1 String (Effect ApiClient)
 
-newtype Email = Email { email :: String }
-
-configToJson :: Email -> Json
-configToJson (Email email) = encodeJson email 
-
 type Subject = String 
 type Content = String
 
 foreign import mkSendGridApi :: Fn1 ApiClient (Effect SendGridApi)
 
-type SendGridSendMailRequestBody = { from :: Email, personalization :: String, subject :: String, body :: String }
+type SendGridSendMailRequestBody = { from :: String, personalization :: String, subject :: String, body :: String }
 
 foreign import mkScaffoldApiControllerSendGridSendMailRequest :: Fn1 SendGridSendMailRequestBody (Effect ScaffoldApiControllerSendGridSendMailRequest)
 

@@ -9,7 +9,7 @@ import TTHouse.Data.Config as Cfg
 import Effect (Effect)
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
-import Data.Maybe (Maybe (..))
+import Data.Maybe (Maybe (..), isNothing, fromMaybe)
 import Effect.Aff (launchAff_)
 import Halogen (liftEffect)
 import Halogen as H
@@ -24,7 +24,6 @@ import Web.HTML.Navigator (userAgent)
 import Web.HTML.Window (navigator)
 import Web.HTML (window)
 import Store (readPlatform)
-import Data.Maybe
 import Effect.Exception as Excep
 import Undefined
 
