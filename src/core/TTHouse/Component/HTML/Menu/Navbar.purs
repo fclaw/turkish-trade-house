@@ -15,11 +15,10 @@ import DOM.HTML.Indexed.InputType
 
 -- taken from: https://codepen.io/albizan/pen/mMWdWZ
 html r =
-  HH.div [HPExt.style "float: right; width: 300px"]
-  [
-     HH.nav [css "nav"]
-     [
-         HH.div [css "main_list", HPExt.id "mainListDiv"]
-         [HH.ul [css "navlinks"] (map (mkItem r) (fromEnum Home .. fromEnum Feedback) )] 
-     ]
-  ]
+  HH.div [css "wrapper"]
+  [ 
+      HH.nav [css "navbar navbar-expand-lg navbar-light bg-light"]
+      [
+          HH.ul [css "navbar-nav"] (map (mkItem r) (fromEnum Home .. fromEnum Feedback) ) 
+      ]
+  ]   
