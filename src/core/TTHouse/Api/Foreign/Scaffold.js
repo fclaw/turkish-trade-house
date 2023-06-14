@@ -1,4 +1,5 @@
 import * as e from './Scaffold/src/index';
+import ScaffoldApiControllerFrontendContentContent from './Scaffold/src/model/ScaffoldApiControllerFrontendContentContent';
 
 export const mkApiClient = function(host) {
     return () => {
@@ -29,11 +30,38 @@ export const send =
         };
     }
 
-export const getDataFromResponseImpl = left => right => resp => { 
-    e.Response.validateJSON(resp); 
-    let success = e.Response.constructFromObject(resp).getSuccess(); 
-    let error = e.Response.constructFromObject(resp).getError();
-    return () => { return success !== undefined ? right(success) : left(error); };
+export const getDataFromResponseImpl = left => right => resp => {
+    let success = resp.getSuccess();
+    let error = resp.getError();
+    return () => {
+        return success !== undefined ? right(success) : left(error);
+    };
 }
 
-export const printError = (err) => { return err.getMessage(); }
+export const printError = (err) => {
+    return err.getMessage();
+}
+
+export const mkFrontApi = function(api) {
+    return () => {
+        return new e.FrontApi(api);
+    }
+}
+
+export const init =
+    function(api) {
+        return function(onError, onOk) {
+            api.apiFrontendInitGet().then(onOk).catch(onError)
+        };
+    }
+
+export const printScaffoldApiControllerFrontendContentContent =
+    function(obj) {
+        return "{" + obj.getHome() + ", " + obj.getAbout() + ", " + obj.getService();
+    }
+
+export const getHomeContent = (obj) => { return obj.getHome(); }
+
+export const getAboutContent = (obj) => { return obj.getHome(); }
+
+export const getServiceContent = (obj) => { return obj.getHome(); }

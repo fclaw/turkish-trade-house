@@ -14,7 +14,7 @@ package-lock.json
 
 openapitools.json
 
-src/core/TTHouse/Api/Foreign/SendGrid
+src/core/TTHouse/Api/Foreign/Scaffold
 src/lib/TTHouse/Web/Bowser
 
 app/*.js

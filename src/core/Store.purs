@@ -6,6 +6,7 @@ module Store
   ( Action(..)
   , Platform(..)
   , Store(..)
+  , initAppStore
   , printStore
   , readPlatform
   , reduce
@@ -20,7 +21,22 @@ import Affjax (Error, printError)
 import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Encode.Class (encodeJson)
 import Data.Maybe
+import Effect (Effect)
+import TTHouse.Api.Foreign.Scaffold as Scaffold 
+import TTHouse.Capability.LogMessages (logError, logDebug)
+import TTHouse.Api.Foreign.Request as Request
+import Data.Function.Uncurried (runFn1)
+import Effect.Aff (Aff)
+import Data.Traversable (for)
+import Effect.Class (liftEffect)
+import Control.Monad.Error.Class (throwError)
+import Data.Either
+import Effect.Exception as Excep
+import Data.Bifunctor (lmap)
 import Undefined
+import Data.Function.Uncurried (runFn0)
+import Data.Traversable (sequence)
+
 
 data Platform = Desktop | Mobile
 
@@ -45,12 +61,14 @@ type Store =
      { config :: Config
      , affjaxError :: Maybe Error
      , platform :: Platform
+     , content :: Scaffold.ScaffoldApiControllerFrontendContentContent
      }
 
 printStore store = 
   "{config: " <> stringify (encodeJson (_.config store)) <> 
   ", affjaxError: " <> fromMaybe mempty (map printError (_.affjaxError store)) <> 
-  ", platform: " <> show (_.platform store) <> "}"
+  ", platform: " <> show (_.platform store) <> 
+  ", content: " <> show (_.content store) <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that
@@ -66,3 +84,8 @@ data Action = WriteAffjaxError Error
 -- | documentation!
 reduce :: Store -> Action -> Store
 reduce store (WriteAffjaxError err) = store { affjaxError = Just err }
+
+initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendContentContent)
+initAppStore host = do
+  resp <- Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init
+  map join $ for resp $ map (lmap (Excep.error <<< show)) <<< liftEffect <<< Scaffold.getDataFromResponse

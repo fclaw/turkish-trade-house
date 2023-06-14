@@ -20,6 +20,7 @@ import TTHouse.Page.Home as Home
 import TTHouse.Page.Service as Service
 import TTHouse.Page.About as About
 import TTHouse.Page.Error as Error
+import TTHouse.Page.Feedback as Feedback
 import TTHouse.Capability.Navigate
 import TTHouse.Capability.LogMessages (class LogMessages, logDebug)
 import TTHouse.Capability.Now (class Now)
@@ -58,6 +59,7 @@ type ChildSlots =
   , error :: OpaqueSlot Unit
   , about :: OpaqueSlot Unit
   , service :: OpaqueSlot Unit
+  , feedback :: OpaqueSlot Unit
   )
 
 component
@@ -100,17 +102,15 @@ params =
 
 render :: forall m a
   . MonadAff m
-  => Navigate m 
+  => Navigate m
   => LogMessages m
   => Now m
   => MonadStore a Store m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just r@Home } = 
-  HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@Home } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r)) unit
 render { route: Just Error } = HH.slot_ Error.proxy unit Error.component unit
-render { route: Just r@About } = 
-  HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r)) unit
-render { route: Just r@Service } = 
-  HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@About } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@Service } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@Feedback } = HH.slot_ Feedback.proxy unit (Feedback.component (Body.mkBodyHtml params r)) unit
 render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]

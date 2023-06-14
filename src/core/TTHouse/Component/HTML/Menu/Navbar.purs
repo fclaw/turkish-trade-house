@@ -20,6 +20,6 @@ html r =
      HH.nav [css "nav"]
      [
          HH.div [css "main_list", HPExt.id "mainListDiv"]
-         [HH.ul [css "navlinks"] (map (mkItem r) (fromEnum Home .. fromEnum Service) )] 
+         [HH.ul [css "navlinks"] (map (mkItem r) (fromEnum Home .. fromEnum Feedback) )] 
      ]
   ]
