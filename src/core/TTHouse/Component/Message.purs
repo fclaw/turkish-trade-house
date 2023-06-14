@@ -1,3 +1,4 @@
+-- https://codepen.io/fclaw/pen/dyQGMPN
 module TTHouse.Component.Message (component, proxy) where
 
 import Prelude
@@ -129,14 +130,13 @@ validate nameM emailM enquiryM =
   <*> (maybe (invalid (singleton "enquiry")) pure enquiryM)
 
 -- https://codepen.io/fclaw/pen/BaGyKpB
-render {error, isSent, isClick } = 
-  HH.div_
-  [  whenElem (not isSent) $ HH.div [css "form"] [form error isClick]
-  ,  whenElem (isSent) $ success
-  ]
+render {error, isSent, isClick } =
+  if not isSent 
+  then HH.div [css "form"] [form error isClick]
+  else success
 
 form xs isClick = 
-  HH.form [ HE.onSubmit MakeRequest, css "needs-validation", HPExt.style "width:400px;"]
+  HH.form [ HE.onSubmit MakeRequest, css "needs-validation", HPExt.style "width:30px; margin: 0 auto;"]
   [ 
       HH.div [css "form-group"]
       [

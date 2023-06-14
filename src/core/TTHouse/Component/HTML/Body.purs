@@ -29,25 +29,25 @@ mkBodyHtml { header, footer, hamburger, navbar } route platform width content =
   HH.div_ [ header route platform width, footer, contentWrapper content ]
 
 contentWrapper content =
-  HH.table [HPExt.style "margin: 0 auto;"]
+  HH.table [HPExt.style "margin: 0 auto; width:100%;"]
   [
       HH.thead_ 
       [
-         HH.tr_ 
+         HH.tr [HPExt.style "width:100%;"]
          [
              HH.td_ [HH.div [css "page-header-space"] []]
          ]
       ]
   ,   HH.tbody_
       [
-         HH.tr_
+         HH.tr [HPExt.style "width:100%;"]
          [
-            HH.td_ [HH.div [HPExt.style "display: flex; justify-content: center;"] [content]] 
+            HH.td_ [HH.div_ [content]] 
          ]
       ]
   ,   HH.tfoot_ 
       [
-         HH.tr_ 
+         HH.tr [HPExt.style "width:100%;"]
          [
            HH.td_ [HH.div [css "page-footer-space"] []]
          ]

@@ -23,7 +23,7 @@ html r =
     ,   HH.div [css "menu"]
         [
             HH.div [HPExt.style "#position: relative; #top: -50%;margin:0 auto;width:200px"] 
-            [HH.ul_ (map (mkItem r) (fromEnum Home .. fromEnum Feedback) )]
+            [HH.ul_ (map (mkItem r) (fromEnum Home .. fromEnum Service) )]
         ]     
     ]
 

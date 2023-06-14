@@ -19,6 +19,6 @@ html r =
   [ 
       HH.nav [css "navbar navbar-expand-lg navbar-light bg-light"]
       [
-          HH.ul [css "navbar-nav"] (map (mkItem r) (fromEnum Home .. fromEnum Feedback) ) 
+          HH.ul [css "navbar-nav"] (map (mkItem r) (fromEnum Home .. fromEnum Service) ) 
       ]
   ]   

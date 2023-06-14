@@ -36,8 +36,7 @@ data Route
   | Home
   | About
   | Service 
-  | Feedback
-
+ 
 derive instance genericRoute :: Generic Route _
 derive instance eqRoute :: Eq Route
 derive instance ordRoute :: Ord Route
@@ -47,7 +46,6 @@ instance showRoute :: Show Route where
   show Error = "error"
   show About = "about"
   show Service = "service"
-  show Feedback = "feedback"
 
 instance enumRoute :: Enum Route where 
   succ = genericSucc
@@ -59,7 +57,7 @@ instance boundedEnumRoute :: BoundedEnum Route where
   fromEnum = genericFromEnum
 
 instance boundedRoute :: Bounded Route where 
-  top = Feedback
+  top = Service
   bottom = Error
 
 -- | Next, we'll define a bidirectional codec for our route parsing. Our single codec will handle
@@ -74,5 +72,4 @@ routeCodec = root $ sum
   , "Error": "error" / noArgs
   , "About": "about" / noArgs
   , "Service": "service" / noArgs
-  , "Feedback": "feedback" / noArgs
   }
