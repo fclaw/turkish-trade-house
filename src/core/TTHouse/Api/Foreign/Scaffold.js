@@ -1,5 +1,4 @@
 import * as e from './Scaffold/src/index';
-import ScaffoldApiControllerFrontendContentContent from './Scaffold/src/model/ScaffoldApiControllerFrontendContentContent';
 
 export const mkApiClient = function(host) {
     return () => {
