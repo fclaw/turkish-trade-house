@@ -130,13 +130,27 @@ validate nameM emailM enquiryM =
   <*> (maybe (invalid (singleton "enquiry")) pure enquiryM)
 
 -- https://codepen.io/fclaw/pen/BaGyKpB
+
+imgUrl = "https://lh3.googleusercontent.com/-LvTWzTOL4c0/V2yhfueroyI/AAAAAAAAGZM/Ebwt4EO4YlIc03tw8wVsGrgoOFGgAsu4wCEw/w140-h140-p/43bf8578-86b8-4c1c-86a6-a556af8fba13"
+
 render {error, isSent, isClick } =
-  if not isSent 
-  then HH.div [css "form"] [form error isClick]
-  else success
+  HH.div [css "container"] 
+  [
+      HH.div [css "row"]
+      [
+          HH.div [css "nb-form"]
+          [
+             HH.p [css "title"] [HH.text "Send a message"]
+          ,  HH.img [HPExt.src imgUrl, css "user-icon"]
+          ,  if not isSent
+             then form error isClick
+             else success
+          ] 
+      ]
+  ]
 
 form xs isClick = 
-  HH.form [ HE.onSubmit MakeRequest, css "needs-validation", HPExt.style "width:30px; margin: 0 auto;"]
+  HH.form [ HE.onSubmit MakeRequest, css "needs-validation"]
   [ 
       HH.div [css "form-group"]
       [
