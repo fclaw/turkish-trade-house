@@ -24,6 +24,11 @@ import Data.Argonaut.Core (stringify)
 import Halogen.Store.Monad (getStore)
 import Effect.Aff (Milliseconds(..), delay)
 import Effect.Aff.Class (liftAff)
+import Data.Array.NonEmpty hiding (length)
+import Data.Validation.Semigroup
+import Data.String
+import Data.String.Pattern
+import Effect.Console (logShow)
 
 proxy = Proxy :: _ "message"
 
@@ -38,8 +43,10 @@ type State =
     { name :: Maybe String
     , email :: Maybe String
     , enquiry :: Maybe String
-    , error :: Maybe String
+    , error :: Maybe (NonEmptyArray String) 
+    , serverError :: Maybe String
     , isSent :: Boolean
+    , isClick :: Boolean
     }
 
 type RequestBody = { email :: String, name :: String, enquiry :: String }
@@ -49,7 +56,9 @@ defState =
    , email: Nothing
    , enquiry: Nothing
    , error: Nothing
-   , isSent: false }
+   , isSent: false
+   , isClick: false
+   , serverError: Nothing }
 
 component =
   H.mkComponent
@@ -69,21 +78,24 @@ component =
                 , email = Nothing
                 , name = Nothing
                 , enquiry = Nothing
-                , error = Nothing }
+                , error = Nothing
+                , isClick = false
+                , serverError = Nothing }
               handleAction RollBack    
             handleSubmit (Left e) = do
               H.modify_ _ { 
                   isSent = true
-                , error = pure "error"
+                , serverError = pure (show e)
                 , email = Nothing
                 , name = Nothing
-                , enquiry = Nothing }
+                , enquiry = Nothing
+                , isClick = false }
               logError $ show e
         state@{name, email, enquiry} <- H.get
         { config: {scaffoldHost: host} } <- getStore
-        let res = validate name email enquiry
+        let res = toEither $ validate name email enquiry
         case res of 
-          Just { email, name, enquiry } -> do
+          Right { email, name, enquiry } -> do
             req <- H.liftEffect $ 
                     runFn1 Scaffold.mkScaffoldApiControllerSendGridSendMailRequest
                     { from: email
@@ -92,64 +104,84 @@ component =
                     , body: enquiry }
             logDebug $ show state         
             resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
-            handleSubmit resp
-          Nothing -> H.modify_ _ { isSent = false, error = pure "all fields are required" }
-      handleAction (FillName v) = H.modify_ _ { name = Just v }
-      handleAction (FillEmail v) = H.modify_ _ { email = Just v }
-      handleAction (FillEnquiry v) = H.modify_ _ { enquiry = Just v }
+            handleSubmit resp 
+          Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true }
+      handleAction (FillName v) = 
+        if length v > 0 then 
+           H.modify_ \s -> s { name = Just v, error = join $ map (fromArray <<< delete "name") (_.error s) }
+        else H.modify_ _ { name = Nothing }
+      handleAction (FillEmail v) =
+        if length v > 0 then 
+           H.modify_ \s -> s { email = Just v, error = join $ map (fromArray <<< delete "email") (_.error s) }
+        else H.modify_ _ { email = Nothing }
+      handleAction (FillEnquiry v) =
+        if length v > 0 then 
+           H.modify_ \s -> s { enquiry = Just v, error = join $ map (fromArray <<< delete "enquiry") (_.error s) }
+        else H.modify_ _ { enquiry = Nothing }
       handleAction RollBack = do 
         liftAff $ delay $ Milliseconds 2000.0
         H.modify_ _ { isSent = false }
 
-validate nameM emailM enquiryM = do
-  name <- nameM
-  email <- emailM
-  enquiry <- enquiryM
-  pure $ { email: email, name: name, enquiry: enquiry }
+validate nameM emailM enquiryM =
+  (\n e enq -> { email: e, name: n, enquiry: enq })
+  <$> (maybe (invalid (singleton "name")) pure nameM)
+  <*> (maybe (invalid (singleton "email")) pure emailM)
+  <*> (maybe (invalid (singleton "enquiry")) pure enquiryM)
 
 -- https://codepen.io/fclaw/pen/BaGyKpB
-render {error, isSent } = 
-  HH.div [css "feedback"]
-  [  whenElem (not isSent) $ HH.div [css "form"] [form, showError error]
+render {error, isSent, isClick } = 
+  HH.div_
+  [  whenElem (not isSent) $ HH.div [css "form"] [form error isClick]
   ,  whenElem (isSent) $ success
   ]
 
-form = 
-  HH.form [ HE.onSubmit MakeRequest ]
+form xs isClick = 
+  HH.form [ HE.onSubmit MakeRequest, css "needs-validation", HPExt.style "width:400px;"]
   [ 
-      HH.div [css "form-group"] 
+      HH.div [css "form-group"]
       [
           HH.input  
           [ HPExt.placeholder "What's you name"
           , HPExt.type_ HPExt.InputText
           , HE.onValueInput FillName
+          , addClass isClick "name" xs
           ]
-      ,   HH.div [css "form-group"] 
-          [   
-              HH.input 
-              [ HPExt.placeholder "Email"
-              , HPExt.type_ HPExt.InputEmail
-              , HE.onValueInput FillEmail
-              ]
+      ]    
+  ,   HH.div [css "form-group"] 
+      [   
+          HH.input 
+          [ HPExt.placeholder "Email"
+          , HPExt.type_ HPExt.InputEmail
+          , HE.onValueInput FillEmail
+          , addClass isClick "email" xs
           ]
-      ,   HH.div [css "form-group"] 
-          [ 
-              HH.textarea
-              [ HPExt.placeholder "Message"
-              , HE.onValueInput FillEnquiry
-              , HPExt.rows 10
-              , HPExt.style "resize:none"
-              ]
-          ] 
-      ,   HH.input 
+      ]
+  ,   HH.div [css "form-group"] 
+      [ 
+          HH.textarea
+          [ HPExt.placeholder "Message"
+          , HE.onValueInput FillEnquiry
+          , HPExt.rows 10
+          , HPExt.style "resize:none"
+          , addClass isClick "enquiry" xs
+          ]
+      ]
+  ,   HH.div [css "form-group"] 
+      [   
+          HH.input 
           [ HPExt.type_ HPExt.InputSubmit
           , HPExt.value "Sumbit"
-          , css "btn"
+          , css "btn form-control"
           ]
       ]
   ]
 
-showError Nothing = HH.div_ []
-showError (Just e) = HH.p_ [HH.text e]
-
 success = HH.div_ [HH.p_ [HH.text "thanks you for submitting the enquiry"]]
+
+searchForError el xs = join $ map (find (contains (Pattern el))) xs
+
+addClass true field xs =
+  case searchForError field xs of
+    Just e -> css "form-control is-invalid"
+    Nothing -> css "form-control"
+addClass _ _ _ = css "form-control"

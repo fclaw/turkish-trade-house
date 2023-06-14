@@ -49,4 +49,4 @@ component mkBody =
 
 handleAction Initialize = H.liftEffect $ window >>= document >>= setTitle "Feedback | TTH" 
 
-content = HH.div_ [HH.slot_ Message.proxy unit Message.component unit]
+content = HH.slot_ Message.proxy unit Message.component unit

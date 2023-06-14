@@ -42,6 +42,9 @@
   , "web-events"
   , "foreign"
   , "foreign-object"
+  , "bifunctors"
+  , "validation"
+  , "strings"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
