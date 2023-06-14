@@ -17,7 +17,7 @@ import DOM.HTML.Indexed.InputType
 html r =
   HH.div [css "wrapper"]
   [ 
-      HH.nav [css "navbar navbar-expand-lg navbar-light bg-light"]
+      HH.nav [css "navbar navbar-expand-lg navbar-light"]
       [
           HH.ul [css "navbar-nav"] (map (mkItem r) (fromEnum Home .. fromEnum Service) ) 
       ]
