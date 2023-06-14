@@ -28,16 +28,14 @@ import Effect.Aff.Class (liftAff)
 proxy = Proxy :: _ "message"
 
 data Action = 
-       ShowUp
-     | MakeRequest Event 
+       MakeRequest Event 
      | FillName String 
      | FillEmail String 
      | FillEnquiry String
      | RollBack
 
 type State = 
-    { isFormUp :: Boolean
-    , name :: Maybe String
+    { name :: Maybe String
     , email :: Maybe String
     , enquiry :: Maybe String
     , error :: Maybe String
@@ -47,8 +45,7 @@ type State =
 type RequestBody = { email :: String, name :: String, enquiry :: String }
 
 defState =
-   { isFormUp: false
-   , name: Nothing
+   { name: Nothing
    , email: Nothing
    , enquiry: Nothing
    , error: Nothing
@@ -62,7 +59,6 @@ component =
       { handleAction = handleAction }
     }
     where 
-      handleAction ShowUp = H.modify_ _ { isFormUp = true }
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
         let handleSubmit (Right resp) = do 
@@ -95,7 +91,7 @@ component =
                     , subject: "enquiry"
                     , body: enquiry }
             logDebug $ show state         
-            resp <- Request.make host Scaffold.mkSendGridApi $ runFn2 Scaffold.send req
+            resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
             handleSubmit resp
           Nothing -> H.modify_ _ { isSent = false, error = pure "all fields are required" }
       handleAction (FillName v) = H.modify_ _ { name = Just v }
@@ -103,7 +99,7 @@ component =
       handleAction (FillEnquiry v) = H.modify_ _ { enquiry = Just v }
       handleAction RollBack = do 
         liftAff $ delay $ Milliseconds 2000.0
-        H.modify_ _ { isFormUp = false, isSent = false }
+        H.modify_ _ { isSent = false }
 
 validate nameM emailM enquiryM = do
   name <- nameM
@@ -112,16 +108,10 @@ validate nameM emailM enquiryM = do
   pure $ { email: email, name: name, enquiry: enquiry }
 
 -- https://codepen.io/fclaw/pen/BaGyKpB
-render { isFormUp, error, isSent } = 
+render {error, isSent } = 
   HH.div [css "feedback"]
-  [
-     whenElem (not isFormUp) $ 
-       HH.span 
-       [ HPExt.style "font-size: 60px; cursor: pointer; font-weight: bold;"
-       , HE.onClick (const ShowUp)
-       ] [HH.text "?"]
-  ,  whenElem (isFormUp && not isSent) $ HH.div [css "form"] [form, showError error]
-  ,  whenElem (isFormUp && isSent) $ success
+  [  whenElem (not isSent) $ HH.div [css "form"] [form, showError error]
+  ,  whenElem (isSent) $ success
   ]
 
 form = 

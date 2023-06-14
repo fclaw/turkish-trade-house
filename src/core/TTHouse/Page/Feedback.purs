@@ -8,6 +8,7 @@ module TTHouse.Page.Feedback
 import Prelude
 
 import TTHouse.Page.Subscription.WinResize as WinResize
+import TTHouse.Component.Message as Message 
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -48,4 +49,4 @@ component mkBody =
 
 handleAction Initialize = H.liftEffect $ window >>= document >>= setTitle "Feedback | TTH" 
 
-content = HH.text "feedback"
+content = HH.div_ [HH.slot_ Message.proxy unit Message.component unit]

@@ -9,9 +9,9 @@ export const mkApiClient = function(host) {
     }
 };
 
-export const mkSendGridApi = function(api) {
+export const mkForeignApi = function(api) {
     return () => {
-        return new e.SendGridApi(api);
+        return new e.ForeignApi(api);
     }
 }
 
@@ -26,7 +26,7 @@ export const mkScaffoldApiControllerSendGridSendMailRequest =
 export const send =
     function(req, api) {
         return function(onError, onOk) {
-            api.apiSendgridSendPost(req).then(onOk).catch(onError)
+            api.apiForeignSendgridSendPost(req).then(onOk).catch(onError)
         };
     }
 

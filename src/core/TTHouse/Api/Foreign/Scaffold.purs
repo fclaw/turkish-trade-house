@@ -13,7 +13,7 @@ import Data.Argonaut.Core (Json)
 import Data.Either (Either (..))
 
 foreign import data ApiClient :: Type
-foreign import data SendGridApi :: Type
+foreign import data ForeignApi :: Type
 foreign import data ScaffoldApiControllerSendGridSendMailRequest :: Type
 foreign import data Response :: Type -> Type
 foreign import data Error :: Type
@@ -42,13 +42,13 @@ getDataFromResponse = getDataFromResponseImpl Left Right
 
 foreign import mkApiClient :: Fn1 String (Effect ApiClient)
 
-foreign import mkSendGridApi :: Fn1 ApiClient (Effect SendGridApi)
+foreign import mkForeignApi :: Fn1 ApiClient (Effect ForeignApi)
 
 type SendGridSendMailRequestBody = { from :: String, personalization :: String, subject :: String, body :: String }
 
 foreign import mkScaffoldApiControllerSendGridSendMailRequest :: Fn1 SendGridSendMailRequestBody (Effect ScaffoldApiControllerSendGridSendMailRequest)
 
-foreign import send :: forall a . Fn2 ScaffoldApiControllerSendGridSendMailRequest SendGridApi (AC.EffectFnAff (Object (Response a)))
+foreign import send :: forall a . Fn2 ScaffoldApiControllerSendGridSendMailRequest ForeignApi (AC.EffectFnAff (Object (Response a)))
 
 foreign import mkFrontApi :: Fn1 ApiClient (Effect FrontApi)
 
