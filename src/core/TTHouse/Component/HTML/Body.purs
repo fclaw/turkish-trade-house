@@ -40,9 +40,9 @@ contentWrapper content =
       ]
   ,   HH.tbody_
       [
-         HH.tr [HPExt.style "width:100%;"]
+         HH.tr [HPExt.style "width:100%;height:800px"]
          [
-            HH.td_ [content] 
+            HH.td_ [HH.div [css "content-wrapper"] [content]] 
          ]
       ]
   ,   HH.tfoot_ 
