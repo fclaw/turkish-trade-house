@@ -16,15 +16,18 @@ module Store
 import Prelude
 
 import TTHouse.Data.Config (Config)
+import TTHouse.Component.Lang (Lang)
+import TTHouse.Api.Foreign.Scaffold as Scaffold 
+import TTHouse.Capability.LogMessages (logError, logDebug)
+import TTHouse.Api.Foreign.Request as Request
+
+import Concurrent.Channel (Channel)
 import Data.Maybe (Maybe(..))
 import Affjax (Error, printError)
 import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Encode.Class (encodeJson)
 import Data.Maybe
 import Effect (Effect)
-import TTHouse.Api.Foreign.Scaffold as Scaffold 
-import TTHouse.Capability.LogMessages (logError, logDebug)
-import TTHouse.Api.Foreign.Request as Request
 import Data.Function.Uncurried (runFn1)
 import Effect.Aff (Aff)
 import Data.Traversable (for)
@@ -36,7 +39,6 @@ import Data.Bifunctor (lmap)
 import Undefined
 import Data.Function.Uncurried (runFn0)
 import Data.Traversable (sequence)
-
 
 data Platform = Desktop | Mobile
 
@@ -62,6 +64,7 @@ type Store =
      , affjaxError :: Maybe Error
      , platform :: Platform
      , init :: Scaffold.ScaffoldApiControllerFrontendInitInit
+    , langChannel :: Channel Lang Lang
      }
 
 printStore store = 

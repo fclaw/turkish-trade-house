@@ -45,6 +45,8 @@
   , "bifunctors"
   , "validation"
   , "strings"
+  , "avar"
+  , "channel"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

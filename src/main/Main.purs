@@ -28,7 +28,8 @@ import Effect.Exception as Excep
 import Undefined
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import Data.Either
-
+import Effect.AVar as Async
+import Concurrent.Channel as Async 
 import Effect.Console (logShow)
 
 main :: Cfg.Config -> Effect Unit
@@ -54,6 +55,8 @@ main cfg = do
         Left err -> throwError err
         Right init -> do
    
+          langCh <- H.liftEffect $ Async.empty >>= Async.avarChannel
+
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
           -- fields. If our environment type ever changes, we'll get a compiler error here.
@@ -62,9 +65,10 @@ main cfg = do
                 , affjaxError: Nothing
                 , platform:
                   fromMaybe 
-                    undefined 
+                    undefined
                     platform 
                 , init: init
+                , langChannel: langCh
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.
