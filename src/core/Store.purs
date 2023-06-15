@@ -61,14 +61,14 @@ type Store =
      { config :: Config
      , affjaxError :: Maybe Error
      , platform :: Platform
-     , content :: Scaffold.ScaffoldApiControllerFrontendContentContent
+     , init :: Scaffold.ScaffoldApiControllerFrontendInitInit
      }
 
 printStore store = 
   "{config: " <> stringify (encodeJson (_.config store)) <> 
   ", affjaxError: " <> fromMaybe mempty (map printError (_.affjaxError store)) <> 
   ", platform: " <> show (_.platform store) <> 
-  ", content: " <> show (_.content store) <> "}"
+  ", init: " <> show (_.init store) <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that
@@ -85,7 +85,7 @@ data Action = WriteAffjaxError Error
 reduce :: Store -> Action -> Store
 reduce store (WriteAffjaxError err) = store { affjaxError = Just err }
 
-initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendContentContent)
+initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendInitInit)
 initAppStore host = do
   resp <- Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init
   map join $ for resp $ map (lmap (Excep.error <<< show)) <<< liftEffect <<< Scaffold.getDataFromResponse

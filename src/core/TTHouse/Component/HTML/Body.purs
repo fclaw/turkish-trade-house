@@ -42,7 +42,7 @@ contentWrapper content =
       [
          HH.tr [HPExt.style "width:100%;"]
          [
-            HH.td_ [HH.div_ [content]] 
+            HH.td_ [content] 
          ]
       ]
   ,   HH.tfoot_ 

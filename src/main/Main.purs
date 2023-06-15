@@ -52,7 +52,7 @@ main cfg = do
       initResp <- initAppStore (_.scaffoldHost cfg)
       case initResp of 
         Left err -> throwError err
-        Right content -> do
+        Right init -> do
    
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
@@ -60,11 +60,11 @@ main cfg = do
           let initialStore = 
                 { config: cfg
                 , affjaxError: Nothing
-                , platform: 
+                , platform:
                   fromMaybe 
                     undefined 
                     platform 
-                , content: content
+                , init: init
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.

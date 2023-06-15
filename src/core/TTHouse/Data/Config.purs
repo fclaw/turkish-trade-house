@@ -16,6 +16,7 @@ type Config =
   , telegramHost :: String
   , toTelegram :: Boolean 
   , scaffoldHost :: String
+  , sha256Commit :: String
   }
 
 configToJson :: Config -> Json

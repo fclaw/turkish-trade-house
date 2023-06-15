@@ -18,17 +18,18 @@ foreign import data ScaffoldApiControllerSendGridSendMailRequest :: Type
 foreign import data Response :: Type -> Type
 foreign import data Error :: Type
 foreign import data FrontApi :: Type
-foreign import data ScaffoldApiControllerFrontendContentContent :: Type
+foreign import data ScaffoldApiControllerFrontendInitInit :: Type
+foreign import data ScaffoldApiControllerFrontendInitContent :: Type
 
 instance showError :: Show Error where
   show = printError
 
 foreign import printError :: Error -> String
 
-instance showScaffoldApiControllerFrontendContentContent :: Show ScaffoldApiControllerFrontendContentContent where
-  show = printScaffoldApiControllerFrontendContentContent
+instance showScaffoldApiControllerFrontendInitInit :: Show ScaffoldApiControllerFrontendInitInit where
+  show = printScaffoldApiControllerFrontendInitInit
 
-foreign import printScaffoldApiControllerFrontendContentContent :: ScaffoldApiControllerFrontendContentContent -> String
+foreign import printScaffoldApiControllerFrontendInitInit :: ScaffoldApiControllerFrontendInitInit -> String
 
 foreign import getDataFromResponseImpl 
   :: forall a . 
@@ -52,9 +53,10 @@ foreign import send :: forall a . Fn2 ScaffoldApiControllerSendGridSendMailReque
 
 foreign import mkFrontApi :: Fn1 ApiClient (Effect FrontApi)
 
-foreign import init :: Fn1 FrontApi  (AC.EffectFnAff (Object (Response ScaffoldApiControllerFrontendContentContent)))
+foreign import init :: Fn1 FrontApi  (AC.EffectFnAff (Object (Response ScaffoldApiControllerFrontendInitInit)))
 
-foreign import getHomeContent :: ScaffoldApiControllerFrontendContentContent -> String
-foreign import getAboutContent :: ScaffoldApiControllerFrontendContentContent -> String
-foreign import getServiceContent :: ScaffoldApiControllerFrontendContentContent -> String
+foreign import getHomeContent :: ScaffoldApiControllerFrontendInitInit -> String
+foreign import getAboutContent :: ScaffoldApiControllerFrontendInitInit -> String
+foreign import getServiceContent :: ScaffoldApiControllerFrontendInitInit -> String
+foreign import getShaCommit :: ScaffoldApiControllerFrontendInitInit -> String
 

@@ -13,12 +13,14 @@ import Data.Array ((..))
 import Data.Enum (fromEnum, toEnum)
 import DOM.HTML.Indexed.InputType
 
+import Undefined
+
 -- taken from: https://codepen.io/albizan/pen/mMWdWZ
 html r =
   HH.div [css "wrapper"]
   [ 
       HH.nav [css "navbar navbar-expand-lg navbar-light"]
       [
-          HH.ul [css "navbar-nav"] (map (mkItem r) (fromEnum Home .. fromEnum Service) ) 
+          HH.ul [css "navbar-nav"] (map (mkItem undefined r) (fromEnum Home .. fromEnum Service) ) 
       ]
   ]   

@@ -40,9 +40,9 @@ component mkBody =
         HH.div_ [mkBody p w (content body) ]
       render _ = HH.div_ []
       handleAction Initialize = do
-        { platform, content } <- getStore
+        { platform, init } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
-        H.modify_ _ { platform = pure platform, winWidth = pure w, body = Scaffold.getHomeContent content }
+        H.modify_ _ { platform = pure platform, winWidth = pure w, body = Scaffold.getHomeContent init }
         H.liftEffect $ window >>= document >>= setTitle "TTH" 
         void $ H.subscribe =<< WinResize.subscribe WinResize
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }

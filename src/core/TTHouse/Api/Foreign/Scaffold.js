@@ -54,13 +54,23 @@ export const init =
         };
     }
 
-export const printScaffoldApiControllerFrontendContentContent =
+export const printScaffoldApiControllerFrontendInitInit =
     function(obj) {
-        return "{" + obj.getHome() + ", " + obj.getAbout() + ", " + obj.getService();
+        return "{ content: " + obj.getContent().getHome() + ", " + obj.getContent().getAbout() + ", " + obj.getContent().getService() + ", shaCommit: " +  obj.getShaCommit() + "}";
     }
 
-export const getHomeContent = (obj) => { return obj.getHome(); }
+export const getHomeContent = (obj) => {
+    return obj.getContent().getHome();
+}
 
-export const getAboutContent = (obj) => { return obj.getHome(); }
+export const getAboutContent = (obj) => {
+    return obj.getContent().getHome();
+}
 
-export const getServiceContent = (obj) => { return obj.getHome(); }
+export const getServiceContent = (obj) => {
+    return obj.getContent().getHome();
+}
+
+export const getShaCommit = (obj) => {
+    return obj.getShaCommit();
+}

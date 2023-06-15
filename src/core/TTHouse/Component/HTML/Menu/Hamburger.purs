@@ -23,11 +23,20 @@ html r =
     ,   HH.div [css "menu"]
         [
             HH.div [HPExt.style "#position: relative; #top: -50%;margin:0 auto;width:200px"] 
-            [HH.ul_ (map (mkItem r) (fromEnum Home .. fromEnum Service) )]
+            [HH.ul_ (map (mkItem r undefined) (fromEnum Home .. fromEnum Service) )]
         ]     
     ]
 
-mkItem route idx = HH.li_ [HH.a [css "nav-link", safeHref (mkRoute idx), isDisabled (mkRoute idx == route)] [HH.text (show (mkRoute idx))] ] 
+mkItem route applyStyle idx = 
+  HH.li_ 
+  [
+      HH.a 
+      [ css "nav-link"
+      , safeHref (mkRoute idx)
+      , isDisabled (mkRoute idx == route)
+      ] 
+      [HH.text (show (mkRoute idx))] 
+  ] 
   where 
     mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
     isDisabled true = HPExt.style "cursor: not-allowed;"

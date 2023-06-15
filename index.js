@@ -21,17 +21,8 @@ function main () {
 
   //nix-hash --type sha256 --flat <path>  
   
-
+  console.log('Starting app');
   Main.main(config)();
 }
-
-if (module.hot) {
-  module.hot.accept(function () {
-    console.log('Reloaded, running main again');
-    main();
-  });
-}
-
-console.log('Starting app');
 
 main();
