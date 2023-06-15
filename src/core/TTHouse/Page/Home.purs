@@ -40,6 +40,7 @@ component mkBody =
         HH.div_ [mkBody p w (content body) ]
       render _ = HH.div_ []
       handleAction Initialize = do
+        H.liftEffect $ window >>= document >>= setTitle "TTH"
         { platform, init } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
         H.modify_ _ { platform = pure platform, winWidth = pure w, body = Scaffold.getHomeContent init }
