@@ -17,5 +17,9 @@ html r pl w = HH.div [css "page-header"] [showMenu r pl w]
 
 showMenu r Mobile _ = Hamburger.html r
 showMenu r _ w 
-  | w > 500 = Navbar.html r
+  | w > 500 = 
+      HH.div [css "header-wrapper"] 
+      [ HH.div [css "header-logo-wrapper"] []
+      , Navbar.html r
+      ]
   | otherwise = Hamburger.html r

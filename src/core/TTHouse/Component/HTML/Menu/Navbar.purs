@@ -17,10 +17,12 @@ import Undefined
 
 -- taken from: https://codepen.io/albizan/pen/mMWdWZ
 html r =
-  HH.div [css "wrapper"]
+  HH.div [css "header-menu-wrapper"]
   [ 
       HH.nav [css "navbar navbar-expand-lg navbar-light"]
       [
-          HH.ul [css "navbar-nav"] (map (mkItem undefined r) (fromEnum Home .. fromEnum Service) ) 
+          HH.ul [css "navbar-nav"] (map (mkItem r addFontStyle) (fromEnum Home .. fromEnum Service) ) 
       ]
-  ]   
+  ]
+
+addFontStyle el = HH.div [HPExt.style "font-size: 20px; text-transform:uppercase;"] [el]

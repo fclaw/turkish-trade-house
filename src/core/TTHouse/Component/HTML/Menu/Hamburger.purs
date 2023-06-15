@@ -23,10 +23,9 @@ html r =
     ,   HH.div [css "menu"]
         [
             HH.div [HPExt.style "#position: relative; #top: -50%;margin:0 auto;width:200px"] 
-            [HH.ul_ (map (mkItem r undefined) (fromEnum Home .. fromEnum Service) )]
+            [HH.ul_ (map (mkItem r (\x -> x)) (fromEnum Home .. fromEnum Service) )]
         ]     
     ]
-
 mkItem route applyStyle idx = 
   HH.li_ 
   [
@@ -35,9 +34,10 @@ mkItem route applyStyle idx =
       , safeHref (mkRoute idx)
       , isDisabled (mkRoute idx == route)
       ] 
-      [HH.text (show (mkRoute idx))] 
+      [el] 
   ] 
   where 
     mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
     isDisabled true = HPExt.style "cursor: not-allowed;"
     isDisabled false = HPExt.style mempty
+    el = applyStyle $ HH.text (show (mkRoute idx))
