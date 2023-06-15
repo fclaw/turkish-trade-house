@@ -8,16 +8,19 @@
     "spago": "^0.20.9"
   },
   "scripts": {
-    "clean": "rm -rf output-es node_modules output .spago app/*.js *.lock .cache",
-    "test": "spago test",
+    "clean": "rm -rf output-es node_modules output .spago app/*.js *.lock .cache src/core/TTHouse/Api/Foreign/Scaffold",
+    "test": "spago tes",
     "serve": "node esbuild-serve.mjs",
     "bundle": "./scripts/bundle.sh",
-    "api": "./scripts/api.sh"
+    "api": "./scripts/api.sh https://back-g52bgv5bua-ew.a.run.app/swagger.json api-scaffold.json Scaffold"
   },
   "dependencies": {
+    "babel": "^6.23.0",
     "data.either": "^1.5.2",
+    "expect.js": "^0.3.1",
     "forever": "^4.0.3",
     "js-beautify": "^1.14.8",
+    "mocha": "^10.2.0",
     "purs-tidy": "^0.9.3",
     "querystring": "^0.2.1",
     "superagent": "^8.0.9"
