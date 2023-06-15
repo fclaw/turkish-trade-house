@@ -56,7 +56,7 @@ export const init =
 
 export const printScaffoldApiControllerFrontendInitInit =
     function(obj) {
-        return "{ content: " + obj.getContent().getHome() + ", " + obj.getContent().getAbout() + ", " + obj.getContent().getService() + ", shaCommit: " +  obj.getShaCommit() + "}";
+        return "{ content: " + obj.getContent().getHome() + ", " + obj.getContent().getAbout() + ", " + obj.getContent().getService() + ", shaCommit: " + obj.getShaCommit() + "}";
     }
 
 export const getHomeContent = (obj) => {
