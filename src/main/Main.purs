@@ -55,7 +55,7 @@ main cfg = do
         Left err -> throwError err
         Right init -> do
    
-          langCh <- H.liftEffect $ Async.empty >>= Async.avarChannel
+          langCh <- H.liftEffect $ Async.newChannel
 
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three

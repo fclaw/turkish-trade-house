@@ -95,7 +95,6 @@ params =
   { header: Header.html
   , footer: Footer.html
   , hamburger: HamburgerMenu.html
-  , navbar: NavbarMenu.html
   }
 
 render :: forall m a

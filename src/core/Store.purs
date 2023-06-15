@@ -16,7 +16,7 @@ module Store
 import Prelude
 
 import TTHouse.Data.Config (Config)
-import TTHouse.Component.Lang (Lang)
+import TTHouse.Component.Lang (LangVar)
 import TTHouse.Api.Foreign.Scaffold as Scaffold 
 import TTHouse.Capability.LogMessages (logError, logDebug)
 import TTHouse.Api.Foreign.Request as Request
@@ -64,7 +64,7 @@ type Store =
      , affjaxError :: Maybe Error
      , platform :: Platform
      , init :: Scaffold.ScaffoldApiControllerFrontendInitInit
-    , langChannel :: Channel Lang Lang
+     , langChannel :: Channel LangVar LangVar
      }
 
 printStore store = 

@@ -1,7 +1,9 @@
 module TTHouse.Component.Lang
-  ( component
+  ( Lang(..)
+  , LangVar(..)
+  , Recipients(..)
+  , component
   , proxy
-  , Lang (..)
   )
   where
 
@@ -55,6 +57,27 @@ data Action = Notify Int
 
 type State = { lang :: Int }
 
+data Recipients = Home | Navbar
+
+derive instance genericRecipients :: Generic Recipients _
+derive instance eqRecipients :: Eq Recipients
+derive instance ordRecipients :: Ord Recipients
+
+instance enumRecipients :: Enum Recipients where 
+  succ = genericSucc
+  pred = genericPred 
+
+instance boundedEnumRecipients :: BoundedEnum Recipients where 
+  cardinality = genericCardinality
+  toEnum = genericToEnum
+  fromEnum = genericFromEnum
+
+instance boundedRecipients :: Bounded Recipients where 
+  top = Navbar
+  bottom = Home
+
+type LangVar = { recipients :: Recipients, lang :: Lang  }
+
 component =
   H.mkComponent
     { initialState: const { lang: 0 }
@@ -69,7 +92,9 @@ component =
         for_ langm $ \lang -> do 
            {langChannel} <- getStore
            isSent <- H.liftAff $ 
-             Async.send (_.output langChannel) lang
+             Async.sendTraversable (_.output langChannel) $ 
+               flip map (fromEnum Home .. fromEnum Navbar) \r -> 
+                 { recipients: fromMaybe undefined (toEnum r), lang: lang }
            logDebug $ show isSent
            H.modify_ _ { lang = idx }
 render {lang} = 
