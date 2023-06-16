@@ -19,5 +19,4 @@ component =
     , eval: H.mkEval H.defaultEval
     }
 
-render = HH.div_ [HH.text "error"] 
-  
+render = HH.div_ [HH.text "error"]

@@ -47,6 +47,8 @@
   , "strings"
   , "avar"
   , "ordered-collections"
+  , "unsafe-coerce" 
+  , "web-dom"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

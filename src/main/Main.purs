@@ -5,6 +5,7 @@ import Prelude
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
 import TTHouse.Data.Config as Cfg
+import TTHouse.Api.Foreign.Scaffold (getShaCommit)
 
 import Effect (Effect)
 import Halogen.Aff as HA
@@ -21,7 +22,7 @@ import Control.Monad.Error.Class (catchError, throwError)
 import TTHouse.Web.Platform (getPlatform)
 import Data.Function.Uncurried (runFn1)
 import Web.HTML.Navigator (userAgent)
-import Web.HTML.Window (navigator)
+import Web.HTML.Window (navigator, document)
 import Web.HTML (window)
 import Store (readPlatform, initAppStore)
 import Effect.Exception as Excep
@@ -31,6 +32,14 @@ import Data.Either
 import Effect.AVar as Async
 import Data.Map as Map
 import Effect.Console (logShow)
+import Web.DOM.Document (getElementsByTagName, createElement)
+import Web.DOM.HTMLCollection (item)
+import Web.DOM.Element (setAttribute)
+import Web.DOM.Node (appendChild)
+import Data.Traversable (for)
+import Web.HTML.HTMLDocument (toDocument, toNode)
+import Web.DOM.Internal.Types (Element)
+import Unsafe.Coerce
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 
@@ -55,6 +64,11 @@ main cfg = do
         Left err -> throwError err
         Right init -> do
    
+          
+          -- I am sick to the back teeth of changing css hash manualy
+          -- let's make the process a bit self-generating
+          H.liftEffect $ setCssLink (getShaCommit init) $ _.cssLink cfg
+
           langVar <- H.liftEffect $ Async.new Map.empty
 
           -- We now have the three pieces of information necessary to configure our app. Let's create
@@ -114,3 +128,33 @@ main cfg = do
             when (old /= Just new) $ launchAff_ $
               flip catchError (liftEffect <<< logShow) $
                 void $ halogenIO.query $ H.mkTell $ Root.Navigate new
+
+
+-- var head  = document.getElementsByTagName('head')[0];
+-- var link  = document.createElement('link');
+-- link.id   = cssId;
+-- link.rel  = 'stylesheet';
+-- link.type = 'text/css';
+-- link.href = 'http://website.example/css/stylesheet.css';
+-- link.media = 'all';
+-- head.appendChild(link);
+setCssLink :: String -> String -> Effect Unit
+setCssLink sha mkHref = do
+  win <- window
+  doc <- map toDocument $ document win
+  xs <- "head" `getElementsByTagName` doc
+  headm <- 0 `item` xs
+  res <- for headm \(head :: Element) -> do 
+      link :: Element <- "link" `createElement` doc
+      setAttribute "rel" "stylesheet" link
+      setAttribute "type" "text/css" link
+      let href = mkHref <> sha <> "/style.css"
+      setAttribute "href" href link
+      appendChild (toNode (unsafeCoerce link)) (toNode (unsafeCoerce head))
+      pure $ Just unit
+    
+  when (isNothing res) $ throwError $ Excep.error "cannot append link to head"
+
+
+    
+
