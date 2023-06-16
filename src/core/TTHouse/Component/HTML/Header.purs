@@ -15,11 +15,11 @@ import Store (Platform (..))
 html r pl w = HH.div [css "page-header"] [showMenu r pl w]
 
 showMenu r Mobile _ = Hamburger.html r
-showMenu r _ w 
-  | w > 500 = 
-      HH.div [css "header-wrapper"] 
-      [ HH.div [css "header-logo-wrapper"] 
-        [HH.div_ [HH.slot_ Lang.proxy unit Lang.component unit]]
-      , HH.slot_ Navbar.proxy unit Navbar.component unit
-      ]
-  | otherwise = Hamburger.html r
+showMenu r _ w =
+    HH.div [css "header-wrapper"] 
+    [ HH.div [css "header-logo-wrapper"]
+      [HH.div_ [HH.slot_ Lang.proxy unit Lang.component unit]]
+    , if w > 500 
+      then HH.slot_ Navbar.proxy unit Navbar.component unit 
+      else Hamburger.html r
+    ]

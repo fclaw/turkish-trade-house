@@ -7,7 +7,7 @@ import TTHouse.Data.Route (Route (..))
 import TTHouse.Component.HTML.Menu.Hamburger (mkItem)
 import TTHouse.Component.Lang (Lang (..))
 import  TTHouse.Capability.LogMessages (logDebug)
-import TTHouse.Component.Lang (LangVar (..), Recipients (Navbar))
+import TTHouse.Component.Lang (Recipients (Navbar))
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -17,12 +17,11 @@ import Data.Enum (fromEnum, toEnum)
 import DOM.HTML.Indexed.InputType
 import Type.Proxy (Proxy(..))
 import Halogen.Store.Monad (getStore)
-import Concurrent.Channel as Async
 import Control.Monad.Rec.Class (forever)
-import Effect.Aff (Milliseconds(..))
 import Effect.Aff as Aff
 import Data.Foldable (for_)
 import Effect.AVar as Async
+import Data.Map as Map
 
 import Undefined
 
@@ -43,17 +42,16 @@ component =
       }
     }
     where 
-      handleAction Initialize =do 
-        { langChannel } <- getStore
+      handleAction Initialize = do
+        { langVar } <- getStore
 
         void $ H.fork $ forever $ do
-          langm <- H.liftAff do
-            Aff.delay $ Milliseconds 500.0
-            Async.recv $ _.input langChannel
-          for_ langm \x@{ recipients, lang } ->
-            case recipients of 
-              Navbar -> handleAction $ LangChange lang
-              _ -> void $ H.liftAff $ Async.send (_.output langChannel) x
+          H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
+          res <- H.liftEffect $ Async.tryRead langVar
+          for_ res \langMap -> 
+            for_ (Map.lookup Navbar langMap) $ 
+              handleAction <<< LangChange
+
       handleAction (LangChange lang) = do
         H.modify_ _ { lang = lang }
         logDebug $ "(TTHouse.Component.HTML.Menu.Navbar) language change to: " <> show lang

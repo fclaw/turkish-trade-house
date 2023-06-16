@@ -1,6 +1,5 @@
 module TTHouse.Component.Lang
   ( Lang(..)
-  , LangVar(..)
   , Recipients(..)
   , component
   , proxy
@@ -10,7 +9,7 @@ module TTHouse.Component.Lang
 import Prelude
 
 import TTHouse.Component.HTML.Utils (css)
-import  TTHouse.Capability.LogMessages (logDebug)
+import  TTHouse.Capability.LogMessages (logDebug, logError)
 
 import Data.Generic.Rep (class Generic)
 import Halogen as H
@@ -21,12 +20,16 @@ import Data.Bounded
 import Data.Enum.Generic (genericFromEnum, genericToEnum, genericSucc, genericPred, genericCardinality)
 import Data.Array ((..))
 import Halogen.HTML.Properties.Extended as HPExt
-import Data.Maybe (fromMaybe, Maybe)
+import Data.Maybe (fromMaybe, Maybe (..), isNothing)
 import Undefined
 import Halogen.HTML.Events as HE
 import Data.Foldable (for_)
+import Data.Traversable (for)
 import Halogen.Store.Monad (getStore)
-import Concurrent.Channel as Async
+import Effect.AVar as Async
+import Data.Map as Map
+import Data.Tuple
+
 
 proxy = Proxy :: _ "lang"
 
@@ -76,8 +79,6 @@ instance boundedRecipients :: Bounded Recipients where
   top = Navbar
   bottom = Home
 
-type LangVar = { recipients :: Recipients, lang :: Lang  }
-
 component =
   H.mkComponent
     { initialState: const { lang: 0 }
@@ -90,13 +91,22 @@ component =
         let langm = toEnum idx
         logDebug $ show langm
         for_ langm $ \lang -> do 
-           {langChannel} <- getStore
-           isSent <- H.liftAff $ 
-             Async.sendTraversable (_.output langChannel) $ 
-               flip map (fromEnum Home .. fromEnum Navbar) \r -> 
-                 { recipients: fromMaybe undefined (toEnum r), lang: lang }
-           logDebug $ show isSent
-           H.modify_ _ { lang = idx }
+           {langVar} <- getStore
+           valm <- H.liftEffect $ Async.tryTake langVar
+           res <- for valm \langMap -> do
+             let xs = 
+                   Map.fromFoldable $ 
+                   flip map (fromEnum Home .. fromEnum Navbar) \r -> 
+                     Tuple (fromMaybe undefined (toEnum r)) lang 
+             res <- H.liftEffect $ Async.tryPut xs langVar
+             if not res 
+             then logError "(TTHouse.Component.Lang) failed to put map into langVar"
+             else do 
+               logDebug $ show "(TTHouse.Component.Lang) lang change"
+               H.modify_ _ { lang = idx }
+           when (isNothing res) $ 
+             logError "(TTHouse.Component.Lang) var is empty. \
+                      \ under the normal circumstences this branch of choice cannot be reached."    
 render {lang} = 
   HH.div [css "header-lang-wrapper"] 
   [

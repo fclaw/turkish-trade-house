@@ -11,7 +11,7 @@ import TTHouse.Page.Subscription.WinResize as WinResize
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Component.Lang (Lang)
 import  TTHouse.Capability.LogMessages (logDebug)
-import TTHouse.Component.Lang (LangVar (..), Recipients (Home))
+import TTHouse.Component.Lang (Recipients (Home))
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -22,12 +22,11 @@ import Type.Proxy (Proxy(..))
 import Store (Platform)
 import Data.Maybe
 import Halogen.Store.Monad (getStore)
-import Concurrent.Channel as Async
 import Control.Monad.Rec.Class (forever)
-import Effect.Aff (Milliseconds(..))
 import Effect.Aff as Aff
 import Data.Foldable (for_)
 import Effect.AVar as Async
+import Data.Map as Map
 
 proxy = Proxy :: _ "home"
 
@@ -54,20 +53,18 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "TTH"
-        { platform, init, langChannel } <- getStore
+        { platform, init, langVar } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
         H.modify_ _ { platform = pure platform, winWidth = pure w, body = Scaffold.getHomeContent init }
         H.liftEffect $ window >>= document >>= setTitle "TTH" 
         void $ H.subscribe =<< WinResize.subscribe WinResize
 
         void $ H.fork $ forever $ do
-          langm <- H.liftAff do
-            Aff.delay $ Milliseconds 500.0
-            Async.recv $ _.input langChannel
-          for_ langm \x@{ recipients, lang } ->
-            case recipients of 
-              Home -> handleAction $ LangChange lang
-              _ -> void $ H.liftAff $ Async.send (_.output langChannel) x
+          H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
+          res <- H.liftEffect $ Async.tryRead langVar
+          for_ res \langMap -> 
+            for_ (Map.lookup Home langMap) $ 
+              handleAction <<< LangChange
 
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
       handleAction (LangChange lang) =

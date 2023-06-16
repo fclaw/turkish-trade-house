@@ -29,7 +29,7 @@ import Undefined
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import Data.Either
 import Effect.AVar as Async
-import Concurrent.Channel as Async 
+import Data.Map as Map
 import Effect.Console (logShow)
 
 main :: Cfg.Config -> Effect Unit
@@ -55,7 +55,7 @@ main cfg = do
         Left err -> throwError err
         Right init -> do
    
-          langCh <- H.liftEffect $ Async.newChannel
+          langVar <- H.liftEffect $ Async.new Map.empty
 
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
@@ -68,7 +68,7 @@ main cfg = do
                     undefined
                     platform 
                 , init: init
-                , langChannel: langCh
+                , langVar: langVar
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.
