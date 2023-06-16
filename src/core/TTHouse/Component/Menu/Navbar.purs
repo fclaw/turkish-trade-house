@@ -1,12 +1,12 @@
-module TTHouse.Component.HTML.Menu.Navbar ( component, proxy ) where
+module TTHouse.Component.Menu.Navbar ( component, proxy ) where
 
 import Prelude
 
 import TTHouse.Component.HTML.Utils (css)
 import TTHouse.Data.Route (Route (..))
-import TTHouse.Component.HTML.Menu.Hamburger (mkItem)
+import TTHouse.Component.Menu.Hamburger (mkItem)
 import TTHouse.Component.Lang (Lang (..))
-import  TTHouse.Capability.LogMessages (logDebug)
+import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Component.Lang (Recipients (Navbar))
 
 import Halogen as H
@@ -34,7 +34,7 @@ type State = { route :: Route, lang :: Lang }
 
 component =
   H.mkComponent
-    { initialState: const { route: Home, lang: Eng }
+    { initialState: \r -> { route: r, lang: Eng }
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction

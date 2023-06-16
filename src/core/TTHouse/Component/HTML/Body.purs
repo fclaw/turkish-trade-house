@@ -25,7 +25,7 @@ type BodyHtml =
      , footer :: forall i p . Footer i p
      }
 
-mkBodyHtml { header, footer, hamburger } route platform width content = 
+mkBodyHtml { header, footer } route platform width content = 
   HH.div_ [ header route platform width, footer, contentWrapper content ]
 
 contentWrapper content =

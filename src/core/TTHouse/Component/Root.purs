@@ -26,8 +26,6 @@ import TTHouse.Capability.Now (class Now)
 import TTHouse.Component.HTML.Header as Header
 import TTHouse.Component.HTML.Footer as Footer
 import TTHouse.Component.HTML.Body as Body
-import TTHouse.Component.HTML.Menu.Hamburger as HamburgerMenu
-import TTHouse.Component.HTML.Menu.Navbar as NavbarMenu
 
 import Data.Either (hush)
 import Data.Foldable (elem)
@@ -94,7 +92,6 @@ component = H.mkComponent
 params = 
   { header: Header.html
   , footer: Footer.html
-  , hamburger: HamburgerMenu.html
   }
 
 render :: forall m a

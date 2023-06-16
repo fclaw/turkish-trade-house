@@ -60,7 +60,7 @@ data Action = Notify Int
 
 type State = { lang :: Int }
 
-data Recipients = Home | Navbar
+data Recipients = Home | Hamburger | Navbar
 
 derive instance genericRecipients :: Generic Recipients _
 derive instance eqRecipients :: Eq Recipients
