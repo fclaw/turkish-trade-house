@@ -3,7 +3,9 @@ module TTHouse.Api.Foreign.Scaffold where
 
 import Prelude
 
-import Data.Function.Uncurried (Fn1, Fn2, Fn0)
+import TTHouse.Component.Lang (Lang, Recipients)
+
+import Data.Function.Uncurried (Fn1, Fn2, Fn0, Fn3, runFn3)
 import Foreign (Foreign)
 import Effect (Effect)
 import Effect.Aff.Compat as AC
@@ -20,6 +22,7 @@ foreign import data Error :: Type
 foreign import data FrontApi :: Type
 foreign import data ScaffoldApiControllerFrontendInitInit :: Type
 foreign import data ScaffoldApiControllerFrontendInitContent :: Type
+foreign import data ResponseTranslation :: Type
 
 instance showError :: Show Error where
   show = printError
@@ -59,4 +62,12 @@ foreign import getHomeContent :: ScaffoldApiControllerFrontendInitInit -> String
 foreign import getAboutContent :: ScaffoldApiControllerFrontendInitInit -> String
 foreign import getServiceContent :: ScaffoldApiControllerFrontendInitInit -> String
 foreign import getShaCommit :: ScaffoldApiControllerFrontendInitInit -> String
+foreign import getShaCSSCommit :: ScaffoldApiControllerFrontendInitInit -> String
 
+foreign import loadTranslationImpl :: Fn3 Json Json FrontApi (AC.EffectFnAff (Object (Response ResponseTranslation)))
+
+loadTranslation :: Recipients -> Lang -> FrontApi -> (AC.EffectFnAff (Object (Response ResponseTranslation)))
+loadTranslation recip lang api = runFn3 loadTranslationImpl (encodeJson recip) (encodeJson lang) api
+
+
+foreign import getTranslation :: ResponseTranslation -> String

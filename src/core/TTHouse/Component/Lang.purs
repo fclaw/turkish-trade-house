@@ -29,6 +29,7 @@ import Halogen.Store.Monad (getStore)
 import Effect.AVar as Async
 import Data.Map as Map
 import Data.Tuple
+import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
 
 
 proxy = Proxy :: _ "lang"
@@ -39,13 +40,17 @@ derive instance genericLang :: Generic Lang _
 derive instance eqLang :: Eq Lang
 derive instance ordLang :: Ord Lang
 
-instance shooLang :: Show Lang where
+instance encodeJsonLang :: EncodeJson Lang where
+  encodeJson Eng = encodeJson "english"
+  encodeJson Turk = encodeJson "turkish"
+
+instance showLang :: Show Lang where
   show Eng = "English"
   show Turk = "Türkçe"
 
 instance enumLang :: Enum Lang where 
   succ = genericSucc
-  pred = genericPred 
+  pred = genericPred
 
 instance boundedEnumLang :: BoundedEnum Lang where 
   cardinality = genericCardinality
@@ -61,6 +66,15 @@ data Action = Notify Int
 type State = { lang :: Int }
 
 data Recipients = Home | Hamburger | Navbar
+
+instance showRecipients :: Show Recipients where
+  show Home = "home"
+  show Hamburger = "hamburger"
+  show Navbar = "navbar"
+
+instance encodeJsonRecipients :: EncodeJson Recipients where
+  encodeJson Home = encodeJson "home"
+  encodeJson _ = undefined
 
 derive instance genericRecipients :: Generic Recipients _
 derive instance eqRecipients :: Eq Recipients

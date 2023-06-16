@@ -43,7 +43,6 @@ component mkBody =
         { platform } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
         H.modify_ _ { platform = pure platform, winWidth = pure w }
-        H.liftEffect $ window >>= document >>= setTitle "TTH" 
         void $ H.subscribe =<< WinResize.subscribe WinResize
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
 

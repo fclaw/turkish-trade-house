@@ -5,7 +5,7 @@ import Prelude
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
 import TTHouse.Data.Config as Cfg
-import TTHouse.Api.Foreign.Scaffold (getShaCommit)
+import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit)
 
 import Effect (Effect)
 import Halogen.Aff as HA
@@ -39,7 +39,7 @@ import Web.DOM.Node (appendChild)
 import Data.Traversable (for)
 import Web.HTML.HTMLDocument (toDocument, toNode)
 import Web.DOM.Internal.Types (Element)
-import Unsafe.Coerce
+import Unsafe.Coerce (unsafeCoerce)
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 
@@ -67,7 +67,7 @@ main cfg = do
           
           -- I am sick to the back teeth of changing css hash manualy
           -- let's make the process a bit self-generating
-          H.liftEffect $ setCssLink (getShaCommit init) $ _.cssLink cfg
+          H.liftEffect $ setCssLink (getShaCSSCommit init) $ _.cssLink cfg
 
           langVar <- H.liftEffect $ Async.new Map.empty
 
