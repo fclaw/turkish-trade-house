@@ -9,7 +9,7 @@ module TTHouse.Component.Lang
 import Prelude
 
 import TTHouse.Component.HTML.Utils (css)
-import  TTHouse.Capability.LogMessages (logDebug, logError)
+import TTHouse.Capability.LogMessages (logDebug, logError)
 
 import Data.Generic.Rep (class Generic)
 import Halogen as H

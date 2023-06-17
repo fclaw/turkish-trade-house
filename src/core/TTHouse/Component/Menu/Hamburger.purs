@@ -1,12 +1,13 @@
-module TTHouse.Component.Menu.Hamburger ( component, proxy, mkItem ) where
+module TTHouse.Component.Menu.Hamburger ( component, proxy, mkItem, getMenuByLang ) where
 
 import Prelude
 
 import TTHouse.Component.HTML.Utils (css, safeHref)
 import TTHouse.Data.Route (Route (..))
 import TTHouse.Component.Lang (Lang (..))
-import TTHouse.Capability.LogMessages (logDebug)
+import TTHouse.Capability.LogMessages (logDebug, logError)
 import TTHouse.Component.Lang (Recipients (Hamburger))
+import TTHouse.Locale as Locale
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -22,6 +23,9 @@ import Data.Foldable (for_)
 import Effect.AVar as Async
 import Data.Map as Map
 import Data.Maybe
+import Data.Array.NonEmpty (fromArray)
+import Data.Traversable (for)
+import Data.Map as Map
 
 import Undefined
 
@@ -30,11 +34,15 @@ proxy = Proxy :: _ "hamburger"
 
 data Action = Initialize | LangChange Lang
 
-type State = { route :: Route, lang :: Lang }
+type State = 
+     { route :: Route
+     , lang :: Lang
+     , routesTitle :: Map.Map Route String 
+     }
 
 component =
   H.mkComponent
-    { initialState: \r -> { route: r, lang: Eng }
+    { initialState: \r -> { route: r, lang: Eng, routesTitle: Map.empty }
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
@@ -53,12 +61,15 @@ component =
               handleAction <<< LangChange
 
       handleAction (LangChange lang) = do
-        H.modify_ _ { lang = lang }
-        logDebug $ "(TTHouse.Component.HTML.Menu.Hamburger) language change to: " <> show lang
-
+        xsm <- getMenuByLang lang
+        res <- for xsm \xs -> do 
+          H.modify_ _ { lang = lang, routesTitle = xs }
+          logDebug $ "(TTHouse.Component.HTML.Menu.Hamburger) language change to: " <> show lang
+          pure $ Just unit
+        when (isNothing res) $ logError "locale connot be changed"  
 
 -- I piggyback on the following implementation https://codepen.io/alvarotrigo/pen/PoJGObg
-render { route } =
+render { route, routesTitle } =
     HH.div_
     [
         HH.input [HPExt.type_ InputCheckbox, css "toggler"]
@@ -66,10 +77,10 @@ render { route } =
     ,   HH.div [css "menu"]
         [
             HH.div [HPExt.style "#position: relative; #top: -50%;margin:0 auto;width:200px"] 
-            [HH.ul_ (map (mkItem route addFontStyle) (fromEnum Home .. fromEnum Service) )]
+            [HH.ul_ (map (mkItem route routesTitle addFontStyle) (fromEnum Home .. fromEnum Service) )]
         ]     
     ]
-mkItem route applyStyle idx = 
+mkItem route xs applyStyle idx = 
   HH.li_ 
   [
       HH.a 
@@ -83,6 +94,13 @@ mkItem route applyStyle idx =
     mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
     isDisabled true = HPExt.style "cursor: not-allowed;"
     isDisabled false = HPExt.style mempty
-    el = applyStyle $ HH.text (show (mkRoute idx))
+    title = fromMaybe (show (mkRoute idx)) $ Map.lookup (mkRoute idx) xs
+    el = applyStyle $ HH.text title
 
 addFontStyle el = HH.div [HPExt.style "text-transform:uppercase;"] [el]
+
+
+getMenuByLang lang = do
+  let fromIdx = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
+  let xsm = fromArray $ map fromIdx (fromEnum Home .. fromEnum Service)
+  for xsm \xs -> H.liftEffect $ Locale.getMap xs lang

@@ -27,6 +27,7 @@ import Data.Maybe
 import Data.Bounded
 import Data.Enum.Generic (genericFromEnum, genericToEnum, genericSucc, genericPred, genericCardinality)
 
+
 -- | We'll represent routes in our application with a simple sum type. As the application grows,
 -- | you might want to swap this out with an extensible sum type with `Variant` and have several
 -- | sub-sections. For our small MVP this type will work just fine and will prevent us from trying

@@ -4,10 +4,11 @@ import Prelude
 
 import TTHouse.Component.HTML.Utils (css)
 import TTHouse.Data.Route (Route (..))
-import TTHouse.Component.Menu.Hamburger (mkItem)
+import TTHouse.Component.Menu.Hamburger (mkItem, getMenuByLang)
 import TTHouse.Component.Lang (Lang (..))
-import TTHouse.Capability.LogMessages (logDebug)
+import TTHouse.Capability.LogMessages (logDebug, logError)
 import TTHouse.Component.Lang (Recipients (Navbar))
+import TTHouse.Locale as Locale
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -22,6 +23,8 @@ import Effect.Aff as Aff
 import Data.Foldable (for_)
 import Effect.AVar as Async
 import Data.Map as Map
+import Data.Traversable (for)
+import Data.Maybe (Maybe (..), isNothing)
 
 import Undefined
 
@@ -30,11 +33,15 @@ proxy = Proxy :: _ "navbar"
 
 data Action = Initialize | LangChange Lang
 
-type State = { route :: Route, lang :: Lang }
+type State = 
+     { route :: Route
+     , lang :: Lang 
+     , routesTitle :: Map.Map Route String  
+     }
 
 component =
   H.mkComponent
-    { initialState: \r -> { route: r, lang: Eng }
+    { initialState: \r -> { route: r, lang: Eng, routesTitle: Map.empty }
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
@@ -53,16 +60,20 @@ component =
               handleAction <<< LangChange
 
       handleAction (LangChange lang) = do
-        H.modify_ _ { lang = lang }
-        logDebug $ "(TTHouse.Component.HTML.Menu.Navbar) language change to: " <> show lang
+       xsm <- getMenuByLang lang
+       res <- for xsm \xs -> do 
+          H.modify_ _ { lang = lang, routesTitle = xs }
+          logDebug $ "(TTHouse.Component.HTML.Menu.Navbar) language change to: " <> show lang
+          pure $ Just unit
+       when (isNothing res) $ logError "locale connot be changed" 
 
 -- taken from: https://codepen.io/albizan/pen/mMWdWZ
-render { route } =
+render { route, routesTitle } =
   HH.div [css "header-menu-wrapper"]
   [ 
       HH.nav [css "navbar navbar-expand-lg navbar-light"]
       [
-          HH.ul [css "navbar-nav"] (map (mkItem route addFontStyle) (fromEnum Home .. fromEnum Service) ) 
+          HH.ul [css "navbar-nav"] (map (mkItem route routesTitle addFontStyle) (fromEnum Home .. fromEnum Service) ) 
       ]
   ]
 
