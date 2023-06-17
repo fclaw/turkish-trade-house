@@ -31,18 +31,26 @@ import Data.Map as Map
 import Data.Traversable (for)
 import Data.Either (isLeft, fromLeft, Either (..))
 import Unsafe.Coerce
+import System.Time (getTimestamp)
+import Statistics (sendComponentTime) 
 
-import Undefined
 
 proxy = Proxy :: _ "home"
 
-data Action = Initialize | WinResize Int | LangChange Lang
+componentName = "TTHouse.Page.Home"
+
+data Action = 
+       Initialize 
+     | WinResize Int 
+     | LangChange Lang 
+     | Finalize
 
 type State = 
      { winWidth :: Maybe Int
      , platform :: Maybe Platform
      , body :: String
      , lang :: Lang
+     , start :: Int
      }
 
 component mkBody =
@@ -51,11 +59,13 @@ component mkBody =
       { winWidth: Nothing
       , platform: Nothing
       , body: mempty
-      , lang: Eng }
+      , lang: Eng
+      , start: 0 }
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
-      , initialize = pure Initialize 
+      , initialize = pure Initialize
+      , finalize = pure Finalize
       }
     }
     where 
@@ -66,7 +76,17 @@ component mkBody =
         H.liftEffect $ window >>= document >>= setTitle "TTH"
         { platform, init, langVar } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
-        H.modify_ _ { platform = pure platform, winWidth = pure w, body = Scaffold.getHomeContent init }
+
+        tm <- H.liftEffect getTimestamp
+
+        logDebug $ "(TTHouse.Page.Home) component has started at " <> show tm
+
+        H.modify_ _ { 
+            platform = pure platform
+          , winWidth = pure w
+          , body = Scaffold.getHomeContent init
+          , start = tm  }
+
         void $ H.subscribe =<< WinResize.subscribe WinResize
 
         void $ H.fork $ forever $ do
@@ -89,5 +109,12 @@ component mkBody =
           Right obj -> do 
             respe <- H.liftEffect $ Scaffold.getDataFromResponse obj
             for_ respe \resp -> H.modify_ _ { lang = inLang, body = unsafeCoerce resp }
+
+      handleAction Finalize = do 
+        end <- H.liftEffect getTimestamp
+        {start} <- H.get
+        sendComponentTime start end componentName
+        
+
            
 content = HH.text
