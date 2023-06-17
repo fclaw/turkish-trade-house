@@ -7,7 +7,7 @@ import TTHouse.Data.Route (Route (..))
 import TTHouse.Component.Menu.Hamburger (mkItem, getMenuByLang)
 import TTHouse.Component.Lang (Lang (..))
 import TTHouse.Capability.LogMessages (logDebug, logError)
-import TTHouse.Component.Lang (Recipients (Navbar))
+import TTHouse.Component.Lang (Recipients (Menu))
 import TTHouse.Locale as Locale
 
 import Halogen as H
@@ -56,7 +56,7 @@ component =
           H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
           res <- H.liftEffect $ Async.tryRead langVar
           for_ res \langMap -> 
-            for_ (Map.lookup Navbar langMap) $ 
+            for_ (Map.lookup Menu langMap) $ 
               handleAction <<< LangChange
 
       handleAction (LangChange lang) = do

@@ -79,18 +79,12 @@ export const getShaCSSCommit = (obj) => {
     return obj.getShaCommitCss();
 }
 
-function camelize(str) {
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-    return index === 0 ? word.toLowerCase() : word.toUpperCase();
-  }).replace(/\s+/g, '');
-}
-
 export const loadTranslationImpl =
     function(page, lang, api) {
         return function(onError, onOk) {
             api.apiFrontendTranslatePageLangGet(page, lang).then(onOk).catch(onError)
         };
-}
+    }
 
 export const getTranslation = (obj) => {
     let x = e.ResponseTranslation.constructFromObject(obj)

@@ -65,16 +65,15 @@ data Action = Notify Int
 
 type State = { lang :: Int }
 
-data Recipients = Home | Hamburger | Navbar
+data Recipients = Home | Menu
 
 instance showRecipients :: Show Recipients where
   show Home = "home"
-  show Hamburger = "hamburger"
-  show Navbar = "navbar"
+  show Menu = "menu"
 
 instance encodeJsonRecipients :: EncodeJson Recipients where
   encodeJson Home = encodeJson "home"
-  encodeJson _ = undefined
+  encodeJson Menu = encodeJson "menu"
 
 derive instance genericRecipients :: Generic Recipients _
 derive instance eqRecipients :: Eq Recipients
@@ -90,7 +89,7 @@ instance boundedEnumRecipients :: BoundedEnum Recipients where
   fromEnum = genericFromEnum
 
 instance boundedRecipients :: Bounded Recipients where 
-  top = Navbar
+  top = Menu
   bottom = Home
 
 component =
@@ -110,7 +109,7 @@ component =
            res <- for valm \langMap -> do
              let xs = 
                    Map.fromFoldable $ 
-                   flip map (fromEnum Home .. fromEnum Navbar) \r -> 
+                   flip map (fromEnum Home .. fromEnum Menu) \r -> 
                      Tuple (fromMaybe undefined (toEnum r)) lang 
              res <- H.liftEffect $ Async.tryPut xs langVar
              if not res 
