@@ -39,9 +39,17 @@ export const getDataFromResponseImpl = left => right => resp => {
 
 export const getDataFromObjImpl = left => right => resp => {
     let success = resp.getSuccess();
-    let error = resp.getError();
+    let errMsg = (xs) => {
+        tmp = '';
+        xs.forEach(e => {
+            tmp += e.getMessage();
+         });
+         return tmp;
+    }
     return () => {
-        return success !== undefined ? right(success) : left(error);
+        return success !== undefined ? 
+               right(success) : 
+               left(errMsg(resp.getErrors()));
     };
 }
 
@@ -114,7 +122,9 @@ export const mkLogReq = function(build, payload) {
     let req = new e.ScaffoldApiControllerFrontendLogRequest();
     req.setBuild(build);
     req.setPayload(payload);
-    return () => { return req; };
+    return () => {
+        return req;
+    };
 }
 
 export const sendLog = function(req, api) {
