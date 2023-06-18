@@ -2,6 +2,7 @@
 , dependencies =
   [ "argonaut-codecs"
   , "argonaut-core"
+  , "argonaut-generic"
   -- , "arrays"
   -- , "bifunctors"
   -- , "codec-argonaut"
@@ -49,6 +50,7 @@
   , "ordered-collections"
   , "unsafe-coerce" 
   , "web-dom"
+  , "lists"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
