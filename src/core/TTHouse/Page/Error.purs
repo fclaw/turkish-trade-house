@@ -6,12 +6,17 @@ module TTHouse.Page.Error
 
 import Prelude
 
+import TTHouse.Component.HTML.Utils (css)
+
 import Halogen as H
 import Halogen.HTML as HH
 import Type.Proxy (Proxy(..))
 import Halogen.Store.Monad (getStore)
 import Effect.Exception (message)
 import Data.Foldable (for_)
+import TTHouse.Capability.Navigate (navigate)
+import TTHouse.Data.Route (Route(Home))
+import Data.Maybe (isNothing)
 
 proxy = Proxy :: _ "error"
 
@@ -31,6 +36,12 @@ component =
     where 
        handleAction Initialize = do 
          {error} <- getStore
+         when (isNothing error) $ navigate Home
          for_ error \e -> H.modify_ _ { msg = message e }
 
-render { msg } = HH.div_ [ HH.text msg ]
+render { msg } = 
+  HH.section [css "centered"] 
+  [ 
+      HH.h1_ [ HH.text "Server Error" ]
+  ,   HH.div [css "container"] [HH.div_ [HH.text msg]]
+  ]

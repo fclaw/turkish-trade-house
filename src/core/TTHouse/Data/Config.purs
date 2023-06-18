@@ -19,6 +19,7 @@ type Config =
   , sha256Commit :: String
   , cssLink :: String
   , traceLocation :: String
+  , cssFiles :: Array String
   }
 
 configToJson :: Config -> Json

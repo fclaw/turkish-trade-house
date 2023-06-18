@@ -42,6 +42,7 @@ import Web.DOM.Internal.Types (Element)
 import Unsafe.Coerce (unsafeCoerce)
 import Cache as Cache
 import Halogen.Store.Monad (getStore)
+import Data.Foldable (for_)
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 
@@ -69,7 +70,7 @@ main cfg = do
           
           -- I am sick to the back teeth of changing css hash manualy
           -- let's make the process a bit self-generating
-          H.liftEffect $ setCssLink (getShaCSSCommit init) $ _.cssLink cfg
+          for_ (_.cssFiles cfg) $ H.liftEffect <<< setCssLink (getShaCSSCommit init) (_.cssLink cfg)
 
           langVar <- H.liftEffect $ Async.new Map.empty
 
@@ -141,8 +142,8 @@ main cfg = do
 -- link.href = 'http://website.example/css/stylesheet.css';
 -- link.media = 'all';
 -- head.appendChild(link);
-setCssLink :: String -> String -> Effect Unit
-setCssLink sha mkHref = do
+setCssLink :: String -> String -> String -> Effect Unit
+setCssLink sha mkHref file = do
   win <- window
   doc <- map toDocument $ document win
   xs <- "head" `getElementsByTagName` doc
@@ -151,7 +152,7 @@ setCssLink sha mkHref = do
       link :: Element <- "link" `createElement` doc
       setAttribute "rel" "stylesheet" link
       setAttribute "type" "text/css" link
-      let href = mkHref <> sha <> "/style.css"
+      let href = mkHref <> sha <> "/" <> file
       setAttribute "href" href link
       appendChild (toNode (unsafeCoerce link)) (toNode (unsafeCoerce head))
       pure $ Just unit
