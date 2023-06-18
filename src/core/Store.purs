@@ -22,7 +22,7 @@ import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Component.Lang.Data (Lang, Recipients)
 
 import Data.Maybe (Maybe(..))
-import Affjax (Error, printError)
+import Effect.Exception (Error, message)
 import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Encode.Class (encodeJson)
 import Data.Maybe
@@ -63,7 +63,7 @@ instance showPlatform :: Show Platform where
 -- | a configurable base URL. We'll also hold on to the currently-logged-in user.
 type Store = 
      { config :: Config
-     , affjaxError :: Maybe Error
+     , error :: Maybe Error
      , platform :: Platform
      , init :: Scaffold.ScaffoldApiControllerFrontendInitInit
      , langVar :: AVar (Map.Map Recipients Lang)
@@ -72,7 +72,7 @@ type Store =
 
 printStore store = 
   "{config: " <> stringify (encodeJson (_.config store)) <> 
-  ", affjaxError: " <> fromMaybe mempty (map printError (_.affjaxError store)) <> 
+  ", affjaxError: " <> fromMaybe mempty (map message (_.error store)) <> 
   ", platform: " <> show (_.platform store) <> 
   ", init: " <> show (_.init store) <> 
   ", langVar: <AVar (Map.Map Recipients Lang)>" <>
@@ -85,13 +85,13 @@ printStore store =
 -- | Next, we'll define a data type that represents state updates to our store.
 -- | The log level and base URL should remain constant, but we'll need to be
 -- | able to set the current user.
-data Action = WriteAffjaxError Error | WriteMenuToCache (Map.Map String String)
+data Action = WriteError Error | WriteMenuToCache (Map.Map String String)
 
 -- | Finally, we'll map this action to a state update in a function called a
 -- | 'reducer'. If you're curious to learn more, see the `halogen-store`
 -- | documentation!
 reduce :: Store -> Action -> Store
-reduce store (WriteAffjaxError err) = store { affjaxError = Just err }
+reduce store (WriteError err) = store { error = Just err }
 reduce store (WriteMenuToCache xs) = store {  cache = Cache.write xs }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendInitInit)

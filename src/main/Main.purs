@@ -78,7 +78,7 @@ main cfg = do
           -- fields. If our environment type ever changes, we'll get a compiler error here.
           let initialStore = 
                 { config: cfg { sha256Commit = getShaCommit init }
-                , affjaxError: Nothing
+                , error: Nothing
                 , platform:
                   fromMaybe 
                     undefined
