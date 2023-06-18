@@ -21,6 +21,7 @@ import Data.Argonaut.Encode.Combinators
 import Data.Argonaut.Core (jsonEmptyObject)
 import Data.Argonaut.Encode.Encoders (encodeMaybe)
 import Foreign (Foreign)
+import Effect.Exception as E
 
 
 foreign import data ApiClient :: Type
@@ -48,23 +49,23 @@ foreign import printScaffoldApiControllerFrontendInitInit :: ScaffoldApiControll
 
 foreign import getDataFromResponseImpl 
   :: forall a . 
-  (Error -> Either Error a) -> 
-  (a -> Either Error a) -> 
+  (String -> Either E.Error a) -> 
+  (a -> Either E.Error a) -> 
   Object (Response a) -> 
-  Effect (Either Error a)
+  Either E.Error a
 
-getDataFromResponse :: forall a . Object (Response a) -> Effect (Either Error a)
-getDataFromResponse = getDataFromResponseImpl Left Right
+getDataFromResponse :: forall a . Object (Response a) -> Either E.Error a
+getDataFromResponse = getDataFromResponseImpl (Left <<< E.error) Right
 
 foreign import getDataFromObjImpl 
   :: forall a b . 
-  (Error -> Either Error b) -> 
-  (b -> Either Error b) -> 
+  (String -> Either E.Error b) -> 
+  (b -> Either E.Error b) -> 
   Object a -> 
-  Effect (Either Error b)
+  Effect (Either E.Error b)
 
-getDataFromObj :: forall a b . Object a -> Effect (Either Error b)
-getDataFromObj = getDataFromObjImpl Left Right
+getDataFromObj :: forall a b . Object a -> Effect (Either E.Error b)
+getDataFromObj = getDataFromObjImpl (Left <<< E.error) Right
 
 foreign import mkApiClient :: Fn1 String (Effect ApiClient)
 

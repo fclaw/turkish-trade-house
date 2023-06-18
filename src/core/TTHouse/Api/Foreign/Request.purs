@@ -13,11 +13,13 @@ import Data.Either
 import Effect.Aff (try)
 import Effect.Aff.Class
 import Foreign.Object (Object)
-import Data.Maybe
+import Data.Traversable (for)
+
+import Undefined
 
 makeWithResp
   :: forall m api resp . 
-  MonadAff m => 
+  MonadAff m =>
   String -> 
   (ApiClient -> Effect api) -> 
   (api -> AC.EffectFnAff (Object (Response resp))) -> 
@@ -27,12 +29,13 @@ makeWithResp host mkApi runApi = do
   H.liftAff $ try $ AC.fromEffectFnAff $ runApi api
 
 make
-  :: forall m api resp . 
-  MonadAff m => 
+  :: forall m api resp a . 
+  MonadAff m =>
   String -> 
   (ApiClient -> Effect api) -> 
   (api -> AC.EffectFnAff (Object resp)) -> 
-  m (Either Error (Object resp))
+  m (Either Error a)
 make host mkApi runApi = do
   api <- H.liftEffect $ do runFn1 mkApiClient host >>= mkApi
-  H.liftAff $ try $ AC.fromEffectFnAff $ runApi api
+  obj <- H.liftAff $ try $ AC.fromEffectFnAff $ runApi api
+  map join $ for obj (H.liftEffect <<< getDataFromObj)

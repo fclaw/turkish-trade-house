@@ -13,6 +13,8 @@ import Data.Argonaut.Core (jsonEmptyObject)
 import Halogen.Store.Monad (getStore)
 import Data.Function.Uncurried (runFn2)
 import Foreign (unsafeToForeign)
+import Data.Either
+import Effect.Exception (message)
 
 sendComponentTime start end component = do 
   logDebug "sendComponentTime enter .."
@@ -22,4 +24,7 @@ sendComponentTime start end component = do
          ~> "totalTime" := (end - start)
          ~> jsonEmptyObject
   req <- H.liftEffect $ runFn2 Scaffold.mkLogReq sha256Commit (unsafeToForeign payload)
-  void $ makeWithResp scaffoldHost Scaffold.mkFrontApi $ runFn2 Scaffold.sendLog req
+  resp <- makeWithResp scaffoldHost Scaffold.mkFrontApi $ runFn2 Scaffold.sendLog req
+  case resp of 
+    Right _ -> logDebug "ok"
+    Left err -> logDebug $ "errr- >" <> message err

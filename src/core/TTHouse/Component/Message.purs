@@ -71,9 +71,7 @@ component =
     where 
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
-        let handleSubmit (Right resp) = do 
-              resp_data :: Either Scaffold.Error Unit <- H.liftEffect $ Scaffold.getDataFromResponse resp
-              logDebug $ show resp_data
+        let handleSubmit (Right _) = do
               H.modify_ _ { 
                   isSent = true
                 , email = Nothing

@@ -117,10 +117,8 @@ addFontStyle el = HH.div [HPExt.style "text-transform:uppercase;"] [el]
 
 
 getMenuByLang host lang = runExceptT $ do 
-  obje <- lift $ Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation Scaffold.Menu lang Nothing
-  obj <- except $ lmap show obje
-  rese <- lift $ H.liftEffect $ Scaffold.getDataFromObj obj
-  xs <- except $ bimap show Scaffold.getTranslatedMenuArray rese
+  resp <- lift $ Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation Scaffold.Menu lang Nothing
+  xs <- except $ bimap show Scaffold.getTranslatedMenuArray resp
   pure $ Map.fromFoldable $ flip map xs $ \el -> 
     Tuple (Scaffold.getMenuItemKey el) (Scaffold.getMenuItemVal el)
 

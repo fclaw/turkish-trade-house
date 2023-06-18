@@ -95,6 +95,5 @@ reduce store (WriteAffjaxError err) = store { affjaxError = Just err }
 reduce store (WriteMenuToCache xs) = store {  cache = Cache.write xs }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendInitInit)
-initAppStore host = do
-  resp <- Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init
-  map join $ for resp $ map (lmap (Excep.error <<< show)) <<< liftEffect <<< Scaffold.getDataFromResponse
+initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init
+  

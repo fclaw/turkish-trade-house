@@ -112,9 +112,7 @@ component mkBody =
                   (Just (Scaffold.Location "home") )
         case obje of 
           Left httpErr ->  logError $ show httpErr
-          Right obj -> do 
-            respe <- H.liftEffect $ Scaffold.getDataFromObj obj
-            for_ respe \resp -> H.modify_ _ { lang = inLang, body = Scaffold.getTranslatedContent resp }
+          Right resp -> H.modify_ _ { lang = inLang, body = Scaffold.getTranslatedContent resp }
 
       handleAction Finalize = do 
         end <- H.liftEffect getTimestamp
