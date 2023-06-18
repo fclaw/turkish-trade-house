@@ -3,7 +3,7 @@
     "telegramChat": "-934720023",
     "telegramHost": "https://api.telegram.org/",
     "toTelegram": false,
-    "scaffoldHost": "http://127.0.0.1:12000",
+    "scaffoldHost": "https://back-g52bgv5bua-ew.a.run.app",
     "cssLink": "https://cdn.jsdelivr.net/gh/fclaw/turkish-trade-house-style-and-css@",
     "cssFiles": ["style.css", "error.css"]
 }
