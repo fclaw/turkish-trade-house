@@ -17,6 +17,12 @@ import Data.Foldable (for_)
 import TTHouse.Capability.Navigate (navigate)
 import TTHouse.Data.Route (Route(Home))
 import Data.Maybe (isNothing)
+import Web.HTML.Window (document)
+import Web.HTML (window)
+import Web.HTML.HTMLElement (toElement)
+import Web.DOM.Element (setClassName)
+import Web.HTML.HTMLDocument (body)
+import Halogen.HTML.Properties.Extended as HPExt
 
 proxy = Proxy :: _ "error"
 
@@ -34,14 +40,22 @@ component =
       }
     }
     where 
-       handleAction Initialize = do 
+       handleAction Initialize = do
+         H.liftEffect $ do 
+           win <- window
+           doc <- document win
+           bodym <- body doc
+           for_ bodym \body -> 
+             "body-error" `setClassName` toElement body
+
          {error} <- getStore
          when (isNothing error) $ navigate Home
          for_ error \e -> H.modify_ _ { msg = message e }
 
+
 render { msg } = 
   HH.section [css "centered"] 
   [ 
-      HH.h1_ [ HH.text "Server Error" ]
-  ,   HH.div [css "container"] [HH.div_ [HH.text msg]]
+      HH.h1_ [HH.text "Internal Server Error or Network failure"]
+  ,   HH.div [css "container"] [HH.span [HPExt.style "font-size:20px; color:red;"] [HH.text msg]]
   ]
