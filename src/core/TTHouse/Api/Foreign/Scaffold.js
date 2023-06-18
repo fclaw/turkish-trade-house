@@ -37,6 +37,14 @@ export const getDataFromResponseImpl = left => right => resp => {
     };
 }
 
+export const getDataFromObjImpl = left => right => resp => {
+    let success = resp.getSuccess();
+    let error = resp.getError();
+    return () => {
+        return success !== undefined ? right(success) : left(error);
+    };
+}
+
 export const printError = (err) => {
     return err.getMessage();
 }
@@ -80,13 +88,20 @@ export const getShaCSSCommit = (obj) => {
 }
 
 export const loadTranslationImpl =
-    function(page, lang, api) {
+    function(resource, lang, loc, api) {
         return function(onError, onOk) {
-            api.apiFrontendTranslatePageLangGet(page, lang).then(onOk).catch(onError)
+            api.apiFrontendTranslateResourceLangGet(resource, lang, loc).then(onOk).catch(onError)
         };
     }
 
-export const getTranslation = (obj) => {
-    let x = e.ResponseTranslation.constructFromObject(obj)
-    return x.getSuccess();
+export const getTranslatedContent = (obj) => {
+    return obj.getTranslationContent();
 }
+
+export const getTranslatedMenuArray = (obj) => {
+    return obj.getTranslationMenu();
+}
+
+export const getMenuItemKey = (obj) => { return obj.getKey(); }
+
+export const getMenuItemVal = (obj) => { return obj.getValue(); }

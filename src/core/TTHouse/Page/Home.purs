@@ -9,9 +9,9 @@ import Prelude
 
 import TTHouse.Page.Subscription.WinResize as WinResize 
 import TTHouse.Api.Foreign.Scaffold as Scaffold
-import TTHouse.Component.Lang (Lang (..))
+import TTHouse.Component.Lang.Data (Lang (..))
 import  TTHouse.Capability.LogMessages (logDebug, logError)
-import TTHouse.Component.Lang (Recipients (Home))
+import TTHouse.Component.Lang.Data (Recipients (Home))
 import TTHouse.Api.Foreign.Request as Request
 
 import Halogen as H
@@ -30,10 +30,9 @@ import Effect.AVar as Async
 import Data.Map as Map
 import Data.Traversable (for)
 import Data.Either (isLeft, fromLeft, Either (..))
-import Unsafe.Coerce
 import System.Time (getTimestamp)
 import Statistics (sendComponentTime) 
-
+import Data.List (head)
 
 proxy = Proxy :: _ "home"
 
@@ -90,31 +89,36 @@ component mkBody =
         void $ H.subscribe =<< WinResize.subscribe WinResize
 
         void $ H.fork $ forever $ do
-          H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
+          H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
           res <- H.liftEffect $ Async.tryRead langVar
           logDebug $ "(TTHouse.Page.Home) lang map" <> show res  
           for_ res \langMap -> 
             for_ (Map.lookup Home langMap) $ \inlang -> do
               {lang} <- H.get 
-              when (inlang /= lang) $
-                handleAction $ LangChange inlang
+              let headm = head $ Map.values langMap
+              for_ headm \x -> 
+                when (x /= lang) $
+                  for_ (Map.lookup Home langMap) $ 
+                    handleAction <<< LangChange
 
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
       handleAction (LangChange inLang) = do
         logDebug $ "(TTHouse.Page.Home) language change to: " <> show inLang
         { config: {scaffoldHost: host} } <- getStore
-        obje <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation Home inLang
+        obje <- Request.make host Scaffold.mkFrontApi $ 
+                  Scaffold.loadTranslation 
+                  Scaffold.Content
+                  inLang 
+                  (Just (Scaffold.Location "home") )
         case obje of 
           Left httpErr ->  logError $ show httpErr
           Right obj -> do 
-            respe <- H.liftEffect $ Scaffold.getDataFromResponse obj
-            for_ respe \resp -> H.modify_ _ { lang = inLang, body = unsafeCoerce resp }
+            respe <- H.liftEffect $ Scaffold.getDataFromObj obj
+            for_ respe \resp -> H.modify_ _ { lang = inLang, body = Scaffold.getTranslatedContent resp }
 
       handleAction Finalize = do 
         end <- H.liftEffect getTimestamp
         {start} <- H.get
         sendComponentTime start end componentName
-        
-
-           
+   
 content = HH.text

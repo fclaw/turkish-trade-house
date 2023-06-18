@@ -26,6 +26,7 @@ import TTHouse.Capability.Now (class Now)
 import TTHouse.Component.HTML.Header as Header
 import TTHouse.Component.HTML.Footer as Footer
 import TTHouse.Component.HTML.Body as Body
+import TTHouse.Component.Lang.Data (Lang (..))
 
 import Data.Either (hush)
 import Data.Foldable (elem)
@@ -43,10 +44,14 @@ import Type.Proxy (Proxy(..))
 import Undefined
 import Halogen.HTML.Properties as HP
 import Store (Store, printStore, Platform)
+import Effect.AVar as Async
+import Data.Foldable (for_)
+import Data.List (head)
+import Data.Map as Map
 
 data Query a = Navigate Route a
 
-type State = { route :: Maybe Route }
+type State = { route :: Maybe Route, lang :: Lang }
 
 data Action
   = Initialize
@@ -67,7 +72,7 @@ component
   => MonadStore a Store m
   => H.Component Query Unit Void m
 component = H.mkComponent
-  { initialState: const { route: Nothing }
+  { initialState: const { route: Nothing, lang: Eng }
   , render
   , eval: H.mkEval $ H.defaultEval
       { handleQuery = handleQuery
@@ -86,6 +91,11 @@ component = H.mkComponent
     navigate $ fromMaybe Home initialRoute
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
+    {langVar} <- getStore
+    res <- H.liftEffect $ Async.tryRead langVar
+    for_ res \langMap -> do
+      let headm = head $ Map.values langMap
+      for_ headm \lang -> H.modify_ _ { lang = lang }
     H.modify_ _ { route = pure dest }
     pure $ Just a
 
@@ -102,8 +112,8 @@ render :: forall m a
   => MonadStore a Store m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just r@Home } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@Home, lang: l } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r l)) unit
 render { route: Just Error } = HH.slot_ Error.proxy unit Error.component unit
-render { route: Just r@About } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r)) unit
-render { route: Just r@Service } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@About, lang: l } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r l)) unit
+render { route: Just r@Service, lang: l } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r l)) unit
 render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]

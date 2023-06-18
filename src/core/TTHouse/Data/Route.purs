@@ -26,6 +26,8 @@ import Data.Enum
 import Data.Maybe
 import Data.Bounded
 import Data.Enum.Generic (genericFromEnum, genericToEnum, genericSucc, genericPred, genericCardinality)
+import Data.Argonaut.Decode.Generic (genericDecodeJson)
+import Data.Argonaut.Decode (class DecodeJson)
 
 
 -- | We'll represent routes in our application with a simple sum type. As the application grows,
@@ -60,6 +62,10 @@ instance boundedEnumRoute :: BoundedEnum Route where
 instance boundedRoute :: Bounded Route where 
   top = Service
   bottom = Error
+
+instance decodeJson :: DecodeJson Route where
+  decodeJson = genericDecodeJson
+
 
 -- | Next, we'll define a bidirectional codec for our route parsing. Our single codec will handle
 -- | both parsing browser locations and serializing our data type to a browser location. We'll skip

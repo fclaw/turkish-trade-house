@@ -1,4 +1,4 @@
-module TTHouse.Api.Foreign.Request (make) where
+module TTHouse.Api.Foreign.Request (make, makeWithResp) where
 
 import Prelude
 
@@ -15,13 +15,24 @@ import Effect.Aff.Class
 import Foreign.Object (Object)
 import Data.Maybe
 
-make
+makeWithResp
   :: forall m api resp . 
   MonadAff m => 
   String -> 
   (ApiClient -> Effect api) -> 
   (api -> AC.EffectFnAff (Object (Response resp))) -> 
   m (Either Error (Object (Response resp)))
+makeWithResp host mkApi runApi = do
+  api <- H.liftEffect $ do runFn1 mkApiClient host >>= mkApi
+  H.liftAff $ try $ AC.fromEffectFnAff $ runApi api
+
+make
+  :: forall m api resp . 
+  MonadAff m => 
+  String -> 
+  (ApiClient -> Effect api) -> 
+  (api -> AC.EffectFnAff (Object resp)) -> 
+  m (Either Error (Object resp))
 make host mkApi runApi = do
   api <- H.liftEffect $ do runFn1 mkApiClient host >>= mkApi
   H.liftAff $ try $ AC.fromEffectFnAff $ runApi api

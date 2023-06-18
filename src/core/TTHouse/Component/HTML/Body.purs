@@ -25,8 +25,8 @@ type BodyHtml =
      , footer :: forall i p . Footer i p
      }
 
-mkBodyHtml { header, footer } route platform width content = 
-  HH.div_ [ header route platform width, footer, contentWrapper content ]
+mkBodyHtml { header, footer } route lang platform width content = 
+  HH.div_ [ header route lang platform width, footer, contentWrapper content ]
 
 contentWrapper content =
   HH.table [HPExt.style "margin: 0 auto; width:100%;"]

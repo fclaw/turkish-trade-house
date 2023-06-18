@@ -5,10 +5,9 @@ import Prelude
 import TTHouse.Component.HTML.Utils (css)
 import TTHouse.Data.Route (Route (..))
 import TTHouse.Component.Menu.Hamburger (mkItem, getMenuByLang)
-import TTHouse.Component.Lang (Lang (..))
+import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Capability.LogMessages (logDebug, logError)
-import TTHouse.Component.Lang (Recipients (Menu))
-import TTHouse.Locale as Locale
+import TTHouse.Component.Lang.Data (Recipients (Menu))
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -25,6 +24,8 @@ import Effect.AVar as Async
 import Data.Map as Map
 import Data.Traversable (for)
 import Data.Maybe (Maybe (..), isNothing)
+import Data.Either (Either (..), isLeft, fromLeft)
+import Data.List (head)
 
 import Undefined
 
@@ -41,7 +42,7 @@ type State =
 
 component =
   H.mkComponent
-    { initialState: \r -> { route: r, lang: Eng, routesTitle: Map.empty }
+    { initialState: identity
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
@@ -53,19 +54,25 @@ component =
         { langVar } <- getStore
 
         void $ H.fork $ forever $ do
-          H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
+          H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
+          { lang } <- H.get 
           res <- H.liftEffect $ Async.tryRead langVar
-          for_ res \langMap -> 
-            for_ (Map.lookup Menu langMap) $ 
-              handleAction <<< LangChange
+          for_ res \langMap -> do
+            let headm = head $ Map.values langMap
+            for_ headm \x -> 
+              if x /= lang then
+                for_ (Map.lookup Menu langMap) $ 
+                  handleAction <<< LangChange
+              else logDebug "navbar needs initialising"
 
       handleAction (LangChange lang) = do
-       xsm <- getMenuByLang lang
-       res <- for xsm \xs -> do 
-          H.modify_ _ { lang = lang, routesTitle = xs }
-          logDebug $ "(TTHouse.Component.HTML.Menu.Navbar) language change to: " <> show lang
-          pure $ Just unit
-       when (isNothing res) $ logError "locale connot be changed" 
+       { config: {scaffoldHost: host} } <- getStore
+       xse <- getMenuByLang host lang
+       case xse of 
+         Right xs -> do 
+           H.modify_ _ { lang = lang, routesTitle = xs }
+           logDebug $ "(TTHouse.Component.HTML.Menu.Navbar) language change to: " <> show lang
+         Left err -> logError $ show err
 
 -- taken from: https://codepen.io/albizan/pen/mMWdWZ
 render { route, routesTitle } =

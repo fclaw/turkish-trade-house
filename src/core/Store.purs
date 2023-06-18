@@ -16,10 +16,10 @@ module Store
 import Prelude
 
 import TTHouse.Data.Config (Config)
-import TTHouse.Component.Lang (Lang, Recipients)
 import TTHouse.Api.Foreign.Scaffold as Scaffold 
 import TTHouse.Capability.LogMessages (logError, logDebug)
 import TTHouse.Api.Foreign.Request as Request
+import TTHouse.Component.Lang.Data (Lang, Recipients)
 
 import Data.Maybe (Maybe(..))
 import Affjax (Error, printError)

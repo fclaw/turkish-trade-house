@@ -4,10 +4,11 @@ import Prelude
 
 import TTHouse.Component.HTML.Utils (css, safeHref)
 import TTHouse.Data.Route (Route (..))
-import TTHouse.Component.Lang (Lang (..))
+import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Capability.LogMessages (logDebug, logError)
-import TTHouse.Component.Lang (Recipients (Menu))
-import TTHouse.Locale as Locale
+import TTHouse.Component.Lang.Data (Recipients (Menu))
+import TTHouse.Api.Foreign.Scaffold as Scaffold
+import TTHouse.Api.Foreign.Request as Request
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -24,8 +25,14 @@ import Effect.AVar as Async
 import Data.Map as Map
 import Data.Maybe
 import Data.Array.NonEmpty (fromArray)
-import Data.Traversable (for)
-import Data.Map as Map
+import Data.Traversable (for, traverse)
+import Data.Either (Either (..), isLeft, fromLeft)
+import Control.Monad.Except.Trans (runExceptT, except, withExceptT)
+import Control.Monad.Trans.Class (lift)
+import Data.Bifunctor (bimap, lmap)
+import Foreign (readArray)
+import Data.Tuple (Tuple (..))
+import Data.List (head)
 
 import Undefined
 
@@ -37,12 +44,12 @@ data Action = Initialize | LangChange Lang
 type State = 
      { route :: Route
      , lang :: Lang
-     , routesTitle :: Map.Map Route String 
+     , routesTitle :: Map.Map String String 
      }
 
 component =
   H.mkComponent
-    { initialState: \r -> { route: r, lang: Eng, routesTitle: Map.empty }
+    { initialState: identity
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
@@ -54,20 +61,24 @@ component =
         { langVar } <- getStore
 
         void $ H.fork $ forever $ do
-          H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
+          H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
+          { lang } <- H.get 
           res <- H.liftEffect $ Async.tryRead langVar
-          for_ res \langMap -> 
-            for_ (Map.lookup Menu langMap) $ 
-              handleAction <<< LangChange
+          for_ res \langMap -> do
+            let headm = head $ Map.values langMap
+            for_ headm \x -> 
+              when (x /= lang) $ 
+                for_ (Map.lookup Menu langMap) $ 
+                  handleAction <<< LangChange  
 
       handleAction (LangChange lang) = do
-        xsm <- getMenuByLang lang
-        res <- for xsm \xs -> do 
+        { config: {scaffoldHost: host} } <- getStore
+        xse <- getMenuByLang host lang
+        res <- for xse \xs -> do 
           H.modify_ _ { lang = lang, routesTitle = xs }
           logDebug $ "(TTHouse.Component.HTML.Menu.Hamburger) language change to: " <> show lang
-          pure $ Just unit
-        when (isNothing res) $ logError "locale connot be changed"  
-
+        when (isLeft res) $ logError $ show $ fromLeft "cannot read left" res
+       
 -- I piggyback on the following implementation https://codepen.io/alvarotrigo/pen/PoJGObg
 render { route, routesTitle } =
     HH.div_
@@ -94,13 +105,18 @@ mkItem route xs applyStyle idx =
     mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
     isDisabled true = HPExt.style "cursor: not-allowed;"
     isDisabled false = HPExt.style mempty
-    title = fromMaybe (show (mkRoute idx)) $ Map.lookup (mkRoute idx) xs
+    title = fromMaybe (show (mkRoute idx)) $ Map.lookup (show (mkRoute idx)) xs
     el = applyStyle $ HH.text title
 
 addFontStyle el = HH.div [HPExt.style "text-transform:uppercase;"] [el]
 
 
-getMenuByLang lang = do
-  let fromIdx = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
-  let xsm = fromArray $ map fromIdx (fromEnum Home .. fromEnum Service)
-  for xsm \xs -> H.liftEffect $ Locale.getMap xs lang
+getMenuByLang host lang = runExceptT $ do 
+  obje <- lift $ Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation Scaffold.Menu lang Nothing
+  obj <- except $ lmap show obje
+  rese <- lift $ H.liftEffect $ Scaffold.getDataFromObj obj
+  xs <- except $ bimap show Scaffold.getTranslatedMenuArray rese
+  pure $ Map.fromFoldable $ flip map xs $ \el -> 
+    Tuple (Scaffold.getMenuItemKey el) (Scaffold.getMenuItemVal el)
+
+

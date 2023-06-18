@@ -1,23 +1,16 @@
-module TTHouse.Component.Lang
-  ( Lang(..)
-  , Recipients(..)
-  , component
-  , proxy
-  )
-  where
+module TTHouse.Component.Lang ( component, proxy ) where
 
 import Prelude
 
 import TTHouse.Component.HTML.Utils (css)
-import TTHouse.Capability.LogMessages (logDebug, logError)
+import TTHouse.Capability.LogMessages (logDebug, logError, class LogMessages)
+import TTHouse.Capability.Now (class Now)
+import TTHouse.Component.Lang.Data
 
-import Data.Generic.Rep (class Generic)
+import Halogen.Store.Monad (class MonadStore)
 import Halogen as H
 import Halogen.HTML as HH
 import Type.Proxy (Proxy(..))
-import Data.Enum
-import Data.Bounded
-import Data.Enum.Generic (genericFromEnum, genericToEnum, genericSucc, genericPred, genericCardinality)
 import Data.Array ((..))
 import Halogen.HTML.Properties.Extended as HPExt
 import Data.Maybe (fromMaybe, Maybe (..), isNothing)
@@ -29,82 +22,33 @@ import Halogen.Store.Monad (getStore)
 import Effect.AVar as Async
 import Data.Map as Map
 import Data.Tuple
-import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
-
+import Data.List (head)
+import Store (Store)
+import Data.Enum (toEnum, fromEnum)
 
 proxy = Proxy :: _ "lang"
 
-data Lang = Eng | Turk
-
-derive instance genericLang :: Generic Lang _
-derive instance eqLang :: Eq Lang
-derive instance ordLang :: Ord Lang
-
-instance encodeJsonLang :: EncodeJson Lang where
-  encodeJson Eng = encodeJson "english"
-  encodeJson Turk = encodeJson "turkish"
-
-instance showLang :: Show Lang where
-  show Eng = "English"
-  show Turk = "Türkçe"
-
-instance enumLang :: Enum Lang where 
-  succ = genericSucc
-  pred = genericPred
-
-instance boundedEnumLang :: BoundedEnum Lang where 
-  cardinality = genericCardinality
-  toEnum = genericToEnum
-  fromEnum = genericFromEnum
-
-instance boundedLang :: Bounded Lang where 
-  top = Turk
-  bottom = Eng
-
-data Action = Notify Int
-
-type State = { lang :: Int }
-
-data Recipients = Home | Menu
-
-instance showRecipients :: Show Recipients where
-  show Home = "home"
-  show Menu = "menu"
-
-instance encodeJsonRecipients :: EncodeJson Recipients where
-  encodeJson Home = encodeJson "home"
-  encodeJson Menu = encodeJson "menu"
-
-derive instance genericRecipients :: Generic Recipients _
-derive instance eqRecipients :: Eq Recipients
-derive instance ordRecipients :: Ord Recipients
-
-instance enumRecipients :: Enum Recipients where 
-  succ = genericSucc
-  pred = genericPred 
-
-instance boundedEnumRecipients :: BoundedEnum Recipients where 
-  cardinality = genericCardinality
-  toEnum = genericToEnum
-  fromEnum = genericFromEnum
-
-instance boundedRecipients :: Bounded Recipients where 
-  top = Menu
-  bottom = Home
-
+component :: forall q i o m s . MonadStore s Store m => LogMessages m => Now m => H.Component q i o m
 component =
   H.mkComponent
     { initialState: const { lang: 0 }
     , render: render
     , eval: H.mkEval H.defaultEval
-      { handleAction = handleAction }
+      { handleAction = handleAction
+      , initialize = pure Initialize }
     }
     where
+      handleAction Initialize = do
+        { langVar } <- getStore
+        langm <- H.liftEffect $ Async.tryRead langVar
+        for_ langm \langXs -> do
+          let headm = head $ Map.values langXs
+          for_ headm \lang -> H.modify_ _ { lang = fromEnum lang }
       handleAction (Notify idx) = do
         let langm = toEnum idx
         logDebug $ show langm
         for_ langm $ \lang -> do 
-           {langVar} <- getStore
+           { langVar } <- getStore
            valm <- H.liftEffect $ Async.tryTake langVar
            res <- for valm \langMap -> do
              let xs = 
