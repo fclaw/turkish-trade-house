@@ -16,7 +16,7 @@ import Data.Array ((..))
 import Data.Enum (fromEnum, toEnum)
 import DOM.HTML.Indexed.InputType
 import Type.Proxy (Proxy(..))
-import Halogen.Store.Monad (getStore)
+import Halogen.Store.Monad (getStore, updateStore)
 import Control.Monad.Rec.Class (forever)
 import Effect.Aff as Aff
 import Data.Foldable (for_)
@@ -26,6 +26,8 @@ import Data.Traversable (for)
 import Data.Maybe (Maybe (..), isNothing)
 import Data.Either (Either (..), isLeft, fromLeft)
 import Data.List (head)
+import Store (Action (WriteMenuToCache))
+import Cache as Cache
 
 import Undefined
 
@@ -51,8 +53,10 @@ component =
     }
     where 
       handleAction Initialize = do
-        { langVar } <- getStore
+        { langVar, cache } <- getStore
 
+        H.modify_ _ { routesTitle = Cache.read cache }
+ 
         void $ H.fork $ forever $ do
           H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
           { lang } <- H.get 
@@ -63,7 +67,7 @@ component =
               if x /= lang then
                 for_ (Map.lookup Menu langMap) $ 
                   handleAction <<< LangChange
-              else logDebug "navbar needs initialising"
+              else logDebug "(TTHouse.Component.HTML.Menu.Navbar) menu is up-to-date. skip."
 
       handleAction (LangChange lang) = do
        { config: {scaffoldHost: host} } <- getStore
@@ -71,6 +75,7 @@ component =
        case xse of 
          Right xs -> do 
            H.modify_ _ { lang = lang, routesTitle = xs }
+           updateStore $ WriteMenuToCache xs
            logDebug $ "(TTHouse.Component.HTML.Menu.Navbar) language change to: " <> show lang
          Left err -> logError $ show err
 

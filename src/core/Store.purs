@@ -40,6 +40,7 @@ import Data.Function.Uncurried (runFn0)
 import Data.Traversable (sequence)
 import Effect.AVar (AVar)
 import Data.Map as Map
+import Cache as Cache
 
 data Platform = Desktop | Mobile
 
@@ -66,13 +67,16 @@ type Store =
      , platform :: Platform
      , init :: Scaffold.ScaffoldApiControllerFrontendInitInit
      , langVar :: AVar (Map.Map Recipients Lang)
+     , cache :: Cache.Cache
      }
 
 printStore store = 
   "{config: " <> stringify (encodeJson (_.config store)) <> 
   ", affjaxError: " <> fromMaybe mempty (map printError (_.affjaxError store)) <> 
   ", platform: " <> show (_.platform store) <> 
-  ", init: " <> show (_.init store) <> "}"
+  ", init: " <> show (_.init store) <> 
+  ", langVar: <AVar (Map.Map Recipients Lang)>" <>
+  ", cache: " <> show (_.cache store) <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that
@@ -81,13 +85,14 @@ printStore store =
 -- | Next, we'll define a data type that represents state updates to our store.
 -- | The log level and base URL should remain constant, but we'll need to be
 -- | able to set the current user.
-data Action = WriteAffjaxError Error
+data Action = WriteAffjaxError Error | WriteMenuToCache (Map.Map String String)
 
 -- | Finally, we'll map this action to a state update in a function called a
 -- | 'reducer'. If you're curious to learn more, see the `halogen-store`
 -- | documentation!
 reduce :: Store -> Action -> Store
 reduce store (WriteAffjaxError err) = store { affjaxError = Just err }
+reduce store (WriteMenuToCache xs) = store {  cache = Cache.write xs }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendInitInit)
 initAppStore host = do

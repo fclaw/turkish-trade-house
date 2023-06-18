@@ -102,6 +102,10 @@ export const getTranslatedMenuArray = (obj) => {
     return obj.getTranslationMenu();
 }
 
-export const getMenuItemKey = (obj) => { return obj.getKey(); }
+export const getMenuItemKey = (obj) => {
+    return obj.getKey();
+}
 
-export const getMenuItemVal = (obj) => { return obj.getValue(); }
+export const getMenuItemVal = (obj) => {
+    return obj.getValue();
+}

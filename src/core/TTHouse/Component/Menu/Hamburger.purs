@@ -17,7 +17,7 @@ import Data.Array ((..))
 import Data.Enum (fromEnum, toEnum)
 import DOM.HTML.Indexed.InputType
 import Type.Proxy (Proxy(..))
-import Halogen.Store.Monad (getStore)
+import Halogen.Store.Monad (getStore, updateStore)
 import Control.Monad.Rec.Class (forever)
 import Effect.Aff as Aff
 import Data.Foldable (for_)
@@ -33,6 +33,8 @@ import Data.Bifunctor (bimap, lmap)
 import Foreign (readArray)
 import Data.Tuple (Tuple (..))
 import Data.List (head)
+import Store (Action (WriteMenuToCache))
+import Cache as Cache
 
 import Undefined
 
@@ -58,7 +60,9 @@ component =
     }
     where 
       handleAction Initialize = do
-        { langVar } <- getStore
+        { langVar, cache } <- getStore
+
+        H.modify_ _ { routesTitle = Cache.read cache }
 
         void $ H.fork $ forever $ do
           H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
@@ -69,13 +73,14 @@ component =
             for_ headm \x -> 
               when (x /= lang) $ 
                 for_ (Map.lookup Menu langMap) $ 
-                  handleAction <<< LangChange  
+                  handleAction <<< LangChange
 
       handleAction (LangChange lang) = do
         { config: {scaffoldHost: host} } <- getStore
         xse <- getMenuByLang host lang
         res <- for xse \xs -> do 
           H.modify_ _ { lang = lang, routesTitle = xs }
+          updateStore $ WriteMenuToCache xs
           logDebug $ "(TTHouse.Component.HTML.Menu.Hamburger) language change to: " <> show lang
         when (isLeft res) $ logError $ show $ fromLeft "cannot read left" res
        

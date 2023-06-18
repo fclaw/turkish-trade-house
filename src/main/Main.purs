@@ -40,6 +40,7 @@ import Data.Traversable (for)
 import Web.HTML.HTMLDocument (toDocument, toNode)
 import Web.DOM.Internal.Types (Element)
 import Unsafe.Coerce (unsafeCoerce)
+import Cache as Cache
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 
@@ -83,6 +84,7 @@ main cfg = do
                     platform 
                 , init: init
                 , langVar: langVar
+                , cache: Cache.init
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.
