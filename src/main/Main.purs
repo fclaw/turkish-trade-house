@@ -41,6 +41,7 @@ import Web.HTML.HTMLDocument (toDocument, toNode)
 import Web.DOM.Internal.Types (Element)
 import Unsafe.Coerce (unsafeCoerce)
 import Cache as Cache
+import Halogen.Store.Monad (getStore)
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 

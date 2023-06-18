@@ -21,17 +21,25 @@ module TTHouse.Data.Log
   , reason
   , Log -- no constructors exported
   , mkLog
+  , loc
   ) where
 
 import Prelude
 
 import TTHouse.Capability.Now (class Now, nowDateTime)
 import Data.DateTime (DateTime)
-import Data.Either (either)
+import Data.Either (either, Either (..))
 import Data.Foldable (fold)
 import Data.Formatter.DateTime (formatDateTime)
 import Data.Generic.Rep
 import Data.Show.Generic (genericShow)
+import Affjax.Web as AX
+import Affjax.ResponseFormat as AX
+import Effect.Aff.Class
+import Data.Argonaut.Core (stringify)
+import Data.Bifunctor (rmap)
+import Data.Maybe (Maybe (..))
+
 
 -- | Most of this module describes metadata that can be used to create a predictable logging
 -- | format that we can search later on or use to set filters in an external service like Splunk
@@ -59,6 +67,7 @@ newtype Log = Log
   { reason :: LogReason
   , timestamp :: DateTime
   , message :: String
+  , loc :: String
   }
 
 derive instance eqLog :: Eq Log
@@ -78,28 +87,38 @@ message (Log { message: m }) = m
 reason :: Log -> LogReason
 reason (Log { reason: r }) = r
 
+loc :: Log -> String
+loc (Log { loc: l }) = l
+
 -- | Let's finally implement the function to create a `Log`. This will be a pure function that
 -- | relies on our `Now` capability to grab the current time and write it as an additional piece
 -- | of metadata. Our application monad will retrieve the current time effectfully, but we'll
 -- | write our tests using a hard-coded time so they can be deterministic.
-mkLog :: forall m. Now m => LogReason -> String -> m Log
+mkLog :: forall m. Now m => MonadAff m => LogReason -> String -> m Log
 mkLog logReason inputMessage = do
   now <- nowDateTime
 
-  let
-    -- Will produce a header like "{DEBUG: 2018-10-25 11:25:29 AM]\nMessage contents..."
-    headerWith start =
-      fold [ "[", start, ": ", formatTimestamp now, "]\n", inputMessage ]
+  locResp <- 
+    if logReason == Info 
+    then map (rmap Just) $ liftAff $ AX.get AX.json "https://api.db-ip.com/v2/free/self"
+    else pure $ Right Nothing
+  let -- Will produce a header like "{DEBUG: 2018-10-25 11:25:29 AM]\nMessage contents..."
+      headerWith start = fold [ "[", start, ": ", formatTimestamp now, "]\n", inputMessage ]
 
-    -- Writes the header with the correct log reason
-    formattedLog = headerWith case logReason of
-      Debug -> "DEBUG"
-      Info -> "INFO"
-      Warn -> "WARNING"
-      Error -> "ERROR"
+      -- Writes the header with the correct log reason
+      formattedLog = headerWith case logReason of
+        Debug -> "DEBUG"
+        Info -> "INFO"
+        Warn -> "WARNING"
+        Error -> "ERROR"
+      loc = 
+        case locResp of 
+          Right (Just resp) -> stringify $  _.body resp
+          Right _ -> "loc cannot be determined." 
+          Left _ -> "loc cannot be determined" 
 
-  pure $ Log { reason: logReason, timestamp: now, message: formattedLog }
+  pure $ Log { reason: logReason, timestamp: now, message: formattedLog, loc: loc }
 
   where
-  -- Will format "2018-10-25 11:25:29 AM"
-  formatTimestamp = either (const "(Failed to assign time)") identity <<< formatDateTime "YYYY-DD-MM hh:mm:ss a"
+     -- Will format "2018-10-25 11:25:29 AM"
+     formatTimestamp = either (const "(Failed to assign time)") identity <<< formatDateTime "YYYY-DD-MM hh:mm:ss a"

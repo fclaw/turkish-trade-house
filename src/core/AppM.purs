@@ -141,8 +141,10 @@ instance logMessagesAppM :: LogMessages AppM where
             , Tuple "text" (pure ("`" <> message log <> "`"))
             , Tuple "parse_mode" (pure "markdown")
             ] 
+
     when toTelegram $ void $ H.liftAff $ fork $ AX.post AX.json url_msg (pure body)
-    H.liftEffect $ logShow $ message log
+    H.liftEffect $ logShow $ message log <> ", loc: " <> loc log
+
 
 -- | We're finally ready to write concrete implementations for each of our abstract capabilities.
 -- | For an in-depth description of each capability, please refer to the relevant `Capability.*`

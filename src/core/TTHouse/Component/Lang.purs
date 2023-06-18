@@ -25,10 +25,11 @@ import Data.Tuple
 import Data.List (head)
 import Store (Store)
 import Data.Enum (toEnum, fromEnum)
+import Effect.Aff.Class
 
 proxy = Proxy :: _ "lang"
 
-component :: forall q i o m s . MonadStore s Store m => LogMessages m => Now m => H.Component q i o m
+component :: forall q i o m s . MonadStore s Store m => MonadAff m => LogMessages m => Now m => H.Component q i o m
 component =
   H.mkComponent
     { initialState: const { lang: 0 }

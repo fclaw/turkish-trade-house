@@ -18,6 +18,7 @@ type Config =
   , scaffoldHost :: String
   , sha256Commit :: String
   , cssLink :: String
+  , traceLocation :: String
   }
 
 configToJson :: Config -> Json
