@@ -5,7 +5,7 @@ import Prelude
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
 import TTHouse.Data.Config as Cfg
-import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit)
+import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit, getShaCommit)
 
 import Effect (Effect)
 import Halogen.Aff as HA
@@ -77,7 +77,7 @@ main cfg = do
           -- a record that matches the `Store` type our application requires by filling in these three
           -- fields. If our environment type ever changes, we'll get a compiler error here.
           let initialStore = 
-                { config: cfg
+                { config: cfg { sha256Commit = getShaCommit init }
                 , affjaxError: Nothing
                 , platform:
                   fromMaybe 

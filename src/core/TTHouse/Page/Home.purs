@@ -78,7 +78,7 @@ component mkBody =
 
         tm <- H.liftEffect getTimestamp
 
-        logDebug $ "(TTHouse.Page.Home) component has started at " <> show tm
+        logDebug $ "(" <> componentName <> ") component has started at " <> show tm
 
         H.modify_ _ { 
             platform = pure platform

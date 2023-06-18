@@ -20,6 +20,7 @@ import Data.Argonaut.Decode (decodeJson, (.:))
 import Data.Argonaut.Encode.Combinators
 import Data.Argonaut.Core (jsonEmptyObject)
 import Data.Argonaut.Encode.Encoders (encodeMaybe)
+import Foreign (Foreign)
 
 
 foreign import data ApiClient :: Type
@@ -33,6 +34,7 @@ foreign import data ScaffoldApiControllerFrontendInitContent :: Type
 foreign import data ResponseTranslation :: Type
 foreign import data Translation :: Type
 foreign import data ScaffoldApiControllerFrontendTranslateMenuItemObj :: Type
+foreign import data ScaffoldApiControllerFrontendLogRequest :: Type
 
 instance showError :: Show Error where
   show = printError
@@ -113,3 +115,7 @@ foreign import getTranslatedMenuArray :: Translation -> Array ScaffoldApiControl
 foreign import getMenuItemKey :: ScaffoldApiControllerFrontendTranslateMenuItemObj -> String
 foreign import getMenuItemVal :: ScaffoldApiControllerFrontendTranslateMenuItemObj -> String
 
+
+foreign import mkLogReq :: Fn2 String Foreign (Effect ScaffoldApiControllerFrontendLogRequest)
+
+foreign import sendLog :: Fn2 ScaffoldApiControllerFrontendLogRequest FrontApi (AC.EffectFnAff (Object (Response Unit)))

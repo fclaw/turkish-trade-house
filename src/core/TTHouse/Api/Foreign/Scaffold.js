@@ -109,3 +109,16 @@ export const getMenuItemKey = (obj) => {
 export const getMenuItemVal = (obj) => {
     return obj.getValue();
 }
+
+export const mkLogReq = function(build, payload) {
+    let req = new e.ScaffoldApiControllerFrontendLogRequest();
+    req.setBuild(build);
+    req.setPayload(payload);
+    return () => { return req; };
+}
+
+export const sendLog = function(req, api) {
+    return function(onError, onOk) {
+        api.apiFrontendLogPut(req).then(onOk).catch(onError)
+    };
+}
