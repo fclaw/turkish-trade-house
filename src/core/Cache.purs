@@ -3,6 +3,8 @@ module Cache
   , init
   , writeMenu
   , readMenu
+  , readHome
+  , writeHome
   ) 
  where
 
@@ -33,3 +35,10 @@ writeMenu xs (Cache impl) = Cache $ impl { menu = { xs: xs } }
 
 readMenu :: Cache -> Map.Map String String
 readMenu (Cache { menu: { xs } }) = xs
+
+
+writeHome :: String -> Cache -> Cache
+writeHome body (Cache impl) = Cache $ impl { home = { body: body } }
+
+readHome :: Cache -> String
+readHome (Cache { home: { body } }) = body
