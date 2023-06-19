@@ -11,7 +11,7 @@ module Cache
 import Prelude
 
 import Data.Map as Map
-import Data.Maybe (Maybe (Nothing))
+import Data.Maybe (Maybe (..))
 
 type Menu = { xs :: Map.Map String String }
 
@@ -38,7 +38,7 @@ readMenu (Cache { menu: { xs } }) = xs
 
 
 writeHome :: String -> Cache -> Cache
-writeHome body (Cache impl) = Cache $ impl { home = { body: body } }
+writeHome body (Cache impl) = Cache $ impl { home = Just { body: body } }
 
-readHome :: Cache -> String
-readHome (Cache { home: { body } }) = body
+readHome :: Cache -> Maybe String
+readHome (Cache { home: x }) = flip map x \{ body } -> body 

@@ -152,7 +152,7 @@ setCssLink sha mkHref file = do
       link :: Element <- "link" `createElement` doc
       setAttribute "rel" "stylesheet" link
       setAttribute "type" "text/css" link
-      let href = mkHref <> sha <> "/" <> file
+      let href = mkHref <> sha <> "/" <> file <> ".css"
       setAttribute "href" href link
       appendChild (toNode (unsafeCoerce link)) (toNode (unsafeCoerce head))
       pure $ Just unit

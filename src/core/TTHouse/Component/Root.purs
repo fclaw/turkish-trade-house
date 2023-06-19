@@ -91,7 +91,8 @@ component = H.mkComponent
     navigate $ fromMaybe Home initialRoute
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
-    {langVar} <- getStore
+    store@{langVar} <- getStore
+    logDebug $ printStore store
     res <- H.liftEffect $ Async.tryRead langVar
     for_ res \langMap -> do
       let headm = head $ Map.values langMap
