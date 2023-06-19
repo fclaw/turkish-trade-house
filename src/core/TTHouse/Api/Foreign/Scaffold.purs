@@ -26,26 +26,26 @@ import Effect.Exception as E
 
 foreign import data ApiClient :: Type
 foreign import data ForeignApi :: Type
-foreign import data ScaffoldApiControllerSendGridSendMailRequest :: Type
+foreign import data SendGridSendMailRequest :: Type
 foreign import data Response :: Type -> Type
 foreign import data Error :: Type
 foreign import data FrontApi :: Type
-foreign import data ScaffoldApiControllerFrontendInitInit :: Type
-foreign import data ScaffoldApiControllerFrontendInitContent :: Type
+foreign import data Init :: Type
+foreign import data Content :: Type
 foreign import data ResponseTranslation :: Type
 foreign import data Translation :: Type
-foreign import data ScaffoldApiControllerFrontendTranslateMenuItemObj :: Type
-foreign import data ScaffoldApiControllerFrontendLogRequest :: Type
+foreign import data MenuItemObj :: Type
+foreign import data FrontendLogRequest :: Type
 
 instance showError :: Show Error where
   show = printError
 
 foreign import printError :: Error -> String
 
-instance showScaffoldApiControllerFrontendInitInit :: Show ScaffoldApiControllerFrontendInitInit where
-  show = printScaffoldApiControllerFrontendInitInit
+instance Show Init where
+  show = printFrontendInit
 
-foreign import printScaffoldApiControllerFrontendInitInit :: ScaffoldApiControllerFrontendInitInit -> String
+foreign import printFrontendInit :: Init -> String
 
 foreign import getDataFromResponseImpl 
   :: forall a . 
@@ -73,19 +73,19 @@ foreign import mkForeignApi :: Fn1 ApiClient (Effect ForeignApi)
 
 type SendGridSendMailRequestBody = { from :: String, personalization :: String, subject :: String, body :: String }
 
-foreign import mkScaffoldApiControllerSendGridSendMailRequest :: Fn1 SendGridSendMailRequestBody (Effect ScaffoldApiControllerSendGridSendMailRequest)
+foreign import mkSendGridSendMailRequest :: Fn1 SendGridSendMailRequestBody (Effect SendGridSendMailRequest)
 
-foreign import send :: forall a . Fn2 ScaffoldApiControllerSendGridSendMailRequest ForeignApi (AC.EffectFnAff (Object (Response a)))
+foreign import send :: forall a . Fn2 SendGridSendMailRequest ForeignApi (AC.EffectFnAff (Object (Response a)))
 
 foreign import mkFrontApi :: Fn1 ApiClient (Effect FrontApi)
 
-foreign import init :: Fn1 FrontApi  (AC.EffectFnAff (Object (Response ScaffoldApiControllerFrontendInitInit)))
+foreign import init :: Fn1 FrontApi  (AC.EffectFnAff (Object (Response Init)))
 
-foreign import getHomeContent :: ScaffoldApiControllerFrontendInitInit -> String
-foreign import getAboutContent :: ScaffoldApiControllerFrontendInitInit -> String
-foreign import getServiceContent :: ScaffoldApiControllerFrontendInitInit -> String
-foreign import getShaCommit :: ScaffoldApiControllerFrontendInitInit -> String
-foreign import getShaCSSCommit :: ScaffoldApiControllerFrontendInitInit -> String
+foreign import getHomeContent :: Init -> String
+foreign import getAboutContent :: Init -> String
+foreign import getServiceContent :: Init -> String
+foreign import getShaCommit :: Init -> String
+foreign import getShaCSSCommit :: Init -> String
 
 foreign import loadTranslationImpl :: Fn4 Json Json Json FrontApi (AC.EffectFnAff (Object ResponseTranslation))
 
@@ -111,12 +111,12 @@ loadTranslation resource lang loc = runFn4 loadTranslationImpl (encodeJson resou
 
 foreign import  getTranslatedContent :: Translation -> String
 
-foreign import getTranslatedMenuArray :: Translation -> Array ScaffoldApiControllerFrontendTranslateMenuItemObj
+foreign import getTranslatedMenuArray :: Translation -> Array MenuItemObj
 
-foreign import getMenuItemKey :: ScaffoldApiControllerFrontendTranslateMenuItemObj -> String
-foreign import getMenuItemVal :: ScaffoldApiControllerFrontendTranslateMenuItemObj -> String
+foreign import getMenuItemKey :: MenuItemObj -> String
+foreign import getMenuItemVal :: MenuItemObj -> String
 
 
-foreign import mkLogReq :: Fn2 String Foreign (Effect ScaffoldApiControllerFrontendLogRequest)
+foreign import mkLogReq :: Fn2 String Foreign (Effect FrontendLogRequest)
 
-foreign import sendLog :: Fn2 ScaffoldApiControllerFrontendLogRequest FrontApi (AC.EffectFnAff (Object (Response Unit)))
+foreign import sendLog :: Fn2 FrontendLogRequest FrontApi (AC.EffectFnAff (Object (Response Unit)))

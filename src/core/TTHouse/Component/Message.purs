@@ -96,7 +96,7 @@ component =
         case res of 
           Right { email, name, enquiry } -> do
             req <- H.liftEffect $ 
-                    runFn1 Scaffold.mkScaffoldApiControllerSendGridSendMailRequest
+                    runFn1 Scaffold.mkSendGridSendMailRequest
                     { from: email
                     , personalization: name
                     , subject: "enquiry"

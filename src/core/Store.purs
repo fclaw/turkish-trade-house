@@ -65,7 +65,7 @@ type Store =
      { config :: Config
      , error :: Maybe Error
      , platform :: Platform
-     , init :: Scaffold.ScaffoldApiControllerFrontendInitInit
+     , init :: Scaffold.Init
      , langVar :: AVar (Map.Map Recipients Lang)
      , cache :: Cache.Cache
      }
@@ -94,6 +94,6 @@ reduce :: Store -> Action -> Store
 reduce store (WriteError err) = store { error = Just err }
 reduce store (WriteMenuToCache xs) = store {  cache = Cache.writeMenu xs (_.cache store) }
 
-initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendInitInit)
+initAppStore :: String -> Aff (Either Excep.Error Scaffold.Init)
 initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init
   

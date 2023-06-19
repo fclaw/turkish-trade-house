@@ -14,11 +14,11 @@ export const mkForeignApi = function(api) {
     }
 }
 
-export const mkScaffoldApiControllerSendGridSendMailRequest =
+export const mkSendGridSendMailRequest =
     function(body) {
         return () => {
-            let req = new e.ScaffoldApiControllerSendGridSendMailRequest();
-            return e.ScaffoldApiControllerSendGridSendMailRequest.constructFromObject(body, req)
+            let req = new e.SendGridSendMailRequest();
+            return e.SendGridSendMailRequest.constructFromObject(body, req)
         };
     }
 
@@ -43,13 +43,13 @@ export const getDataFromObjImpl = left => right => resp => {
         tmp = '';
         xs.forEach(e => {
             tmp += e.getMessage();
-         });
-         return tmp;
+        });
+        return tmp;
     }
     return () => {
-        return success !== undefined ? 
-               right(success) : 
-               left(errMsg(resp.getErrors()));
+        return success !== undefined ?
+            right(success) :
+            left(errMsg(resp.getErrors()));
     };
 }
 
@@ -70,9 +70,15 @@ export const init =
         };
     }
 
-export const printScaffoldApiControllerFrontendInitInit =
+export const printFrontendInit =
     function(obj) {
-        return "{ content: " + obj.getContent().getHome() + ", " + obj.getContent().getAbout() + ", " + obj.getContent().getService() + ", shaCommit: " + obj.getShaCommit() + "}";
+        let msg = 
+             "{ content: " + 
+             obj.getContent().getHome() + ", " + 
+             obj.getContent().getAbout() + ", " + 
+             obj.getContent().getService() + 
+             ", shaCommit: " + obj.getShaCommit() + "}";
+        return msg
     }
 
 export const getHomeContent = (obj) => {
@@ -119,7 +125,7 @@ export const getMenuItemVal = (obj) => {
 }
 
 export const mkLogReq = function(build, payload) {
-    let req = new e.ScaffoldApiControllerFrontendLogRequest();
+    let req = new e.FrontendLogRequest();
     req.setBuild(build);
     req.setPayload(payload);
     return () => {
