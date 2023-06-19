@@ -15,6 +15,7 @@ import TTHouse.Component.Lang.Data (Recipients (Home))
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Capability.Navigate (navigate)
 import TTHouse.Data.Route (Route(Error))
+import TTHouse.Data.Route as Route
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -35,6 +36,7 @@ import Data.Either (isLeft, fromLeft, Either (..))
 import System.Time (getTimestamp)
 import Statistics (sendComponentTime) 
 import Data.List (head)
+import Cache (readTranslation, Cache)
 
 proxy = Proxy :: _ "home"
 
@@ -75,17 +77,19 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "TTH"
-        { platform, init, langVar } <- getStore
+        { platform, init, langVar, cache } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
 
         tm <- H.liftEffect getTimestamp
 
         logDebug $ "(" <> componentName <> ") component has started at " <> show tm
 
+        let content = setContent cache $ Scaffold.getHomeContent init
+
         H.modify_ _ { 
             platform = pure platform
           , winWidth = pure w
-          , body = Scaffold.getHomeContent init
+          , body = content
           , start = tm  }
 
         void $ H.subscribe =<< WinResize.subscribe WinResize
@@ -123,5 +127,9 @@ component mkBody =
         end <- H.liftEffect getTimestamp
         {start} <- H.get
         sendComponentTime start end componentName
-   
+
 content = HH.text
+
+
+setContent :: Cache -> String -> String
+setContent cache = flip fromMaybe (readTranslation Route.Home cache)
