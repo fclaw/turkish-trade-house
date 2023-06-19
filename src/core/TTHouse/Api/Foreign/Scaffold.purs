@@ -45,6 +45,11 @@ foreign import printError :: Error -> String
 instance Show Init where
   show = printFrontendInit
 
+
+instance Show Translation where 
+  show = getTranslatedContent
+
+
 foreign import printFrontendInit :: Init -> String
 
 foreign import getDataFromResponseImpl 

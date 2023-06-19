@@ -3,32 +3,33 @@ module Cache
   , init
   , writeMenu
   , readMenu
-  , readHome
-  , writeHome
+  , readTranslation
+  , writeTranslation
   ) 
  where
 
 import Prelude
 
+import TTHouse.Data.Route (Route)
+import TTHouse.Api.Foreign.Scaffold (Translation, getTranslatedContent)
+
 import Data.Map as Map
-import Data.Maybe (Maybe (..))
+import Data.Maybe (Maybe)
 
 type Menu = { xs :: Map.Map String String }
 
-type Home = { body :: String }
-
-type CacheImpl = { menu :: Menu, home :: Maybe Home }
+type CacheImpl = { menu :: Menu, translation :: Map.Map Route Translation }
 
 newtype Cache = Cache CacheImpl
 
 instance Show Cache where
-  show (Cache { menu, home }) =
+  show (Cache { menu, translation }) =
     let { xs } = menu 
     in "{ menu: " <> show xs <>
-       "home: " <> show home <> "}"
+       "translation: " <> show translation <> "}"
 
 init :: Cache
-init = Cache { menu: {xs: Map.empty }, home: Nothing }
+init = Cache { menu: {xs: Map.empty }, translation: Map.empty }
 
 writeMenu :: Map.Map String String -> Cache -> Cache
 writeMenu xs (Cache impl) = Cache $ impl { menu = { xs: xs } }
@@ -36,9 +37,8 @@ writeMenu xs (Cache impl) = Cache $ impl { menu = { xs: xs } }
 readMenu :: Cache -> Map.Map String String
 readMenu (Cache { menu: { xs } }) = xs
 
+writeTranslation :: Map.Map Route Translation -> Cache -> Cache
+writeTranslation xs (Cache impl) = Cache $ impl { translation = xs }
 
-writeHome :: String -> Cache -> Cache
-writeHome body (Cache impl) = Cache $ impl { home = Just { body: body } }
-
-readHome :: Cache -> Maybe String
-readHome (Cache { home: x }) = flip map x \{ body } -> body 
+readTranslation :: Route -> Cache -> Maybe String
+readTranslation route (Cache { translation: xs }) = map getTranslatedContent $ Map.lookup route xs 

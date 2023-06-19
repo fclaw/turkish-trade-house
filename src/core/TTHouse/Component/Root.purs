@@ -44,6 +44,7 @@ import Type.Proxy (Proxy(..))
 import Undefined
 import Halogen.HTML.Properties as HP
 import Store (Store, printStore, Platform)
+import Store as Store
 import Effect.AVar as Async
 import Data.Foldable (for_)
 import Data.List (head)
@@ -64,12 +65,12 @@ type ChildSlots =
   )
 
 component
-  :: forall m a
+  :: forall m
    . MonadAff m
   => Navigate m
   => LogMessages m
   => Now m
-  => MonadStore a Store m
+  => MonadStore Store.Action Store m
   => H.Component Query Unit Void m
 component = H.mkComponent
   { initialState: const { route: Nothing, lang: Eng }
@@ -105,12 +106,12 @@ params =
   , footer: Footer.html
   }
 
-render :: forall m a
+render :: forall m
   . MonadAff m
   => Navigate m
   => LogMessages m
   => Now m
-  => MonadStore a Store m
+  => MonadStore Store.Action Store m
   => State
   -> H.ComponentHTML Action ChildSlots m
 render { route: Just r@Home, lang: l } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r l)) unit

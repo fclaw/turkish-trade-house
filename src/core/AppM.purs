@@ -143,7 +143,13 @@ instance logMessagesAppM :: LogMessages AppM where
             ] 
 
     when toTelegram $ void $ H.liftAff $ fork $ AX.post AX.json url_msg (pure body)
-    H.liftEffect $ logShow $ message log <> ", loc: " <> loc log
+    let mkLog = 
+          case reason log of
+            Error -> C.errorShow
+            Info -> C.infoShow
+            Debug -> C.logShow
+            Warn -> C.warnShow
+    H.liftEffect $ mkLog $ message log <> ", loc: " <> loc log
 
 
 -- | We're finally ready to write concrete implementations for each of our abstract capabilities.

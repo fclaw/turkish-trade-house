@@ -20,6 +20,7 @@ import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Capability.LogMessages (logError, logDebug)
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Component.Lang.Data (Lang, Recipients)
+import TTHouse.Data.Route (Route)
 
 import Data.Maybe (Maybe(..))
 import Effect.Exception (Error, message)
@@ -85,7 +86,10 @@ printStore store =
 -- | Next, we'll define a data type that represents state updates to our store.
 -- | The log level and base URL should remain constant, but we'll need to be
 -- | able to set the current user.
-data Action = WriteError Error | WriteMenuToCache (Map.Map String String)
+data Action = 
+       WriteError Error 
+     | WriteMenuToCache (Map.Map String String)
+     | WriteTranslationToCache (Map.Map Route Scaffold.Translation)
 
 -- | Finally, we'll map this action to a state update in a function called a
 -- | 'reducer'. If you're curious to learn more, see the `halogen-store`
@@ -93,6 +97,7 @@ data Action = WriteError Error | WriteMenuToCache (Map.Map String String)
 reduce :: Store -> Action -> Store
 reduce store (WriteError err) = store { error = Just err }
 reduce store (WriteMenuToCache xs) = store {  cache = Cache.writeMenu xs (_.cache store) }
+reduce store (WriteTranslationToCache xs) = store {  cache = Cache.writeTranslation xs (_.cache store) }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.Init)
 initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init

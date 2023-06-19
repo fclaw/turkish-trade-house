@@ -6,6 +6,9 @@ import TTHouse.Component.HTML.Utils (css)
 import TTHouse.Capability.LogMessages (logDebug, logError, class LogMessages)
 import TTHouse.Capability.Now (class Now)
 import TTHouse.Component.Lang.Data
+import TTHouse.Api.Foreign.Request as Request
+import TTHouse.Api.Foreign.Scaffold as Scaffold
+import TTHouse.Data.Route as Route
 
 import Halogen.Store.Monad (class MonadStore)
 import Halogen as H
@@ -17,8 +20,8 @@ import Data.Maybe (fromMaybe, Maybe (..), isNothing)
 import Undefined
 import Halogen.HTML.Events as HE
 import Data.Foldable (for_)
-import Data.Traversable (for)
-import Halogen.Store.Monad (getStore)
+import Data.Traversable (for, sequence)
+import Halogen.Store.Monad (getStore, updateStore)
 import Effect.AVar as Async
 import Data.Map as Map
 import Data.Tuple
@@ -26,10 +29,14 @@ import Data.List (head)
 import Store (Store)
 import Data.Enum (toEnum, fromEnum)
 import Effect.Aff.Class
+import Data.Either (isLeft, fromLeft)
+import Data.Array (zip)
+import Store (Action (WriteTranslationToCache))
+
 
 proxy = Proxy :: _ "lang"
 
-component :: forall q i o m s . MonadStore s Store m => MonadAff m => LogMessages m => Now m => H.Component q i o m
+component :: forall q i o m . MonadStore Action Store m => MonadAff m => LogMessages m => Now m => H.Component q i o m
 component =
   H.mkComponent
     { initialState: const { lang: 0 }
@@ -49,7 +56,7 @@ component =
         let langm = toEnum idx
         logDebug $ show langm
         for_ langm $ \lang -> do 
-           { langVar } <- getStore
+           { langVar, config: {scaffoldHost: host}} <- getStore
            valm <- H.liftEffect $ Async.tryTake langVar
            res <- for valm \langMap -> do
              let xs = 
@@ -61,6 +68,10 @@ component =
              then logError "(TTHouse.Component.Lang) failed to put map into langVar"
              else do 
                logDebug $ show "(TTHouse.Component.Lang) lang change"
+
+               
+               void $ H.fork $ cacheTranslation host $ fromMaybe undefined $ toEnum idx 
+
                H.modify_ _ { lang = idx }
            when (isNothing res) $ 
              logError "(TTHouse.Component.Lang) var is empty. \
@@ -77,3 +88,21 @@ render {lang} =
          let str = show <<< fromMaybe undefined <<< (toEnum :: Int -> Maybe Lang)
          in HH.option [HPExt.value (str ident)] [HH.text (str ident)])
   ]
+
+
+cacheTranslation host lang = do 
+  let xs = 
+        flip map (fromEnum Route.Home .. fromEnum Route.Service) $
+          fromMaybe undefined <<< 
+          (toEnum :: Int -> Maybe Route.Route)
+  res <- map sequence $ for (map show xs) $
+    Request.make host Scaffold.mkFrontApi <<<
+    Scaffold.loadTranslation 
+    Scaffold.Content
+    lang  <<<
+    Just <<<
+    Scaffold.Location
+  ifError <- for res \ys -> do 
+    let translations = Map.fromFoldable $ zip xs ys
+    updateStore $ WriteTranslationToCache translations
+  when (isLeft ifError) $ logError $ show $ fromLeft undefined ifError
