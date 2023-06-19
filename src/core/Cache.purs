@@ -1,21 +1,35 @@
-module Cache where
+module Cache
+  ( Cache
+  , init
+  , writeMenu
+  , readMenu
+  ) 
+ where
 
 import Prelude
 
 import Data.Map as Map
+import Data.Maybe (Maybe (Nothing))
 
-type Menu = { menu :: Map.Map String String  }
+type Menu = { xs :: Map.Map String String }
 
-newtype Cache = Cache Menu
+type Home = { body :: String }
+
+type CacheImpl = { menu :: Menu, home :: Maybe Home }
+
+newtype Cache = Cache CacheImpl
 
 instance Show Cache where
-  show (Cache { menu }) = "{ langMap: " <> show menu <> "}"
+  show (Cache { menu, home }) =
+    let { xs } = menu 
+    in "{ menu: " <> show xs <>
+       "home: " <> show home <> "}"
 
 init :: Cache
-init = Cache { menu: Map.empty }
+init = Cache { menu: {xs: Map.empty }, home: Nothing }
 
-write :: Map.Map String String -> Cache
-write xs = Cache { menu: xs }
+writeMenu :: Map.Map String String -> Cache -> Cache
+writeMenu xs (Cache impl) = Cache $ impl { menu = { xs: xs } }
 
-read :: Cache -> Map.Map String String
-read (Cache { menu }) = menu
+readMenu :: Cache -> Map.Map String String
+readMenu (Cache { menu: { xs } }) = xs

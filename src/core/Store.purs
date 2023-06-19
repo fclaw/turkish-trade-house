@@ -92,7 +92,7 @@ data Action = WriteError Error | WriteMenuToCache (Map.Map String String)
 -- | documentation!
 reduce :: Store -> Action -> Store
 reduce store (WriteError err) = store { error = Just err }
-reduce store (WriteMenuToCache xs) = store {  cache = Cache.write xs }
+reduce store (WriteMenuToCache xs) = store {  cache = Cache.writeMenu xs (_.cache store) }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.ScaffoldApiControllerFrontendInitInit)
 initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init

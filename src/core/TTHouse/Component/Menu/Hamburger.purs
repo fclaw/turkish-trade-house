@@ -62,7 +62,7 @@ component =
       handleAction Initialize = do
         { langVar, cache } <- getStore
 
-        H.modify_ _ { routesTitle = Cache.read cache }
+        H.modify_ _ { routesTitle = Cache.readMenu cache }
 
         void $ H.fork $ forever $ do
           H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
