@@ -29,7 +29,7 @@ import TTHouse.Component.HTML.Footer as Footer
 import TTHouse.Component.HTML.Body as Body
 import TTHouse.Component.Lang.Data (Lang (..))
 
-import Data.Either (hush)
+import Data.Either (hush, Either (..))
 import Data.Foldable (elem)
 import Data.Maybe (Maybe(..), fromMaybe, isJust)
 import Effect.Aff.Class (class MonadAff)
@@ -50,6 +50,7 @@ import Effect.AVar as Async
 import Data.Foldable (for_)
 import Data.List (head)
 import Data.Map as Map
+import Routing.Duplex.Parser (RouteError (EndOfPath))
 
 data Query a = Navigate Route a
 
@@ -89,9 +90,12 @@ component = H.mkComponent
     store <- getStore
     logDebug $ printStore store
     -- first we'll get the route the user landed on
-    initialRoute <- hush <<< (RD.parse routeCodec) <$> liftEffect getHash
+    from <-(RD.parse routeCodec) <$> liftEffect getHash
     -- then we'll navigate to the new route (also setting the hash)
-    navigate $ fromMaybe Error404 initialRoute
+    case from of 
+      Right route -> navigate route 
+      Left EndOfPath -> navigate Home
+      Left _ -> navigate Error404
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
     store@{langVar} <- getStore
