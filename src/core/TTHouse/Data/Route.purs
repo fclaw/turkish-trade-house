@@ -35,7 +35,8 @@ import Data.Argonaut.Decode (class DecodeJson)
 -- | sub-sections. For our small MVP this type will work just fine and will prevent us from trying
 -- | to send users to non-existent routes.
 data Route
-  = Error
+  = Error500
+  | Error404
   | Home
   | About
   | Service 
@@ -46,7 +47,8 @@ derive instance ordRoute :: Ord Route
 
 instance showRoute :: Show Route where
   show Home = "home"
-  show Error = "error"
+  show Error500 = "500"
+  show Error404 = "404"
   show About = "about"
   show Service = "service"
 
@@ -61,7 +63,7 @@ instance boundedEnumRoute :: BoundedEnum Route where
 
 instance boundedRoute :: Bounded Route where 
   top = Service
-  bottom = Error
+  bottom = Error500
 
 instance decodeJson :: DecodeJson Route where
   decodeJson = genericDecodeJson
@@ -76,7 +78,8 @@ instance decodeJson :: DecodeJson Route where
 routeCodec :: RouteDuplex' Route
 routeCodec = root $ sum
   { "Home": noArgs
-  , "Error": "error" / noArgs
+  , "Error500": "500" / noArgs
+  , "Error404": "404" / noArgs
   , "About": "about" / noArgs
   , "Service": "service" / noArgs
   }

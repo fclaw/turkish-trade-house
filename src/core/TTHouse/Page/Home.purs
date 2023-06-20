@@ -13,7 +13,6 @@ import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Component.Lang.Data (Recipients (Home))
 import TTHouse.Api.Foreign.Request as Request
-import TTHouse.Data.Route (Route(Error))
 import TTHouse.Data.Route as Route
 import TTHouse.Error (withError)
 

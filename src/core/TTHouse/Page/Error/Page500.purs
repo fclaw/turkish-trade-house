@@ -1,8 +1,4 @@
-module TTHouse.Page.Error
-  ( component
-  , proxy
-  )
-  where
+module TTHouse.Page.Error.Page500 ( component, proxy ) where
 
 import Prelude
 
@@ -15,7 +11,7 @@ import Halogen.Store.Monad (getStore)
 import Effect.Exception (message)
 import Data.Foldable (for_)
 import TTHouse.Capability.Navigate (navigate)
-import TTHouse.Data.Route (Route(Home))
+import TTHouse.Data.Route (Route(Error404))
 import Data.Maybe (isNothing)
 import Web.HTML.Window (document)
 import Web.HTML (window)
@@ -24,7 +20,7 @@ import Web.DOM.Element (setClassName)
 import Web.HTML.HTMLDocument (body)
 import Halogen.HTML.Properties.Extended as HPExt
 
-proxy = Proxy :: _ "error"
+proxy = Proxy :: _ "error500"
 
 type State = { msg :: String }
 
@@ -49,7 +45,7 @@ component =
              "body-error" `setClassName` toElement body
 
          {error} <- getStore
-         when (isNothing error) $ navigate Home
+         when (isNothing error) $ navigate Error404
          for_ error \e -> H.modify_ _ { msg = message e }
 
 

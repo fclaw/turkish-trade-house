@@ -19,7 +19,8 @@ import TTHouse.Data.Route (Route(..), routeCodec)
 import TTHouse.Page.Home as Home
 import TTHouse.Page.Service as Service
 import TTHouse.Page.About as About
-import TTHouse.Page.Error as Error
+import TTHouse.Page.Error.Page500 as Page500
+import TTHouse.Page.Error.Page404 as Page404 
 import TTHouse.Capability.Navigate
 import TTHouse.Capability.LogMessages (class LogMessages, logDebug)
 import TTHouse.Capability.Now (class Now)
@@ -59,9 +60,10 @@ data Action
 
 type ChildSlots =
   ( home :: OpaqueSlot Unit
-  , error :: OpaqueSlot Unit
+  , error500 :: OpaqueSlot Unit
   , about :: OpaqueSlot Unit
   , service :: OpaqueSlot Unit
+  , error404 :: OpaqueSlot Unit
   )
 
 component
@@ -89,7 +91,7 @@ component = H.mkComponent
     -- first we'll get the route the user landed on
     initialRoute <- hush <<< (RD.parse routeCodec) <$> liftEffect getHash
     -- then we'll navigate to the new route (also setting the hash)
-    navigate $ fromMaybe Home initialRoute
+    navigate $ fromMaybe Error404 initialRoute
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
     store@{langVar} <- getStore
@@ -115,7 +117,8 @@ render :: forall m
   => State
   -> H.ComponentHTML Action ChildSlots m
 render { route: Just r@Home, lang: l } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r l)) unit
-render { route: Just Error } = HH.slot_ Error.proxy unit Error.component unit
+render { route: Just Error500 } = HH.slot_ Page500.proxy unit Page500.component unit
 render { route: Just r@About, lang: l } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r l)) unit
 render { route: Just r@Service, lang: l } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r l)) unit
-render _ = HH.div_ [ HH.text "Oh no! That page wasn't found." ]
+render { route: Just Error404 } = HH.slot_ Page404.proxy unit Page404.component unit
+render _ = HH.div_ [ HH.text $ "Oh no! That page wasn't found." ]

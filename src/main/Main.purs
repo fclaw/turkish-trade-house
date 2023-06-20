@@ -31,7 +31,7 @@ import TTHouse.Api.Foreign.Scaffold as Scaffold
 import Data.Either
 import Effect.AVar as Async
 import Data.Map as Map
-import Effect.Console (logShow)
+import Effect.Console (errorShow, logShow)
 import Web.DOM.Document (getElementsByTagName, createElement)
 import Web.DOM.HTMLCollection (item)
 import Web.DOM.Element (setAttribute)
@@ -131,10 +131,10 @@ main cfg = do
           --
           -- https://github.com/slamdata/purescript-routing/blob/v8.0.0/GUIDE.md
           -- https://github.com/natefaubion/purescript-routing-duplex/blob/v0.2.0/README.md
-          void $ liftEffect $ matchesWith (parse routeCodec) \old new ->
-            when (old /= Just new) $ launchAff_ $
-              flip catchError (liftEffect <<< logShow) $
-                void $ halogenIO.query $ H.mkTell $ Root.Navigate new
+          void $ liftEffect $ matchesWith (parse routeCodec) \from to ->
+             when (from /= Just to) $ launchAff_ $
+               flip catchError (liftEffect <<< logShow) $
+                 void $ halogenIO.query $ H.mkTell $ Root.Navigate to
 
 
 -- var head  = document.getElementsByTagName('head')[0];

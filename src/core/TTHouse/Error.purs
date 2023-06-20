@@ -2,7 +2,7 @@ module TTHouse.Error (withError) where
 
 import Prelude
 
-import TTHouse.Data.Route (Route (Error))
+import TTHouse.Data.Route (Route (Error500))
 import TTHouse.Capability.LogMessages (class LogMessages)
 import TTHouse.Capability.Now (class Now)
 import TTHouse.Capability.Navigate (class Navigate)
@@ -29,8 +29,5 @@ withError
   Either Error a -> 
   (a -> HalogenM s xs ys o m Unit) -> 
   HalogenM s xs ys o m Unit
-withError (Right x) success =  success x
-withError (Left e) _ = do 
-  logError $ show e
-  updateStore $ WriteError e
-  navigate Error
+withError (Right x) success = success x
+withError (Left e) _ = logError (show e) *> updateStore (WriteError e) *> navigate Error500
