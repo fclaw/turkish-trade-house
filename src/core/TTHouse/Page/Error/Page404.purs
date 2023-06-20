@@ -2,7 +2,8 @@ module TTHouse.Page.Error.Page404 (component, proxy) where
 
 import Prelude
 
-import TTHouse.Component.HTML.Utils (css)
+import TTHouse.Component.HTML.Utils (css, safeHref)
+import TTHouse.Data.Route (Route (Home))
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -25,5 +26,8 @@ render =
   ,   HH.div [css "container"] 
       [ HH.span [HPExt.style "font-size:20px;"] 
         [HH.text "We couldn't find the requested page"]
+      , HH.a [safeHref Home, HPExt.style hrefStyle] [HH.text "HOME"]
       ]
   ]
+
+hrefStyle = "font-size:20px; margin-left:10px; text-decoration:none; color:black"
