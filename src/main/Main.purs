@@ -74,6 +74,8 @@ main cfg = do
 
           langVar <- H.liftEffect $ Async.new Map.empty
 
+          asyncException <- H.liftEffect $ Async.empty
+
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
           -- fields. If our environment type ever changes, we'll get a compiler error here.
@@ -87,6 +89,7 @@ main cfg = do
                 , init: init
                 , langVar: langVar
                 , cache: Cache.init
+                , asyncException: asyncException
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.

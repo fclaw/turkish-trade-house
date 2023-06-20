@@ -115,11 +115,8 @@ mkItem route xs applyStyle idx =
 
 addFontStyle el = HH.div [HPExt.style "text-transform:uppercase;"] [el]
 
-
 getMenuByLang host lang = runExceptT $ do 
   resp <- lift $ Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation Scaffold.Menu lang Nothing
   xs <- except $ bimap show Scaffold.getTranslatedMenuArray resp
   pure $ Map.fromFoldable $ flip map xs $ \el -> 
     Tuple (Scaffold.getMenuItemKey el) (Scaffold.getMenuItemVal el)
-
-

@@ -29,10 +29,11 @@ import Data.List (head)
 import Store (Store)
 import Data.Enum (toEnum, fromEnum)
 import Effect.Aff.Class
-import Data.Either (isLeft, fromLeft)
+import Data.Either (isLeft, blush)
 import Data.Array (zip)
 import Store (Action (WriteTranslationToCache))
-
+import Effect.AVar as Async
+import Effect.Exception (message)
 
 proxy = Proxy :: _ "lang"
 
@@ -56,7 +57,7 @@ component =
         let langm = toEnum idx
         logDebug $ show langm
         for_ langm $ \lang -> do 
-           { langVar, config: {scaffoldHost: host}} <- getStore
+           { langVar, config: {scaffoldHost: host}, asyncException} <- getStore
            valm <- H.liftEffect $ Async.tryTake langVar
            res <- for valm \langMap -> do
              let xs = 
@@ -70,7 +71,7 @@ component =
                logDebug $ show "(TTHouse.Component.Lang) lang change"
 
                
-               void $ H.fork $ cacheTranslation host $ fromMaybe undefined $ toEnum idx 
+               void $ H.fork $ cacheTranslation asyncException host $ fromMaybe undefined $ toEnum idx 
 
                H.modify_ _ { lang = idx }
            when (isNothing res) $ 
@@ -90,14 +91,14 @@ render {lang} =
   ]
 
 
-cacheTranslation host lang = do 
+cacheTranslation var host lang = do 
   let xs = 
         flip map (fromEnum Route.Home .. fromEnum Route.Service) $
           fromMaybe undefined <<< 
           (toEnum :: Int -> Maybe Route.Route)
   res <- map sequence $ for (map show xs) $
     Request.make host Scaffold.mkFrontApi <<<
-    Scaffold.loadTranslation 
+    Scaffold.loadTranslation
     Scaffold.Content
     lang  <<<
     Just <<<
@@ -105,4 +106,10 @@ cacheTranslation host lang = do
   ifError <- for res \ys -> do 
     let translations = Map.fromFoldable $ zip xs ys
     updateStore $ WriteTranslationToCache translations
-  when (isLeft ifError) $ logError $ show $ fromLeft undefined ifError
+  when (isLeft ifError) $ do
+    let err = blush ifError
+    for_ err $ \e -> do 
+      logError $ "async error while trying to cache translation: " <> message e
+      let val = { err: e, loc: "TTHouse.Component.Lang:cacheTranslation" }
+      updateStore $ WriteTranslationToCache Map.empty
+      void $ H.liftEffect $ Async.tryPut val var
