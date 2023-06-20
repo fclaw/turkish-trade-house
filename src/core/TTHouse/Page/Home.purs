@@ -10,12 +10,12 @@ import Prelude
 import TTHouse.Page.Subscription.WinResize as WinResize 
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Component.Lang.Data (Lang (..))
-import TTHouse.Capability.LogMessages (logDebug, logError)
+import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Component.Lang.Data (Recipients (Home))
 import TTHouse.Api.Foreign.Request as Request
-import TTHouse.Capability.Navigate (navigate)
 import TTHouse.Data.Route (Route(Error))
 import TTHouse.Data.Route as Route
+import TTHouse.Error (withError)
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -25,7 +25,7 @@ import Web.HTML (window)
 import Type.Proxy (Proxy(..))
 import Store (Platform, Action (WriteError))
 import Data.Maybe
-import Halogen.Store.Monad (getStore, updateStore)
+import Halogen.Store.Monad (getStore)
 import Control.Monad.Rec.Class (forever)
 import Effect.Aff as Aff
 import Data.Foldable (for_)
@@ -111,18 +111,12 @@ component mkBody =
       handleAction (LangChange inLang) = do
         logDebug $ "(TTHouse.Page.Home) language change to: " <> show inLang
         { config: {scaffoldHost: host} } <- getStore
-        obje <- Request.make host Scaffold.mkFrontApi $ 
+        resp <- Request.make host Scaffold.mkFrontApi $ 
                   Scaffold.loadTranslation 
                   Scaffold.Content
                   inLang 
                   (Just (Scaffold.Location "home") )
-        case obje of 
-          Left err -> do 
-            logError $ show err
-            updateStore $ WriteError err
-            navigate Error
-          Right resp -> H.modify_ _ { lang = inLang, body = Scaffold.getTranslatedContent resp }
-
+        withError resp \x -> H.modify_ _ { lang = inLang, body = Scaffold.getTranslatedContent x }
       handleAction Finalize = do 
         end <- H.liftEffect getTimestamp
         {start} <- H.get

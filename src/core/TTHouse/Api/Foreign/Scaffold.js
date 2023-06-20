@@ -138,3 +138,11 @@ export const sendLog = function(req, api) {
         api.apiFrontendLogPut(req).then(onOk).catch(onError)
     };
 }
+
+export const getCookies = function(api) {
+    return function(onError, onOk) {
+        api.apiFrontendCookiesGet().then(onOk).catch(onError)
+    };
+}
+
+export const showCookieImpl = cookie => { return cookie.getName() }

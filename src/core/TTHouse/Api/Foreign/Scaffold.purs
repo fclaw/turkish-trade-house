@@ -36,6 +36,9 @@ foreign import data ResponseTranslation :: Type
 foreign import data Translation :: Type
 foreign import data MenuItemObj :: Type
 foreign import data FrontendLogRequest :: Type
+foreign import data Cookie :: Type
+foreign import data ResponseCookie :: Type
+
 
 instance showError :: Show Error where
   show = printError
@@ -125,3 +128,11 @@ foreign import getMenuItemVal :: MenuItemObj -> String
 foreign import mkLogReq :: Fn2 String Foreign (Effect FrontendLogRequest)
 
 foreign import sendLog :: Fn2 FrontendLogRequest FrontApi (AC.EffectFnAff (Object (Response Unit)))
+
+
+instance Show Cookie where 
+  show = showCookieImpl
+
+foreign import showCookieImpl :: Cookie -> String
+
+foreign import getCookies :: Fn1 FrontApi (AC.EffectFnAff (Object ResponseCookie))
