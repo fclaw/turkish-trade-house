@@ -1,26 +1,24 @@
-
-
 export const set = function(cookie) { 
     return () => { 
-      document.cookie = 
+      let value = 
         cookie.getName() + "=" + 
-        (cookie.getValue() || "")  + 
-        cookie.getExpires() + 
-        "; path=" + cookie.getPath();
-    }; 
+        cookie.getValue() + ";expires=" + 
+        cookie.getExpires() + ";path=" + 
+        cookie.getPath();  
+      document.cookie = value;  
+    }
 }
 
-export const getIml = nothing => wrap => name => {
+export const getIml = function(nothing, wrap, cName) {
   return () => {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    var cookie;
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) 
-        cookie = c.substring(nameEQ.length,c.length);
-    }
-    return cookie !== undefined ? wrap(cookie) : nothing; 
-  }
+    const name = cName + "=";
+    const cDecoded = decodeURIComponent(document.cookie); //to be careful
+    const cArr = cDecoded .split(';');
+    let res;
+      cArr.forEach(val => {
+          if (val.indexOf(name) === 0) 
+            res = val.substring(name.length);
+      })
+    return res !== undefined ? wrap(res) : nothing;
+    } 
 }
