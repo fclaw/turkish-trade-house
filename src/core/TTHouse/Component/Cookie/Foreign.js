@@ -9,7 +9,7 @@ export const set = function(cookie) {
     }
 }
 
-export const getIml = function(nothing, wrap, cName) {
+export const getIml = function(nothing, just, cName) {
     return () => {
         const name = cName + "=";
         const cDecoded = decodeURIComponent(document.cookie); //to be careful
@@ -19,6 +19,6 @@ export const getIml = function(nothing, wrap, cName) {
             if (val.indexOf(name) === 0)
                 res = val.substring(name.length);
         })
-        return res !== undefined ? wrap(res) : nothing;
+        return res !== undefined ? just(res) : nothing;
     }
 }
