@@ -5,7 +5,8 @@ import Prelude
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
 import TTHouse.Data.Config as Cfg
-import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit, getShaCommit)
+import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit, getShaCommit, getCookiesInit)
+import TTHouse.Component.Cookie.Foreign as Cookie.Foreign
 
 import Effect (Effect)
 import Halogen.Aff as HA
@@ -66,8 +67,7 @@ main cfg = do
       case initResp of 
         Left err -> throwError err
         Right init -> do
-   
-          
+      
           -- I am sick to the back teeth of changing css hash manualy
           -- let's make the process a bit self-generating
           for_ (_.cssFiles cfg) $ H.liftEffect <<< setCssLink (getShaCSSCommit init) (_.cssLink cfg)
@@ -90,6 +90,7 @@ main cfg = do
                 , langVar: langVar
                 , cache: Cache.init
                 , asyncException: asyncException
+                , cookies: getCookiesInit init
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.

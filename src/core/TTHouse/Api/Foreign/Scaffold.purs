@@ -94,6 +94,7 @@ foreign import getAboutContent :: Init -> String
 foreign import getServiceContent :: Init -> String
 foreign import getShaCommit :: Init -> String
 foreign import getShaCSSCommit :: Init -> String
+foreign import getCookiesInit :: Init -> Array String
 
 foreign import loadTranslationImpl :: Fn4 Json Json Json FrontApi (AC.EffectFnAff (Object ResponseTranslation))
 

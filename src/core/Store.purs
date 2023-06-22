@@ -71,6 +71,7 @@ type Store =
      , langVar :: AVar (Map.Map Recipients Lang)
      , cache :: Cache.Cache
      , asyncException :: AVar AsyncErrorMag
+     , cookies :: Array String
      }
 
 printStore store = 
@@ -80,7 +81,8 @@ printStore store =
   ", init: " <> show (_.init store) <> 
   ", langVar: <AVar (Map.Map Recipients Lang)>" <>
   ", cache: " <> show (_.cache store) <> 
-  ", asyncException: <AVar>  }"
+  ", asyncException: <AVar> "  <> 
+  ", cookies: " <> show (_.cookies store) <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that

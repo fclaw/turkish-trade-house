@@ -22,6 +22,8 @@ import Halogen.Store.Monad (getStore)
 import Data.Foldable (for_)
 import Data.Either (Either)
 import Effect.Exception (Error)
+import Data.Traversable (sequence, for)
+import Data.Maybe (Maybe)
 
 proxy = Proxy :: _ "cookie"
 
@@ -38,8 +40,9 @@ component =
       , handleAction = \action ->
           case action of 
             Initialize -> do
-              cookie <- H.liftEffect $ Cookie.get "test"
-              when (isJust cookie) $ H.modify_ _ { close = true }
+              { cookies } <- getStore
+              res :: Maybe (Array String) <- map sequence $ for cookies $ H.liftEffect <<< Cookie.get
+              when (isJust res) $ H.modify_ _ { close = true }
             Close -> do
               { config: {scaffoldHost: host} } <- getStore
               resp :: Either Error (Array Scaffold.Cookie) <- 

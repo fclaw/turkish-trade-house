@@ -72,12 +72,12 @@ export const init =
 
 export const printFrontendInit =
     function(obj) {
-        let msg = 
-             "{ content: " + 
-             obj.getContent().getHome() + ", " + 
-             obj.getContent().getAbout() + ", " + 
-             obj.getContent().getService() + 
-             ", shaCommit: " + obj.getShaCommit() + "}";
+        let msg =
+            "{ content: " +
+            obj.getContent().getHome() + ", " +
+            obj.getContent().getAbout() + ", " +
+            obj.getContent().getService() +
+            ", shaCommit: " + obj.getShaCommit() + "}";
         return msg
     }
 
@@ -99,6 +99,10 @@ export const getShaCommit = (obj) => {
 
 export const getShaCSSCommit = (obj) => {
     return obj.getShaCommitCss();
+}
+
+export const getCookiesInit = (obj) => {
+    return obj.getCookies();
 }
 
 export const loadTranslationImpl =
@@ -145,4 +149,6 @@ export const getCookies = function(api) {
     };
 }
 
-export const showCookieImpl = cookie => { return cookie.getName() }
+export const showCookieImpl = cookie => {
+    return cookie.getName()
+}
