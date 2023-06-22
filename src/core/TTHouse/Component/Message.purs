@@ -141,7 +141,7 @@ render {error, isSent, isClick } =
              HH.p [css "title"] [HH.text "Send a message"]
           ,  HH.img [HPExt.src imgUrl, css "user-icon"]
           ,  if not isSent
-             then form error isClick
+             then HH.div [HPExt.style "padding-top:20px"] [form error isClick]
              else success
           ] 
       ]

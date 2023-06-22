@@ -154,7 +154,6 @@ export const showCookieImpl = cookie => {
 }
 
 export const getMetaImpl = function(page, api) {
-    console.log(page);
     return function(onError, onOk) {
         api.apiFrontendMetaGet(page).then(onOk).catch(onError)
     };
