@@ -1,4 +1,12 @@
-module TTHouse.Component.AsyncException (component, proxy, AsyncErrorMag (..))  where
+module TTHouse.Component.Async
+  ( Async
+  , Value
+  , component
+  , mkException
+  , mkWarning
+  , proxy
+  )
+  where
 
 import Prelude
 
@@ -24,12 +32,16 @@ import Data.Tuple (Tuple (..))
 
 proxy = Proxy :: _ "async-exception"
 
-data Action = Close Int | Add AsyncErrorMag | Initialize
+data Action = Close Int | Add Async | Initialize
 
-type State = { xs :: Map.Map Int AsyncErrorMag }
+type State = { xs :: Map.Map Int Async }
 
-type AsyncErrorMag = { err :: Error, loc :: String }
+data Value = Exception Error | Warning String
 
+type Async = { val :: Value, loc :: String }
+
+mkException error loc = { val: Exception error, loc: loc }
+mkWarning warn loc = { val: Warning warn, loc: loc } 
 
 component =
   H.mkComponent
@@ -41,10 +53,10 @@ component =
     }
   where
     handleAction Initialize = do
-      { asyncException } <- getStore
+      { async } <- getStore
       void $ H.fork $ forever $ do
         H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
-        val <- H.liftEffect $ Async.tryTake asyncException
+        val <- H.liftEffect $ Async.tryTake async
         for_ val $ handleAction <<< Add 
     handleAction (Add e) = 
       H.modify_ \s -> do 
@@ -59,11 +71,16 @@ component =
 
 render { xs } = 
   HH.div_ $ 
-    (Map.toUnfoldable xs) <#> \(Tuple k { err, loc }) ->
+    (Map.toUnfoldable xs) <#> \(Tuple k { val, loc }) ->
       let margin = show $ (k - 1) * 50
       in HH.div
          [ onClick $ const (Close k)
-         , css "alert alert-danger alert-position"
+         , css $ "alert " <> mkStyle val <> "alert-position"
          , HP.style ("margin-top:" <> margin <> "px")
          , HP.role "alert"] 
-         [ HH.text (message err <> " at " <> loc) ]
+         [ HH.text (mkMsg val <> " at " <> loc) ]
+  where
+    mkStyle (Exception _) = "alert-dange"
+    mkStyle (Warning _) = "alert-warning"
+    mkMsg (Exception err) = message err
+    mkMsg (Warning msg) = msg

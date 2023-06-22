@@ -21,7 +21,7 @@ import TTHouse.Capability.LogMessages (logError, logDebug)
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Component.Lang.Data (Lang, Recipients)
 import TTHouse.Data.Route (Route)
-import TTHouse.Component.AsyncException (AsyncErrorMag)
+import TTHouse.Component.Async as Async
 
 import Data.Maybe (Maybe(..))
 import Effect.Exception (Error, message)
@@ -70,7 +70,7 @@ type Store =
      , init :: Scaffold.Init
      , langVar :: AVar (Map.Map Recipients Lang)
      , cache :: Cache.Cache
-     , asyncException :: AVar AsyncErrorMag
+     , async :: AVar Async.Async
      , cookies :: Array String
      }
 
@@ -81,7 +81,7 @@ printStore store =
   ", init: " <> show (_.init store) <> 
   ", langVar: <AVar (Map.Map Recipients Lang)>" <>
   ", cache: " <> show (_.cache store) <> 
-  ", asyncException: <AVar> "  <> 
+  ", async: <AVar> "  <> 
   ", cookies: " <> show (_.cookies store) <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct

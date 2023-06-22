@@ -89,7 +89,7 @@ main cfg = do
                 , init: init
                 , langVar: langVar
                 , cache: Cache.init
-                , asyncException: asyncException
+                , async: asyncException
                 , cookies: getCookiesInit init
                 }
 

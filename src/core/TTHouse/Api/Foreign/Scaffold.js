@@ -152,3 +152,9 @@ export const getCookies = function(api) {
 export const showCookieImpl = cookie => {
     return cookie.getName()
 }
+
+export const getMeta = function(page) {
+    return function(onError, onOk) {
+        api.apiFrontendMetaGet(page).then(onOk).catch(onError)
+    };
+}

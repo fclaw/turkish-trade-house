@@ -38,6 +38,7 @@ foreign import data MenuItemObj :: Type
 foreign import data FrontendLogRequest :: Type
 foreign import data Cookie :: Type
 foreign import data ResponseCookie :: Type
+foreign import data ResponseMeta :: Type
 
 
 instance showError :: Show Error where
@@ -137,3 +138,5 @@ instance Show Cookie where
 foreign import showCookieImpl :: Cookie -> String
 
 foreign import getCookies :: Fn1 FrontApi (AC.EffectFnAff (Object ResponseCookie))
+
+foreign import getMeta :: Fn2 (Maybe String) FrontApi (AC.EffectFnAff (Object ResponseMeta))

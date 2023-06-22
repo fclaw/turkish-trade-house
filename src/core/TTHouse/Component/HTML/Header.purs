@@ -6,7 +6,7 @@ import TTHouse.Component.Menu.Hamburger as Hamburger
 import TTHouse.Component.Menu.Navbar as Navbar
 import TTHouse.Component.HTML.Utils (css)
 import TTHouse.Component.Lang as Lang
-import TTHouse.Component.AsyncException as AsyncException
+import TTHouse.Component.Async as Async
 
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
@@ -23,7 +23,7 @@ html route lang pl w =
           HH.div [css "header-logo-wrapper"]
           [HH.div_ [HH.slot_ Lang.proxy unit Lang.component unit]]
       ,   showMenu route lang pl w
-      ,   HH.div_ [HH.slot_ AsyncException.proxy unit AsyncException.component unit]
+      ,   HH.div_ [HH.slot_ Async.proxy unit Async.component unit]
       ]
   ]
 

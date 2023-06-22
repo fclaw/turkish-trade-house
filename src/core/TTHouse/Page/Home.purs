@@ -15,6 +15,7 @@ import TTHouse.Component.Lang.Data (Recipients (Home))
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Data.Route as Route
 import TTHouse.Error (withError)
+import TTHouse.Document.Meta as Meta
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -105,6 +106,8 @@ component mkBody =
                 when (x /= lang) $
                   for_ (Map.lookup Home langMap) $ 
                     handleAction <<< LangChange
+
+        Meta.set $ show Home
 
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
       handleAction (LangChange inLang) = do
