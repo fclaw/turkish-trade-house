@@ -11,7 +11,7 @@ import Halogen.HTML.Properties as HP
 
 html = 
   HH.div [css "page-footer", HP.style "text-align: center"] 
-  [ HH.text "COPYRIGHT © 2023 TTH - ALL RIGHTS RESERVED."
+  [ HH.div [css "copyright-plaque"] [HH.text "COPYRIGHT © 2023 TTH - ALL RIGHTS RESERVED."]
   , HH.slot_ Message.proxy unit Message.component unit
   , HH.slot_ Cookie.proxy unit Cookie.component unit
   ]

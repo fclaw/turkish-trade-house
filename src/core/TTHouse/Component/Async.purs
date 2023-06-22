@@ -33,8 +33,6 @@ import Data.Tuple (Tuple (..))
 import Data.List (zip, fromFoldable, length)
 import Data.Array ((..))
 
-import Undefined
-
 proxy = Proxy :: _ "async"
 
 data Action = Close Int | Add Async | Initialize
