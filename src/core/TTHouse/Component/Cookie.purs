@@ -7,7 +7,7 @@ import TTHouse.Component.Cookie.Foreign as Cookie
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Capability.LogMessages (logDebug)
-import TTHouse.Error (withError)
+import TTHouse.Api.Foreign.Request.Handler (withError)
 
 import Halogen as H
 import Halogen.HTML as HH

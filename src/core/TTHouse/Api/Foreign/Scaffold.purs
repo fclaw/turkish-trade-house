@@ -6,14 +6,14 @@ import Prelude
 import TTHouse.Component.Lang.Data (Lang)
 import TTHouse.Data.Route (Route)
 
-import Data.Function.Uncurried (Fn1, Fn2, Fn0, Fn4, runFn4)
+import Data.Function.Uncurried (Fn1, Fn2, Fn0, Fn4, runFn4, runFn2)
 import Effect (Effect)
 import Effect.Aff.Compat as AC
 import Foreign.Object (Object)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Argonaut.Core (Json)
 import Data.Either (Either (..))
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe, fromMaybe)
 import Data.Argonaut.Encode.Class (class EncodeJson)
 import Data.Argonaut.Decode.Class (class DecodeJson)
 import Data.Argonaut.Decode (decodeJson, (.:))
@@ -22,6 +22,8 @@ import Data.Argonaut.Core (jsonEmptyObject)
 import Data.Argonaut.Encode.Encoders (encodeMaybe)
 import Foreign (Foreign)
 import Effect.Exception as E
+
+import Undefined
 
 
 foreign import data ApiClient :: Type
@@ -39,6 +41,7 @@ foreign import data FrontendLogRequest :: Type
 foreign import data Cookie :: Type
 foreign import data ResponseCookie :: Type
 foreign import data ResponseMeta :: Type
+foreign import data Meta :: Type
 
 
 instance showError :: Show Error where
@@ -139,4 +142,15 @@ foreign import showCookieImpl :: Cookie -> String
 
 foreign import getCookies :: Fn1 FrontApi (AC.EffectFnAff (Object ResponseCookie))
 
-foreign import getMeta :: Fn2 (Maybe String) FrontApi (AC.EffectFnAff (Object ResponseMeta))
+newtype MetaPage = MetaPage String
+
+instance EncodeJson MetaPage where
+  encodeJson (MetaPage page) = "page" := page ~> jsonEmptyObject
+
+foreign import getMetaImpl :: Fn2 Json FrontApi (AC.EffectFnAff (Object ResponseMeta))
+
+getMeta :: Maybe MetaPage -> FrontApi -> AC.EffectFnAff (Object ResponseMeta)
+getMeta page = runFn2 getMetaImpl (encodeJson (fromMaybe undefined page))
+
+foreign import getMetaDescription :: Meta -> String
+

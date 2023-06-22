@@ -9,6 +9,9 @@ import Prelude
 
 import TTHouse.Page.Subscription.WinResize as WinResize
 import  TTHouse.Capability.LogMessages (logDebug)
+import TTHouse.Data.Route as Route
+import TTHouse.Document.Meta as Meta
+import TTHouse.Api.Foreign.Scaffold as Scaffold
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -46,7 +49,7 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "Service | TTH"
-        { platform } <- getStore
+        { platform, async, config: {scaffoldHost: host} } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
 
         tm <- H.liftEffect getTimestamp
@@ -55,6 +58,9 @@ component mkBody =
     
         H.modify_ _ { platform = pure platform, winWidth = pure w, start = tm }
         void $ H.subscribe =<< WinResize.subscribe WinResize
+
+        Meta.set host async $ pure $ Scaffold.MetaPage (show Route.Service)
+
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
 
       handleAction Finalize = do 

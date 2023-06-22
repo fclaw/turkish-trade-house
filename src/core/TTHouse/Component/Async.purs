@@ -75,12 +75,12 @@ render { xs } =
       let margin = show $ (k - 1) * 50
       in HH.div
          [ onClick $ const (Close k)
-         , css $ "alert " <> mkStyle val <> "alert-position"
+         , css $ "alert " <> mkStyle val <> " alert-position"
          , HP.style ("margin-top:" <> margin <> "px")
          , HP.role "alert"] 
          [ HH.text (mkMsg val <> " at " <> loc) ]
   where
-    mkStyle (Exception _) = "alert-dange"
+    mkStyle (Exception _) = "alert-danger"
     mkStyle (Warning _) = "alert-warning"
     mkMsg (Exception err) = message err
     mkMsg (Warning msg) = msg

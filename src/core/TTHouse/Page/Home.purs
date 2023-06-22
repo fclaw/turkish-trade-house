@@ -14,7 +14,7 @@ import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Component.Lang.Data (Recipients (Home))
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Data.Route as Route
-import TTHouse.Error (withError)
+import TTHouse.Api.Foreign.Request.Handler (withError)
 import TTHouse.Document.Meta as Meta
 
 import Halogen as H
@@ -77,7 +77,7 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "TTH"
-        { platform, init, langVar, cache } <- getStore
+        { platform, init, langVar, cache, config: {scaffoldHost: host}, async } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
 
         tm <- H.liftEffect getTimestamp
@@ -107,7 +107,7 @@ component mkBody =
                   for_ (Map.lookup Home langMap) $ 
                     handleAction <<< LangChange
 
-        Meta.set $ show Home
+        Meta.set host async $ pure $ Scaffold.MetaPage (show Route.Home)
 
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
       handleAction (LangChange inLang) = do
