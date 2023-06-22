@@ -4,6 +4,7 @@ module TTHouse.Component.Async
   , component
   , mkException
   , mkWarning
+  , mksuccess
   , proxy
   )
   where
@@ -25,7 +26,7 @@ import Effect.AVar as Async
 import Effect.Exception (Error, message)
 import Halogen.Store.Monad (getStore)
 import Control.Monad.Rec.Class (forever)
-import Data.Maybe (Maybe (..))
+import Data.Maybe (Maybe (..), maybe)
 import Data.Map as Map
 import Data.Functor ((<#>))
 import Data.Tuple (Tuple (..))
@@ -36,12 +37,13 @@ data Action = Close Int | Add Async | Initialize
 
 type State = { xs :: Map.Map Int Async }
 
-data Value = Exception Error | Warning String
+data Value = Exception Error | Warning String | Success String
 
-type Async = { val :: Value, loc :: String }
+type Async = { val :: Value, loc :: Maybe String }
 
-mkException error loc = { val: Exception error, loc: loc }
-mkWarning warn loc = { val: Warning warn, loc: loc } 
+mkException error loc = { val: Exception error, loc: Just loc }
+mkWarning warn loc = { val: Warning warn, loc: Just loc } 
+mksuccess ok = { val: Success ok, loc: Nothing }
 
 component =
   H.mkComponent
@@ -68,7 +70,6 @@ component =
         s { xs = newXs }
     handleAction (Close idx) = H.modify_ \s -> s { xs = Map.delete idx (_.xs s) }
 
-
 render { xs } = 
   HH.div_ $ 
     (Map.toUnfoldable xs) <#> \(Tuple k { val, loc }) ->
@@ -78,9 +79,11 @@ render { xs } =
          , css $ "alert " <> mkStyle val <> " alert-position"
          , HP.style ("margin-top:" <> margin <> "px")
          , HP.role "alert"] 
-         [ HH.text (mkMsg val <> " at " <> loc) ]
+         [ HH.text (mkMsg val <> maybe mempty (\s -> " at " <> s) loc) ]
   where
     mkStyle (Exception _) = "alert-danger"
     mkStyle (Warning _) = "alert-warning"
+    mkStyle (Success _) = "alert-success"
     mkMsg (Exception err) = message err
     mkMsg (Warning msg) = msg
+    mkMsg (Success msg) = msg

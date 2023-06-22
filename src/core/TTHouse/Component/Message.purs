@@ -8,6 +8,8 @@ import Halogen.HTML.Properties.Extended as HPExt
 import TTHouse.Api.Foreign.Scaffold as Scaffold 
 import TTHouse.Capability.LogMessages (logError, logDebug)
 import TTHouse.Api.Foreign.Request as Request
+import TTHouse.Component.Async as Async
+import TTHouse.Api.Foreign.Request.Handler (onFailure) 
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -18,7 +20,6 @@ import Web.Event.Event (preventDefault, Event)
 import Effect.Aff (try)
 import Data.Either
 import Data.Function.Uncurried (runFn1, runFn2)
-import Undefined
 import Data.Array.NonEmpty (singleton)
 import Data.Argonaut.Encode
 import Data.Argonaut.Core (stringify)
@@ -30,6 +31,7 @@ import Data.Validation.Semigroup
 import Data.String
 import Data.String.Pattern
 import Effect.Console (logShow)
+import Effect.AVar as Async
 
 proxy = Proxy :: _ "message"
 
@@ -71,7 +73,7 @@ component =
     where 
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
-        let handleSubmit (Right _) = do
+        let ok var = do
               H.modify_ _ { 
                   isSent = true
                 , email = Nothing
@@ -80,8 +82,10 @@ component =
                 , error = Nothing
                 , isClick = false
                 , serverError = Nothing }
+              let val = Async.mksuccess "Thank you for submitting the enquiry"
+              void $ H.liftEffect $ Async.tryPut val var
               handleAction RollBack    
-            handleSubmit (Left e) = do
+            failure e = do
               H.modify_ _ { 
                   isSent = true
                 , serverError = pure (show e)
@@ -91,7 +95,7 @@ component =
                 , isClick = false }
               logError $ show e
         state@{name, email, enquiry} <- H.get
-        { config: {scaffoldHost: host} } <- getStore
+        { config: {scaffoldHost: host}, async } <- getStore
         let res = toEither $ validate name email enquiry
         case res of 
           Right { email, name, enquiry } -> do
@@ -103,7 +107,7 @@ component =
                     , body: enquiry }
             logDebug $ show state         
             resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
-            handleSubmit resp 
+            onFailure resp failure (const (ok async)) 
           Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true }
       handleAction (FillName v) = 
         if length v > 0 then 
@@ -117,8 +121,8 @@ component =
         if length v > 0 then 
            H.modify_ \s -> s { enquiry = Just v, error = join $ map (fromArray <<< delete "enquiry") (_.error s) }
         else H.modify_ _ { enquiry = Nothing }
-      handleAction RollBack = do 
-        liftAff $ delay $ Milliseconds 2000.0
+      handleAction RollBack = do
+        liftAff $ delay $ Milliseconds 5000.0
         H.modify_ _ { isSent = false }
 
 validate nameM emailM enquiryM =
@@ -138,10 +142,14 @@ render {error, isSent, isClick } =
       [
           HH.div [css "nb-form"]
           [
-             HH.p [css "title"] [HH.text "Send a message"]
-          ,  HH.img [HPExt.src imgUrl, css "user-icon"]
-          ,  if not isSent
-             then HH.div [HPExt.style "padding-top:20px"] [form error isClick]
+            if not isSent
+            then
+             HH.div_ 
+             [
+                 HH.p [css "title"] [HH.text "Send a message"]
+             ,   HH.img [HPExt.src imgUrl, css "user-icon"]
+             ,   HH.div [HPExt.style "padding-top:20px"] [form error isClick]
+             ]
              else success
           ] 
       ]
@@ -188,7 +196,7 @@ form xs isClick =
       ]
   ]
 
-success = HH.div_ [HH.p_ [HH.text "thanks you for submitting the enquiry"]]
+success = HH.div_ []
 
 searchForError el xs = join $ map (find (contains (Pattern el))) xs
 
