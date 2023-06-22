@@ -30,8 +30,12 @@ import Data.Maybe (Maybe (..), maybe)
 import Data.Map as Map
 import Data.Functor ((<#>))
 import Data.Tuple (Tuple (..))
+import Data.List (zip, fromFoldable, length)
+import Data.Array ((..))
 
-proxy = Proxy :: _ "async-exception"
+import Undefined
+
+proxy = Proxy :: _ "async"
 
 data Action = Close Int | Add Async | Initialize
 
@@ -68,7 +72,7 @@ component =
                Just { key } -> Map.insert (key + 1) e (_.xs s)
                Nothing -> Map.singleton 1 e
         s { xs = newXs }
-    handleAction (Close idx) = H.modify_ \s -> s { xs = Map.delete idx (_.xs s) }
+    handleAction (Close idx) = H.modify_ \s -> s { xs = recalculateIdx $ Map.delete idx (_.xs s) }
 
 render { xs } = 
   HH.div_ $ 
@@ -87,3 +91,8 @@ render { xs } =
     mkMsg (Exception err) = message err
     mkMsg (Warning msg) = msg
     mkMsg (Success msg) = msg
+
+recalculateIdx xs = 
+  let valXs = Map.values xs
+      idXs = fromFoldable (1 .. length valXs)
+  in Map.fromFoldable $ zip idXs valXs
