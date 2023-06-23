@@ -44,7 +44,7 @@ data Value = Exception Error | Warning String | Success String
 type Async = { val :: Value, loc :: Maybe String }
 
 mkException error loc = { val: Exception error, loc: Just loc }
-mkWarning warn loc = { val: Warning warn, loc: Just loc } 
+mkWarning warn loc = { val: Warning warn, loc: loc } 
 mkSuccess ok = { val: Success ok, loc: Nothing }
 
 component =

@@ -126,6 +126,7 @@ component =
                 , name = Nothing
                 , enquiry = Nothing
                 , isClick = false }
+              handleAction RollBack
       handleAction (FillName v) = 
         if length v > 0 then 
            H.modify_ \s -> s { name = Just v, error = join $ map (fromArray <<< delete "name") (_.error s) }
