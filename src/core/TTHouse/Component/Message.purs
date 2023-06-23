@@ -9,7 +9,7 @@ import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Capability.LogMessages (logError, logDebug)
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Component.Async as Async
-import TTHouse.Api.Foreign.Request.Handler (onFailure) 
+import TTHouse.Api.Foreign.Request.Handler (onFailure, withError) 
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -32,6 +32,7 @@ import Data.String
 import Data.String.Pattern
 import Effect.Console (logShow)
 import Effect.AVar as Async
+import Effect.Exception as Excep
 
 proxy = Proxy :: _ "message"
 
@@ -73,6 +74,7 @@ component =
     where 
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
+        { config: {scaffoldHost: host}, async } <- getStore
         let ok var = do
               H.modify_ _ { 
                   isSent = true
@@ -94,21 +96,25 @@ component =
                 , enquiry = Nothing
                 , isClick = false }
               logError $ show e
-        state@{name, email, enquiry} <- H.get
-        { config: {scaffoldHost: host}, async } <- getStore
-        let res = toEither $ validate name email enquiry
-        case res of 
-          Right { email, name, enquiry } -> do
-            req <- H.liftEffect $ 
-                    runFn1 Scaffold.mkSendGridSendMailRequest
-                    { from: email
-                    , personalization: name
-                    , subject: "enquiry"
-                    , body: enquiry }
-            logDebug $ show state         
-            resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
-            onFailure resp failure (const (ok async)) 
-          Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true }
+        captcha <- Request.make host Scaffold.mkReCaptchaApi $ runFn2 Scaffold.goReCaptcha "6Leu08AmAAAAALKticYseGCibpWoY7L8jm130YmK"
+        withError captcha \resp ->
+          case resp of 
+            true -> do      
+              state@{name, email, enquiry} <- H.get
+              let res = toEither $ validate name email enquiry
+              case res of 
+                Right { email, name, enquiry } -> do
+                  req <- H.liftEffect $ 
+                          runFn1 Scaffold.mkSendGridSendMailRequest
+                          { from: email
+                          , personalization: name
+                          , subject: "enquiry"
+                          , body: enquiry }
+                  logDebug $ show state         
+                  resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
+                  onFailure resp failure (const (ok async)) 
+                Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true }
+            false -> failure $ Excep.error "captcha verification failure"
       handleAction (FillName v) = 
         if length v > 0 then 
            H.modify_ \s -> s { name = Just v, error = join $ map (fromArray <<< delete "name") (_.error s) }

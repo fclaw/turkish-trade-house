@@ -42,7 +42,8 @@ foreign import data Cookie :: Type
 foreign import data ResponseCookie :: Type
 foreign import data ResponseMeta :: Type
 foreign import data Meta :: Type
-
+foreign import data ReCaptchaApi :: Type
+foreign import data ResponseBool :: Type
 
 instance showError :: Show Error where
   show = printError
@@ -154,3 +155,7 @@ getMeta page = runFn2 getMetaImpl (encodeJson (fromMaybe undefined page))
 
 foreign import getMetaDescription :: Meta -> String
 
+
+foreign import mkReCaptchaApi :: Fn1 ApiClient (Effect ReCaptchaApi)
+
+foreign import goReCaptcha :: Fn2 String ReCaptchaApi (AC.EffectFnAff (Object (ResponseBool)))

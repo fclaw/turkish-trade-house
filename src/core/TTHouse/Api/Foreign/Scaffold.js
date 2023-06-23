@@ -159,4 +159,24 @@ export const getMetaImpl = function(page, api) {
     };
 }
 
-export const getMetaDescription = meta => { return meta.getDescription(); }
+export const getMetaDescription = meta => {
+    return meta.getDescription();
+}
+
+export const mkReCaptchaApi = function(api) {
+    return () => {
+        return new e.ReCaptchaApi(api);
+    }
+}
+
+export const goReCaptcha = function(key, api) {
+    return function(onError, onOk) {
+        grecaptcha.ready(function() {
+            grecaptcha.execute(key, {
+              action: 'submit'
+            }).then(function(token) {
+                api.apiCaptchaVerifyPost('\"' + token + '\"').then(onOk).catch(onError)
+            });
+        });   
+    }
+}
