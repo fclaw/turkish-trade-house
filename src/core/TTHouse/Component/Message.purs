@@ -142,15 +142,13 @@ render {error, isSent, isClick } =
       [
           HH.div [css "nb-form"]
           [
-            if not isSent
-            then
-             HH.div_ 
-             [
-                 HH.p [css "title"] [HH.text "Send a message"]
-             ,   HH.img [HPExt.src imgUrl, css "user-icon"]
-             ,   HH.div [HPExt.style "padding-top:20px"] [form error isClick]
-             ]
-             else success
+            whenElem (not isSent) $
+              HH.div_ 
+              [
+                  HH.p [css "title"] [HH.text "Send a message"]
+              ,   HH.img [HPExt.src imgUrl, css "user-icon"]
+              ,   HH.div [HPExt.style "padding-top:20px"] [form error isClick]
+              ]
           ] 
       ]
   ]
@@ -195,8 +193,6 @@ form xs isClick =
           ]
       ]
   ]
-
-success = HH.div_ []
 
 searchForError el xs = join $ map (find (contains (Pattern el))) xs
 
