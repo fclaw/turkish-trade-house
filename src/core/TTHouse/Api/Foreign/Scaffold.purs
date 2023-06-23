@@ -43,7 +43,9 @@ foreign import data ResponseCookie :: Type
 foreign import data ResponseMeta :: Type
 foreign import data Meta :: Type
 foreign import data ReCaptchaApi :: Type
-foreign import data ResponseBool :: Type
+foreign import data ResponseReCaptcha :: Type
+foreign import data ReCaptcha :: Type
+
 
 instance showError :: Show Error where
   show = printError
@@ -158,4 +160,10 @@ foreign import getMetaDescription :: Meta -> String
 
 foreign import mkReCaptchaApi :: Fn1 ApiClient (Effect ReCaptchaApi)
 
-foreign import goReCaptcha :: Fn2 String ReCaptchaApi (AC.EffectFnAff (Object (ResponseBool)))
+foreign import goReCaptcha :: Fn2 String ReCaptchaApi (AC.EffectFnAff (Object (ResponseReCaptcha)))
+
+foreign import getSuccessReCaptcha :: ReCaptcha -> Boolean
+foreign import  getHostReCaptcha :: ReCaptcha -> String
+
+instance Show ReCaptcha where 
+  show x = "{ success: " <> show (getSuccessReCaptcha x) <> ", host: " <> getHostReCaptcha x <> " }"

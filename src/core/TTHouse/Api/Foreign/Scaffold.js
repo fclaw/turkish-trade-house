@@ -173,10 +173,15 @@ export const goReCaptcha = function(key, api) {
     return function(onError, onOk) {
         grecaptcha.ready(function() {
             grecaptcha.execute(key, {
-              action: 'submit'
+                action: 'submit'
             }).then(function(token) {
                 api.apiCaptchaVerifyPost('\"' + token + '\"').then(onOk).catch(onError)
             });
-        });   
+        });
     }
 }
+
+export const getSuccessReCaptcha = captcha => {  return captcha.getSuccess(); }
+
+
+export const getHostReCaptcha = captcha => {  return captcha.getHost(); }

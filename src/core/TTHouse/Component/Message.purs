@@ -98,9 +98,10 @@ component =
                 , enquiry = Nothing
                 , isClick = false }
               logError $ show e
-        captcha <- Request.make host Scaffold.mkReCaptchaApi $ runFn2 Scaffold.goReCaptcha "6Ld138ImAAAAAEB8Ba7V5QTvfFhq433MsF5hZV4v"
-        withError captcha \resp ->
-          case resp of 
+        resp <- Request.make host Scaffold.mkReCaptchaApi $ runFn2 Scaffold.goReCaptcha "6Ld138ImAAAAAEB8Ba7V5QTvfFhq433MsF5hZV4v"
+        logDebug $ "captcha resp --> " <> show resp
+        withError resp \(captcha :: Scaffold.ReCaptcha) ->
+          case Scaffold.getSuccessReCaptcha captcha of 
             true -> do      
               state@{name, email, enquiry} <- H.get
               let res = toEither $ validate name email enquiry
