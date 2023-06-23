@@ -4,7 +4,7 @@ module TTHouse.Component.Async
   , component
   , mkException
   , mkWarning
-  , mksuccess
+  , mkSuccess
   , proxy
   )
   where
@@ -45,7 +45,7 @@ type Async = { val :: Value, loc :: Maybe String }
 
 mkException error loc = { val: Exception error, loc: Just loc }
 mkWarning warn loc = { val: Warning warn, loc: Just loc } 
-mksuccess ok = { val: Success ok, loc: Nothing }
+mkSuccess ok = { val: Success ok, loc: Nothing }
 
 component =
   H.mkComponent

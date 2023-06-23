@@ -34,6 +34,8 @@ import Effect.Console (logShow)
 import Effect.AVar as Async
 import Effect.Exception as Excep
 
+import Undefined
+
 proxy = Proxy :: _ "message"
 
 data Action = 
@@ -75,7 +77,7 @@ component =
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
         { config: {scaffoldHost: host}, async } <- getStore
-        let ok var = do
+        let ok = do
               H.modify_ _ { 
                   isSent = true
                 , email = Nothing
@@ -84,8 +86,8 @@ component =
                 , error = Nothing
                 , isClick = false
                 , serverError = Nothing }
-              let val = Async.mksuccess "Thank you for submitting the enquiry"
-              void $ H.liftEffect $ Async.tryPut val var
+              let val = Async.mkSuccess "Thank you for submitting the enquiry"
+              void $ H.liftEffect $ Async.tryPut val async
               handleAction RollBack    
             failure e = do
               H.modify_ _ { 
@@ -96,7 +98,7 @@ component =
                 , enquiry = Nothing
                 , isClick = false }
               logError $ show e
-        captcha <- Request.make host Scaffold.mkReCaptchaApi $ runFn2 Scaffold.goReCaptcha "6Leu08AmAAAAALKticYseGCibpWoY7L8jm130YmK"
+        captcha <- Request.make host Scaffold.mkReCaptchaApi $ runFn2 Scaffold.goReCaptcha "6Ld138ImAAAAAEB8Ba7V5QTvfFhq433MsF5hZV4v"
         withError captcha \resp ->
           case resp of 
             true -> do      
@@ -112,9 +114,18 @@ component =
                           , body: enquiry }
                   logDebug $ show state         
                   resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
-                  onFailure resp failure (const (ok async)) 
+                  onFailure resp failure (const ok) 
                 Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true }
-            false -> failure $ Excep.error "captcha verification failure"
+            false -> do 
+              let val = Async.mkWarning "captcha verification failure" mempty
+              void $ H.liftEffect $ Async.tryPut val async
+              H.modify_ _ {
+                  isSent = true
+                , serverError = Nothing
+                , email = Nothing
+                , name = Nothing
+                , enquiry = Nothing
+                , isClick = false }
       handleAction (FillName v) = 
         if length v > 0 then 
            H.modify_ \s -> s { name = Just v, error = join $ map (fromArray <<< delete "name") (_.error s) }
