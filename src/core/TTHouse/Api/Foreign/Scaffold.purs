@@ -163,7 +163,6 @@ foreign import mkReCaptchaApi :: Fn1 ApiClient (Effect ReCaptchaApi)
 foreign import goReCaptcha :: Fn2 String ReCaptchaApi (AC.EffectFnAff (Object (ResponseReCaptcha)))
 
 foreign import getSuccessReCaptcha :: ReCaptcha -> Boolean
-foreign import  getHostReCaptcha :: ReCaptcha -> String
 
 instance Show ReCaptcha where 
-  show x = "{ success: " <> show (getSuccessReCaptcha x) <> ", host: " <> getHostReCaptcha x <> " }"
+  show x = "{ success: " <> show (getSuccessReCaptcha x) <> " }"

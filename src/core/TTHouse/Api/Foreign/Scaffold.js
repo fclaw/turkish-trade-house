@@ -181,7 +181,6 @@ export const goReCaptcha = function(key, api) {
     }
 }
 
-export const getSuccessReCaptcha = captcha => {  return captcha.getSuccess(); }
-
-
-export const getHostReCaptcha = captcha => {  return captcha.getHost(); }
+export const getSuccessReCaptcha = captcha => {
+    return captcha.getSuccess();
+}
