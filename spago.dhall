@@ -3,20 +3,13 @@
   [ "argonaut-codecs"
   , "argonaut-core"
   , "argonaut-generic"
-  -- , "arrays"
-  -- , "bifunctors"
-  -- , "codec-argonaut"
   , "console"
   , "effect"
   , "either"
   , "foldable-traversable"
-  -- , "formatters"
   , "halogen"
   , "prelude"
-  -- , "profunctor"
-  -- , "strings"
   , "undefined"
-  -- , "validation"
   , "transformers"
   , "halogen-store"
   , "routing-duplex"
@@ -52,6 +45,7 @@
   , "web-dom"
   , "lists"
   , "nullable"
+  , "channel"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

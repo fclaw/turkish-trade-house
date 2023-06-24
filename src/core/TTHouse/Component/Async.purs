@@ -23,7 +23,7 @@ import DOM.HTML.Indexed.ButtonType (ButtonType (ButtonButton))
 import Halogen.HTML.Events (onClick)
 import Effect.Aff as Aff
 import Data.Foldable (for_)
-import Effect.AVar as Async
+import Concurrent.Channel as Async
 import Effect.Exception (Error, message)
 import Halogen.Store.Monad (getStore)
 import Control.Monad.Rec.Class (forever)
@@ -62,7 +62,7 @@ component =
       { async } <- getStore
       void $ H.fork $ forever $ do
         H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
-        val <- H.liftEffect $ Async.tryTake async
+        val <- H.liftAff $ Async.recv $ _.input async
         for_ val $ handleAction <<< Add 
     handleAction (Add e) = 
       H.modify_ \s -> do 
@@ -103,4 +103,4 @@ recalculateIdx xs =
 
 send val = do 
   { async } <- getStore
-  void $ H.liftEffect $ Async.tryPut val async
+  void $ H.liftAff $ Async.send (_.output async) val

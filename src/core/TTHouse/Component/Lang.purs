@@ -58,7 +58,7 @@ component =
         let langm = toEnum idx
         logDebug $ show langm
         for_ langm $ \lang -> do 
-           { langVar, config: {scaffoldHost: host}, async} <- getStore
+           { langVar, config: {scaffoldHost: host} } <- getStore
            valm <- H.liftEffect $ Async.tryTake langVar
            res <- for valm \langMap -> do
              let xs = 
@@ -72,7 +72,7 @@ component =
                logDebug $ show "(TTHouse.Component.Lang) lang change"
 
                
-               void $ H.fork $ cacheTranslation async host $ fromMaybe undefined $ toEnum idx 
+               void $ H.fork $ cacheTranslation host $ fromMaybe undefined $ toEnum idx 
 
                H.modify_ _ { lang = idx }
            when (isNothing res) $ 
@@ -91,8 +91,7 @@ render {lang} =
          in HH.option [HPExt.value (str ident)] [HH.text (str ident)])
   ]
 
-
-cacheTranslation var host lang = do 
+cacheTranslation host lang = do 
   let xs = 
         flip map (fromEnum Route.Home .. fromEnum Route.Service) $
           fromMaybe undefined <<< 
@@ -111,6 +110,5 @@ cacheTranslation var host lang = do
     let err = blush ifError
     for_ err $ \e -> do 
       logError $ "async error while trying to cache translation: " <> message e
-      let val = Async.mkException e "TTHouse.Component.Lang:cacheTranslation"
+      Async.send $ Async.mkException e "TTHouse.Component.Lang:cacheTranslation"
       updateStore $ WriteTranslationToCache Map.empty
-      void $ H.liftEffect $ Async.tryPut val var

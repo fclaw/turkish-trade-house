@@ -44,6 +44,7 @@ import Unsafe.Coerce (unsafeCoerce)
 import Cache as Cache
 import Halogen.Store.Monad (getStore)
 import Data.Foldable (for_)
+import Concurrent.Channel as Async
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 
@@ -74,7 +75,7 @@ main cfg = do
 
           langVar <- H.liftEffect $ Async.new Map.empty
 
-          asyncException <- H.liftEffect $ Async.empty
+          async <- H.liftEffect $ Async.newChannel
 
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
@@ -89,7 +90,7 @@ main cfg = do
                 , init: init
                 , langVar: langVar
                 , cache: Cache.init
-                , async: asyncException
+                , async: async
                 , cookies: getCookiesInit init
                 , isCaptcha: _.isCaptcha cfg
                 }

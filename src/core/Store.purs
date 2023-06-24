@@ -43,6 +43,7 @@ import Data.Traversable (sequence)
 import Effect.AVar (AVar)
 import Data.Map as Map
 import Cache as Cache
+import Concurrent.Channel as Async
 
 data Platform = Desktop | Mobile
 
@@ -70,7 +71,7 @@ type Store =
      , init :: Scaffold.Init
      , langVar :: AVar (Map.Map Recipients Lang)
      , cache :: Cache.Cache
-     , async :: AVar Async.Async
+     , async :: Async.Channel Async.Async Async.Async
      , cookies :: Array String
      , isCaptcha :: Boolean
      }
