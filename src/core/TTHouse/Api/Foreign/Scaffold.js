@@ -46,10 +46,9 @@ export const getDataFromObjImpl = left => right => resp => {
         });
         return tmp;
     }
+    let err = resp.getErrors() !== undefined ? errMsg(resp.getErrors()) : 'malformed resp: ' + JSON.stringify(resp);
     return () => {
-        return success !== undefined ?
-            right(success) :
-            left(errMsg(resp.getErrors()));
+        return success !== undefined ? right(success) : left(err);
     };
 }
 
