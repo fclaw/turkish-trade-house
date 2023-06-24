@@ -51,6 +51,7 @@
   , "unsafe-coerce" 
   , "web-dom"
   , "lists"
+  , "nullable"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

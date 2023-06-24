@@ -72,6 +72,7 @@ type Store =
      , cache :: Cache.Cache
      , async :: AVar Async.Async
      , cookies :: Array String
+     , isCaptcha :: Boolean
      }
 
 printStore store = 
@@ -82,7 +83,8 @@ printStore store =
   ", langVar: <AVar (Map.Map Recipients Lang)>" <>
   ", cache: " <> show (_.cache store) <> 
   ", async: <AVar> "  <> 
-  ", cookies: " <> show (_.cookies store) <> "}"
+  ", cookies: " <> show (_.cookies store) <> 
+  ", isCaptcha: " <> show (_.isCaptcha store) <> "}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that

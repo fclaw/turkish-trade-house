@@ -20,6 +20,7 @@ type Config =
   , cssLink :: String
   , traceLocation :: String
   , cssFiles :: Array String
+  , isCaptcha :: Boolean
   }
 
 configToJson :: Config -> Json

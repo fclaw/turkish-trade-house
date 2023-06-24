@@ -44,9 +44,7 @@ set host var page =
   where
     showWarn e = do 
       logWarn $ "TTHouse.Document.Meta: " <> message e
-      let val = Async.mkWarning "meta cannot be loaded for this page" $ Just "TTHouse.Document.Meta"
-      void $ H.liftEffect $ Async.tryPut val var
+      Async.send $ Async.mkOrdinary "meta cannot be loaded for this page" Async.Warning $ Just "TTHouse.Document.Meta"
     shoWWarnAppendFailure = do 
       logWarn $ "TTHouse.Document.Meta: meta cannot be latched to head"
-      let val = Async.mkWarning "meta cannot be latched to head" $ Just "TTHouse.Document.Meta"
-      void $ H.liftEffect $ Async.tryPut val var
+      Async.send $ Async.mkOrdinary "meta cannot be latched to head" Async.Warning $ Just "TTHouse.Document.Meta"

@@ -28,6 +28,7 @@ import TTHouse.Component.HTML.Header as Header
 import TTHouse.Component.HTML.Footer as Footer
 import TTHouse.Component.HTML.Body as Body
 import TTHouse.Component.Lang.Data (Lang (..))
+import TTHouse.Component.Async as Async
 
 import Data.Either (hush, Either (..))
 import Data.Foldable (elem)
@@ -87,8 +88,13 @@ component = H.mkComponent
   where
   handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
   handleAction Initialize = do
-    store <- getStore
+    store@{ isCaptcha } <- getStore
     logDebug $ printStore store
+
+    -- show up info if captcha is disabled
+    when (not isCaptcha) $
+      Async.send $ Async.mkOrdinary "captcha is disabled" Async.Info Nothing
+      
     -- first we'll get the route the user landed on
     from <-(RD.parse routeCodec) <$> liftEffect getHash
     -- then we'll navigate to the new route (also setting the hash)

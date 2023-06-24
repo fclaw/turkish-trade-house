@@ -91,6 +91,7 @@ main cfg = do
                 , cache: Cache.init
                 , async: asyncException
                 , cookies: getCookiesInit init
+                , isCaptcha: _.isCaptcha cfg
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.

@@ -1,11 +1,12 @@
 module TTHouse.Component.Async
   ( Async
   , Value
+  , Level (..)
   , component
   , mkException
-  , mkWarning
-  , mkSuccess
+  , mkOrdinary
   , proxy
+  , send
   )
   where
 
@@ -39,13 +40,14 @@ data Action = Close Int | Add Async | Initialize
 
 type State = { xs :: Map.Map Int Async }
 
-data Value = Exception Error | Warning String | Success String
+data Level = Warning | Success | Info
+
+data Value = Exception Error | Ordinary String Level 
 
 type Async = { val :: Value, loc :: Maybe String }
 
 mkException error loc = { val: Exception error, loc: Just loc }
-mkWarning warn loc = { val: Warning warn, loc: loc } 
-mkSuccess ok = { val: Success ok, loc: Nothing }
+mkOrdinary msg level loc = { val: Ordinary msg level, loc: loc }
 
 component =
   H.mkComponent
@@ -83,14 +85,22 @@ render { xs } =
          , HP.role "alert"] 
          [ HH.text (mkMsg val <> maybe mempty (\s -> " at " <> s) loc) ]
   where
-    mkStyle (Exception _) = "alert-danger"
-    mkStyle (Warning _) = "alert-warning"
-    mkStyle (Success _) = "alert-success"
-    mkMsg (Exception err) = message err
-    mkMsg (Warning msg) = msg
-    mkMsg (Success msg) = msg
+    mkStyle val = 
+      case val of 
+        Exception _ -> "alert-danger"
+        Ordinary _ Warning -> "alert-warning"
+        Ordinary _ Success -> "alert-success"
+        Ordinary _ Info -> "alert-info"
+    mkMsg val = 
+      case val of 
+        Exception err -> message err
+        Ordinary msg _ -> msg
 
 recalculateIdx xs = 
   let valXs = Map.values xs
       idXs = fromFoldable (1 .. length valXs)
   in Map.fromFoldable $ zip idXs valXs
+
+send val = do 
+  { async } <- getStore
+  void $ H.liftEffect $ Async.tryPut val async

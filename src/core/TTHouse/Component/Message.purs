@@ -10,6 +10,7 @@ import TTHouse.Capability.LogMessages (logError, logDebug)
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Component.Async as Async
 import TTHouse.Api.Foreign.Request.Handler (onFailure, withError) 
+import TTHouse.Component.Utils ( withCaptcha )
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -76,7 +77,7 @@ component =
     where 
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
-        { config: {scaffoldHost: host}, async } <- getStore
+        { config: {scaffoldHost: host}, async, isCaptcha } <- getStore
         let ok = do
               H.modify_ _ { 
                   isSent = true
@@ -86,8 +87,7 @@ component =
                 , error = Nothing
                 , isClick = false
                 , serverError = Nothing }
-              let val = Async.mkSuccess "Thank you for submitting the enquiry"
-              void $ H.liftEffect $ Async.tryPut val async
+              Async.send $ Async.mkOrdinary "Thank you for submitting the enquiry" Async.Success Nothing
               handleAction RollBack    
             failure e = do
               H.modify_ _ { 
@@ -98,12 +98,17 @@ component =
                 , enquiry = Nothing
                 , isClick = false }
               logError $ show e
-        resp <- Request.make host Scaffold.mkReCaptchaApi $ runFn2 Scaffold.goReCaptcha "6Ld138ImAAAAAEB8Ba7V5QTvfFhq433MsF5hZV4v"
-        logDebug $ "captcha resp --> " <> show resp
-        withError resp \(captcha :: Scaffold.ReCaptcha) ->
-          case Scaffold.getSuccessReCaptcha captcha of 
-            true -> do      
-              state@{name, email, enquiry} <- H.get
+        withCaptcha isCaptcha
+          (do Async.send $ Async.mkOrdinary "captcha verification failure" Async.Warning Nothing
+              H.modify_ _ {
+                  isSent = true
+                , serverError = Nothing
+                , email = Nothing
+                , name = Nothing
+                , enquiry = Nothing
+                , isClick = false }
+              handleAction RollBack) 
+          (do state@{name, email, enquiry} <- H.get
               let res = toEither $ validate name email enquiry
               case res of 
                 Right { email, name, enquiry } -> do
@@ -116,18 +121,7 @@ component =
                   logDebug $ show state         
                   resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
                   onFailure resp failure (const ok) 
-                Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true }
-            false -> do 
-              let val = Async.mkWarning "captcha verification failure" mempty
-              void $ H.liftEffect $ Async.tryPut val async
-              H.modify_ _ {
-                  isSent = true
-                , serverError = Nothing
-                , email = Nothing
-                , name = Nothing
-                , enquiry = Nothing
-                , isClick = false }
-              handleAction RollBack
+                Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true })
       handleAction (FillName v) = 
         if length v > 0 then 
            H.modify_ \s -> s { name = Just v, error = join $ map (fromArray <<< delete "name") (_.error s) }
@@ -141,7 +135,7 @@ component =
            H.modify_ \s -> s { enquiry = Just v, error = join $ map (fromArray <<< delete "enquiry") (_.error s) }
         else H.modify_ _ { enquiry = Nothing }
       handleAction RollBack = do
-        liftAff $ delay $ Milliseconds 5000.0
+        liftAff $ delay $ Milliseconds 3000.0
         H.modify_ _ { isSent = false }
 
 validate nameM emailM enquiryM =

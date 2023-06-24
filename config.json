@@ -5,5 +5,6 @@
     "toTelegram": false,
     "scaffoldHost": "https://back-g52bgv5bua-ew.a.run.app",
     "cssLink": "https://cdn.jsdelivr.net/gh/fclaw/turkish-trade-house-style-and-css@",
-    "cssFiles": ["style", "error", "cookie", "alert"]
+    "cssFiles": ["style", "error", "cookie", "alert"],
+    "isCaptcha": true
 }
