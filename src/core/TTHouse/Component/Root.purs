@@ -58,8 +58,7 @@ data Query a = Navigate Route a
 
 type State = { route :: Maybe Route, lang :: Lang }
 
-data Action
-  = Initialize
+data Action = Initialize | LangChange Lang
 
 type ChildSlots =
   ( home :: OpaqueSlot Unit
@@ -96,7 +95,7 @@ component = H.mkComponent
     when (not isCaptcha) $
       Async.send $ Async.mkOrdinary "captcha is disabled" Async.Info Nothing
       
-    Fork.Translation.load
+    Fork.Translation.load $ handleAction <<< LangChange
 
     -- first we'll get the route the user landed on
     from <-(RD.parse routeCodec) <$> liftEffect getHash
@@ -105,14 +104,11 @@ component = H.mkComponent
       Right route -> navigate route 
       Left EndOfPath -> navigate Home
       Left _ -> navigate Error404
+  handleAction (LangChange lang) = H.modify_ _ { lang = lang }
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
     store@{langVar} <- getStore
     logDebug $ printStore store
-    res <- H.liftEffect $ Async.tryRead langVar
-    for_ res \langMap -> do
-      let headm = head $ Map.values langMap
-      for_ headm \lang -> H.modify_ _ { lang = lang }
     H.modify_ _ { route = pure dest }
     pure $ Just a
 
