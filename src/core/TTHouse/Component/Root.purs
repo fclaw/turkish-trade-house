@@ -29,6 +29,7 @@ import TTHouse.Component.HTML.Footer as Footer
 import TTHouse.Component.HTML.Body as Body
 import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Component.Async as Async
+import TTHouse.Component.Root.Fork.Translation as Fork.Translation 
 
 import Data.Either (hush, Either (..))
 import Data.Foldable (elem)
@@ -95,6 +96,8 @@ component = H.mkComponent
     when (not isCaptcha) $
       Async.send $ Async.mkOrdinary "captcha is disabled" Async.Info Nothing
       
+    Fork.Translation.load
+
     -- first we'll get the route the user landed on
     from <-(RD.parse routeCodec) <$> liftEffect getHash
     -- then we'll navigate to the new route (also setting the hash)

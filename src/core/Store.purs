@@ -74,6 +74,7 @@ type Store =
      , async :: Async.Channel Async.Async Async.Async
      , cookies :: Array String
      , isCaptcha :: Boolean
+     , lang ::  AVar Lang
      }
 
 printStore store = 
@@ -98,6 +99,7 @@ data Action =
        WriteError Error 
      | WriteMenuToCache (Map.Map String String)
      | WriteTranslationToCache (Map.Map Route Scaffold.Translation)
+     | WriteTranslationToCacheV2 Scaffold.Translation
 
 -- | Finally, we'll map this action to a state update in a function called a
 -- | 'reducer'. If you're curious to learn more, see the `halogen-store`
@@ -106,6 +108,7 @@ reduce :: Store -> Action -> Store
 reduce store (WriteError err) = store { error = Just err }
 reduce store (WriteMenuToCache xs) = store {  cache = Cache.writeMenu xs (_.cache store) }
 reduce store (WriteTranslationToCache xs) = store {  cache = Cache.writeTranslation xs (_.cache store) }
+reduce store (WriteTranslationToCacheV2 x) = store {  cache = Cache.writeTranslationV2 x (_.cache store) }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.Init)
 initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init

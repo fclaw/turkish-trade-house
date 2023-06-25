@@ -105,6 +105,7 @@ foreign import getCookiesInit :: Init -> Array String
 
 foreign import loadTranslationImpl :: Fn4 Json Json Json FrontApi (AC.EffectFnAff (Object ResponseTranslation))
 
+foreign import loadTranslationImplV2 :: Fn2 Json FrontApi (AC.EffectFnAff (Object ResponseTranslation))
 
 data Resource = Content | Menu
 
@@ -124,6 +125,10 @@ instance encodeJsonLocation :: EncodeJson Location where
 
 loadTranslation :: Resource -> Lang -> Maybe Location -> FrontApi -> (AC.EffectFnAff (Object ResponseTranslation))
 loadTranslation resource lang loc = runFn4 loadTranslationImpl (encodeJson resource) (encodeJson lang) (encodeMaybe encodeJson loc)
+
+loadTranslationV2 ::Lang -> FrontApi -> (AC.EffectFnAff (Object ResponseTranslation))
+loadTranslationV2 lang = runFn2 loadTranslationImplV2 (encodeJson lang)
+
 
 foreign import  getTranslatedContent :: Translation -> String
 

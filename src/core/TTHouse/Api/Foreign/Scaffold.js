@@ -111,6 +111,14 @@ export const loadTranslationImpl =
         };
     }
 
+export const loadTranslationImplV2 =
+    function(lang, api) {
+        return function(onError, onOk) {
+            api.apiFrontendTranslateLangGet(lang).then(onOk).catch(onError)
+        };
+    }
+
+
 export const getTranslatedContent = (obj) => {
     return obj.getTranslationContent();
 }

@@ -7,6 +7,7 @@ import TTHouse.Component.Root as Root
 import TTHouse.Data.Config as Cfg
 import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit, getShaCommit, getCookiesInit)
 import TTHouse.Component.Cookie.Foreign as Cookie.Foreign
+import TTHouse.Component.Lang.Data (Lang (..))
 
 import Effect (Effect)
 import Halogen.Aff as HA
@@ -74,6 +75,7 @@ main cfg = do
           for_ (_.cssFiles cfg) $ H.liftEffect <<< setCssLink (getShaCSSCommit init) (_.cssLink cfg)
 
           langVar <- H.liftEffect $ Async.new Map.empty
+          lang <- H.liftEffect $ Async.new Eng
 
           async <- H.liftEffect $ Async.newChannel
 
@@ -93,6 +95,7 @@ main cfg = do
                 , async: async
                 , cookies: getCookiesInit init
                 , isCaptcha: _.isCaptcha cfg
+                , lang: lang 
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.
