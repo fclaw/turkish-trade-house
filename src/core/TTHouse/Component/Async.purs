@@ -33,12 +33,17 @@ import Data.Functor ((<#>))
 import Data.Tuple (Tuple (..))
 import Data.List (zip, fromFoldable, length)
 import Data.Array ((..))
+import System.Time (getTimestamp)
+
+import Undefined
 
 proxy = Proxy :: _ "async"
 
 data Action = Close Int | Add Async | Initialize
 
-type State = { xs :: Map.Map Int Async }
+type AsyncWithTM = { async :: Async, tm :: Int }
+
+type State = { xs :: Map.Map Int AsyncWithTM }
 
 data Level = Warning | Success | Info
 
@@ -64,26 +69,30 @@ component =
         H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
         val <- H.liftAff $ Async.recv $ _.input async
         for_ val $ handleAction <<< Add 
-    handleAction (Add e) = 
-      H.modify_ \s -> do 
+    handleAction (Add e) = do
+      tm <- H.liftEffect getTimestamp 
+      H.modify_ \s -> do
         let m = Map.findMax (_.xs s)
         let newXs = 
              case m of 
-               Just { key } -> Map.insert (key + 1) e (_.xs s)
-               Nothing -> Map.singleton 1 e
+               Just { key } -> 
+                 if key + 1 < 10 
+                 then Map.insert (key + 1) {async: e, tm: tm} (_.xs s)
+                 else Map.insert key {async: e, tm: tm} $ recalculateIdx $ Map.delete 1 (_.xs s)
+               Nothing -> Map.singleton 1 {async: e, tm: tm}
         s { xs = newXs }
     handleAction (Close idx) = H.modify_ \s -> s { xs = recalculateIdx $ Map.delete idx (_.xs s) }
 
 render { xs } = 
   HH.div_ $ 
-    (Map.toUnfoldable xs) <#> \(Tuple k { val, loc }) ->
+    (Map.toUnfoldable xs) <#> \(Tuple k {async: { val, loc }, tm}) ->
       let margin = show $ (k - 1) * 50
       in HH.div
          [ onClick $ const (Close k)
          , css $ "alert " <> mkStyle val <> " alert-position"
          , HP.style ("margin-top:" <> margin <> "px")
          , HP.role "alert"] 
-         [ HH.text (mkMsg val <> maybe mempty (\s -> " at " <> s) loc) ]
+         [ HH.text (mkMsg val <> maybe mempty (\s -> " at " <> s) loc <> ", tm: " <> show tm) ]
   where
     mkStyle val = 
       case val of 
