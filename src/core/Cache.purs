@@ -6,6 +6,7 @@ module Cache
   , readTranslation
   , writeTranslation
   , writeTranslationV2
+  , readTranslationV2
   ) 
  where
 
@@ -19,7 +20,11 @@ import Data.Maybe (Maybe (..))
 
 type Menu = { xs :: Map.Map String String }
 
-type CacheImpl = { menu :: Menu, translation :: Map.Map Route Translation, translationV2 :: Maybe Translation }
+
+type TranslationValue = { value :: Translation, hash :: String }
+
+
+type CacheImpl = { menu :: Menu, translation :: Map.Map Route Translation, translationV2 :: Maybe TranslationValue }
 
 newtype Cache = Cache CacheImpl
 
@@ -41,8 +46,11 @@ readMenu (Cache { menu: { xs } }) = xs
 writeTranslation :: Map.Map Route Translation -> Cache -> Cache
 writeTranslation xs (Cache impl) = Cache $ impl { translation = xs }
 
-writeTranslationV2 :: Translation -> Cache -> Cache
-writeTranslationV2 x (Cache impl) = Cache $ impl { translationV2 = Just x }
+writeTranslationV2 :: Translation -> String -> Cache -> Cache
+writeTranslationV2 x hash (Cache impl) = Cache $ impl { translationV2 = Just { value: x, hash: hash } }
+
+readTranslationV2 :: Cache -> Maybe TranslationValue
+readTranslationV2 (Cache {translationV2: val}) = val
 
 readTranslation :: Route -> Cache -> Maybe String
 readTranslation route (Cache { translation: xs }) = map getTranslatedContent $ Map.lookup route xs 

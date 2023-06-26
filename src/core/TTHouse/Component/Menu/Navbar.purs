@@ -1,50 +1,44 @@
-module TTHouse.Component.Menu.Navbar ( component, proxy ) where
+module TTHouse.Component.Menu.Navbar ( component, proxy, mkItem, transformToMenu ) where
 
 import Prelude
 
-import TTHouse.Component.HTML.Utils (css)
+import TTHouse.Component.HTML.Utils (css, safeHref)
 import TTHouse.Data.Route (Route (..))
-import TTHouse.Component.Menu.Hamburger (mkItem, getMenuByLang)
 import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Capability.LogMessages (logDebug, logError)
-import TTHouse.Component.Lang.Data (Recipients (Menu))
+import TTHouse.Component.Subscription.Translation as Translation 
+import TTHouse.Api.Foreign.Scaffold as Scaffold
+import TTHouse.Component.Utils (initTranslation)
 
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties.Extended as HPExt
 import Data.Array ((..))
 import Data.Enum (fromEnum, toEnum)
-import DOM.HTML.Indexed.InputType
 import Type.Proxy (Proxy(..))
-import Halogen.Store.Monad (getStore, updateStore)
-import Control.Monad.Rec.Class (forever)
 import Effect.Aff as Aff
-import Data.Foldable (for_)
-import Effect.AVar as Async
 import Data.Map as Map
-import Data.Traversable (for)
-import Data.Maybe (Maybe (..), isNothing)
-import Data.Either (Either (..), isLeft, fromLeft)
-import Data.List (head)
-import Store (Action (WriteMenuToCache))
-import Cache as Cache
+import Data.Maybe (Maybe (..), fromMaybe)
 
 import Undefined
 
 
 proxy = Proxy :: _ "navbar"
 
-data Action = Initialize | LangChange Lang
+loc = "TTHouse.Component.HTML.Menu.Navbar"
+
+data Action = Initialize | LangChange String (Array Scaffold.MapMenuText)
 
 type State = 
      { route :: Route
-     , lang :: Lang 
-     , routesTitle :: Map.Map Route String  
+     , menu :: Map.Map String String
+     , hash :: String
      }
 
 component =
   H.mkComponent
-    { initialState: identity
+    { initialState: 
+      \{ lang, route } -> { route: route, menu: Map.empty, hash: mempty }
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction
@@ -53,40 +47,51 @@ component =
     }
     where 
       handleAction Initialize = do
-        { langVar, cache } <- getStore
-
-        H.modify_ _ { routesTitle = Cache.readMenu cache }
- 
-        void $ H.fork $ forever $ do
-          H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
-          { lang } <- H.get 
-          res <- H.liftEffect $ Async.tryRead langVar
-          for_ res \langMap -> do
-            let headm = head $ Map.values langMap
-            for_ headm \x -> 
-              if x /= lang then
-                for_ (Map.lookup Menu langMap) $ 
-                  handleAction <<< LangChange
-              else logDebug "(TTHouse.Component.HTML.Menu.Navbar) menu is up-to-date. skip."
-
-      handleAction (LangChange lang) = do
-       { config: {scaffoldHost: host} } <- getStore
-       xse <- getMenuByLang host lang
-       case xse of 
-         Right xs -> do 
-           H.modify_ _ { lang = lang, routesTitle = xs }
-           updateStore $ WriteMenuToCache xs
-           logDebug $ "(TTHouse.Component.HTML.Menu.Navbar) language change to: " <> show lang
-         Left err -> logError $ show err
+        void $ initTranslation loc \hash translation -> 
+          H.modify_ _ {
+              menu = 
+              transformToMenu $ 
+              Scaffold.getTranslationMenu translation
+            , hash = hash }
+        { menu, hash } <- H.get
+        logDebug $ loc <> " menu: ---> " <> show (Map.keys menu)
+        logDebug $ loc <> " hash: ---> " <> hash
+        Translation.load loc $ \hash translation -> 
+          handleAction $ LangChange hash $ Scaffold.getTranslationMenu translation
+      handleAction (LangChange hash xs) = do 
+        logDebug $ loc <> " ---> " <> show xs
+        logDebug $ loc <> " hash: ---> " <> hash
+        H.modify_ _ { hash = hash, menu = transformToMenu xs }
 
 -- taken from: https://codepen.io/albizan/pen/mMWdWZ
-render { route, routesTitle } =
+render { route, menu } =
   HH.div [css "header-menu-wrapper"]
-  [ 
+  [
       HH.nav [css "navbar navbar-expand-lg navbar-light"]
       [
-          HH.ul [css "navbar-nav"] (map (mkItem route routesTitle addFontStyle) (fromEnum Home .. fromEnum Service) ) 
+          HH.ul [css "navbar-nav"] (map (mkItem route menu addFontStyle) (fromEnum Home .. fromEnum Service) ) 
       ]
   ]
 
+mkItem _ xs  _ _ | Map.isEmpty xs = HH.li_ [HH.text "loading.."]
+mkItem route xs applyStyle idx =
+  HH.li_ 
+  [
+      HH.a 
+      [ css "nav-link"
+      , safeHref (mkRoute idx)
+      , isDisabled (mkRoute idx == route)
+      ] 
+      [el]
+  ] 
+  where 
+    mkRoute = fromMaybe undefined <<< (toEnum :: Int -> Maybe Route)
+    isDisabled true = HPExt.style "cursor: not-allowed;"
+    isDisabled false = HPExt.style mempty
+    title = fromMaybe (show (mkRoute idx)) $ Map.lookup (show (mkRoute idx)) xs
+    el = applyStyle $ HH.text title
+
 addFontStyle el = HH.div [HPExt.style "font-size: 20px; text-transform:uppercase;"] [el]
+
+transformToMenu :: Array Scaffold.MapMenuText -> Map.Map String String
+transformToMenu = Map.fromFoldable <<< map Scaffold.transformMenuTextToTpl

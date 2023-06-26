@@ -39,6 +39,7 @@ export const getDataFromResponseImpl = left => right => resp => {
 
 export const getDataFromObjImpl = left => right => resp => {
     let success = resp.getSuccess();
+    
     let errMsg = (xs) => {
         tmp = '';
         xs.forEach(e => {
@@ -118,6 +119,12 @@ export const loadTranslationImplV2 =
         };
     }
 
+export const getTranslationMenu = obj => { return obj.getMenu(); }
+
+export const _showMapMenuText = menu => { return "{ key: " + menu.getKey() + ", value: " + menu.getValue() + " }";  }
+
+export const getKeyMenuText = obj => { return obj.getKey(); }
+export const getValMenuText = obj => { return obj.getValue(); }
 
 export const getTranslatedContent = (obj) => {
     return obj.getTranslationContent();

@@ -95,6 +95,8 @@ component = H.mkComponent
     when (not isCaptcha) $
       Async.send $ Async.mkOrdinary "captcha is disabled" Async.Info Nothing
       
+    Fork.Translation.init
+
     Fork.Translation.load $ handleAction <<< LangChange
 
     -- first we'll get the route the user landed on

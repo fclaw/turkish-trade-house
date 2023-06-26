@@ -7,6 +7,7 @@ import TTHouse.Component.Menu.Navbar as Navbar
 import TTHouse.Component.HTML.Utils (css)
 import TTHouse.Component.Lang as Lang
 import TTHouse.Component.Async as Async
+import TTHouse.Data.Route (Route)
 
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
@@ -27,7 +28,7 @@ html route lang pl w =
       ]
   ]
 
-showMenu route lang Mobile _ = HH.slot_ Hamburger.proxy unit Hamburger.component { route: route, lang: lang, routesTitle: Map.empty }
+showMenu route lang Mobile _ = HH.slot_ Hamburger.proxy unit Hamburger.component { route: route, lang: lang }
 showMenu route lang _ w 
-  | w > 500 = HH.slot_ Navbar.proxy unit Navbar.component { route: route, lang: lang, routesTitle: Map.empty }
-  | otherwise  = HH.slot_ Hamburger.proxy unit Hamburger.component { route: route, lang: lang, routesTitle: Map.empty }
+  | w > 500 = HH.slot_ Navbar.proxy unit Navbar.component { route: route, lang: lang }
+  | otherwise  = HH.slot_ Hamburger.proxy unit Hamburger.component { route: route, lang: lang }

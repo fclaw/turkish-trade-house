@@ -22,6 +22,7 @@ import Data.Argonaut.Core (jsonEmptyObject)
 import Data.Argonaut.Encode.Encoders (encodeMaybe)
 import Foreign (Foreign)
 import Effect.Exception as E
+import Data.Tuple
 
 import Undefined
 
@@ -45,7 +46,7 @@ foreign import data Meta :: Type
 foreign import data ReCaptchaApi :: Type
 foreign import data ResponseReCaptcha :: Type
 foreign import data ReCaptcha :: Type
-
+foreign import data MapMenuText :: Type
 
 instance showError :: Show Error where
   show = printError
@@ -107,6 +108,22 @@ foreign import loadTranslationImpl :: Fn4 Json Json Json FrontApi (AC.EffectFnAf
 
 foreign import loadTranslationImplV2 :: Fn2 Json FrontApi (AC.EffectFnAff (Object ResponseTranslation))
 
+foreign import getTranslationMenu :: Translation -> Array MapMenuText
+
+foreign import _showMapMenuText :: MapMenuText -> String
+
+instance Show MapMenuText where
+  show = _showMapMenuText
+
+
+type Tpl = { key :: String, value :: String }
+
+foreign import getKeyMenuText :: MapMenuText -> String
+foreign import getValMenuText :: MapMenuText -> String
+
+transformMenuTextToTpl :: MapMenuText -> Tuple String String
+transformMenuTextToTpl x = Tuple (getKeyMenuText x) (getValMenuText x) 
+
 data Resource = Content | Menu
 
 instance showResource :: Show Resource where
@@ -116,7 +133,6 @@ instance showResource :: Show Resource where
 instance encodeJsonResource :: EncodeJson Resource where
   encodeJson Content = encodeJson "content"
   encodeJson Menu = encodeJson "menu"
-
 
 newtype Location = Location String
 

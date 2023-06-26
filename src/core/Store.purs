@@ -69,12 +69,12 @@ type Store =
      , error :: Maybe Error
      , platform :: Platform
      , init :: Scaffold.Init
-     , langVar :: AVar (Map.Map Recipients Lang)
+     , langVar_ :: AVar (Map.Map Recipients Lang)
      , cache :: Cache.Cache
      , async :: Async.Channel Async.Async Async.Async
      , cookies :: Array String
      , isCaptcha :: Boolean
-     , lang ::  AVar Lang
+     , langVar ::  AVar Lang
      }
 
 printStore store = 
@@ -99,7 +99,7 @@ data Action =
        WriteError Error 
      | WriteMenuToCache (Map.Map String String)
      | WriteTranslationToCache (Map.Map Route Scaffold.Translation)
-     | WriteTranslationToCacheV2 Scaffold.Translation
+     | WriteTranslationToCacheV2 Scaffold.Translation String
 
 -- | Finally, we'll map this action to a state update in a function called a
 -- | 'reducer'. If you're curious to learn more, see the `halogen-store`
@@ -108,7 +108,7 @@ reduce :: Store -> Action -> Store
 reduce store (WriteError err) = store { error = Just err }
 reduce store (WriteMenuToCache xs) = store {  cache = Cache.writeMenu xs (_.cache store) }
 reduce store (WriteTranslationToCache xs) = store {  cache = Cache.writeTranslation xs (_.cache store) }
-reduce store (WriteTranslationToCacheV2 x) = store {  cache = Cache.writeTranslationV2 x (_.cache store) }
+reduce store (WriteTranslationToCacheV2 x hash) = store {  cache = Cache.writeTranslationV2 x hash (_.cache store) }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.Init)
 initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init

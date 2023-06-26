@@ -77,7 +77,7 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "TTH"
-        { platform, init, langVar, cache, config: {scaffoldHost: host}, async } <- getStore
+        { platform, init, langVar_, cache, config: {scaffoldHost: host}, async } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
 
         tm <- H.liftEffect getTimestamp
@@ -96,7 +96,7 @@ component mkBody =
 
         void $ H.fork $ forever $ do
           H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
-          res <- H.liftEffect $ Async.tryRead langVar
+          res <- H.liftEffect $ Async.tryRead langVar_
           logDebug $ "(TTHouse.Page.Home) lang map" <> show res  
           for_ res \langMap -> 
             for_ (Map.lookup Home langMap) $ \inlang -> do

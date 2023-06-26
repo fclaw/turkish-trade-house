@@ -74,8 +74,8 @@ main cfg = do
           -- let's make the process a bit self-generating
           for_ (_.cssFiles cfg) $ H.liftEffect <<< setCssLink (getShaCSSCommit init) (_.cssLink cfg)
 
-          langVar <- H.liftEffect $ Async.new Map.empty
-          lang <- H.liftEffect $ Async.new Eng
+          langVar_ <- H.liftEffect $ Async.new Map.empty
+          langVar <- H.liftEffect $ Async.new Eng
 
           async <- H.liftEffect $ Async.newChannel
 
@@ -90,12 +90,12 @@ main cfg = do
                     undefined
                     platform 
                 , init: init
-                , langVar: langVar
+                , langVar_: langVar_
                 , cache: Cache.init
                 , async: async
                 , cookies: getCookiesInit init
                 , isCaptcha: _.isCaptcha cfg
-                , lang: lang 
+                , langVar: langVar
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.
