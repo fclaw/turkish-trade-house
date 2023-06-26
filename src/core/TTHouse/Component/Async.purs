@@ -33,7 +33,7 @@ import Data.Functor ((<#>))
 import Data.Tuple (Tuple (..))
 import Data.List (zip, fromFoldable, length)
 import Data.Array ((..))
-import System.Time (getTimestamp)
+import System.Time (getTimestamp, timestampToDate)
 
 import Undefined
 
@@ -70,7 +70,7 @@ component =
         val <- H.liftAff $ Async.recv $ _.input async
         for_ val $ handleAction <<< Add 
     handleAction (Add e) = do
-      tm <- H.liftEffect getTimestamp 
+      tm <- H.liftEffect $ timestampToDate =<< getTimestamp 
       H.modify_ \s -> do
         let m = Map.findMax (_.xs s)
         let newXs = 
@@ -92,7 +92,7 @@ render { xs } =
          , css $ "alert " <> mkStyle val <> " alert-position"
          , HP.style ("margin-top:" <> margin <> "px")
          , HP.role "alert"] 
-         [ HH.text (mkMsg val <> maybe mempty (\s -> " at " <> s) loc <> ", tm: " <> show tm) ]
+         [ HH.text (mkMsg val <> maybe mempty (\s -> " at " <> s) loc <> ", tm: " <> tm) ]
   where
     mkStyle val = 
       case val of 
