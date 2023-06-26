@@ -110,3 +110,7 @@ export const _showMapMenuText = menu => {
 }
 
 export const getTranslationCopyright = obj => { return obj.getCopyright(); }
+
+export const _getTranslationMessenger = obj => {
+    return obj.getMessenger();
+}

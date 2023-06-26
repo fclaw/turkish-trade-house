@@ -4,6 +4,7 @@ module TTHouse.Api.Scaffold.FrontApi
   , FrontendLogRequest
   , Init
   , MapMenuText
+  , MapMessengerText
   , MapPageText
   , Meta
   , MetaPage(..)
@@ -22,6 +23,7 @@ module TTHouse.Api.Scaffold.FrontApi
   , getShaCommit
   , getTranslationCopyright
   , getTranslationMenu
+  , getTranslationMessenger
   , getTranslationPage
   , init
   , loadTranslation
@@ -61,6 +63,7 @@ foreign import data ResponseMeta :: Type
 foreign import data Meta :: Type
 foreign import data Init :: Type
 foreign import data ResponseTranslation :: Type
+foreign import data MapMessengerText :: Type
 
 foreign import mkFrontApi :: Fn1 ApiClient (Effect FrontApi)
 
@@ -127,3 +130,9 @@ getTranslationPage = Map.fromFoldable <<< map toTpl <<< _getTranslationPage
   where toTpl x = Tuple (_getKeyText x) (_getValText x)
 
 foreign import getTranslationCopyright :: Translation -> String
+
+foreign import _getTranslationMessenger :: Translation -> Array MapMessengerText
+
+getTranslationMessenger :: Translation -> Map.Map String String
+getTranslationMessenger = Map.fromFoldable <<< map toTpl <<< _getTranslationMessenger
+  where toTpl x = Tuple (_getKeyText x) (_getValText x)

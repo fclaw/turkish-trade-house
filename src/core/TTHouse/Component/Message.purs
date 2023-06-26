@@ -11,6 +11,8 @@ import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Component.Async as Async
 import TTHouse.Api.Foreign.Request.Handler (onFailure, withError) 
 import TTHouse.Component.Utils ( withCaptcha )
+import TTHouse.Component.Utils (initTranslation)
+import TTHouse.Component.Subscription.Translation as Translation
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -34,17 +36,22 @@ import Data.String.Pattern
 import Effect.Console (logShow)
 import Effect.AVar as Async
 import Effect.Exception as Excep
+import Data.Map as Map
 
 import Undefined
 
 proxy = Proxy :: _ "message"
 
+loc = "TTHouse.Component.Message"
+
 data Action = 
-       MakeRequest Event 
+       Initialize
+     | MakeRequest Event 
      | FillName String 
      | FillEmail String 
      | FillEnquiry String
      | RollBack
+     | LangChange String (Map.Map String String)
 
 type State = 
     { name :: Maybe String
@@ -54,6 +61,8 @@ type State =
     , serverError :: Maybe String
     , isSent :: Boolean
     , isClick :: Boolean
+    , texts :: Map.Map String String
+    , hash :: String
     }
 
 type RequestBody = { email :: String, name :: String, enquiry :: String }
@@ -65,16 +74,33 @@ defState =
    , error: Nothing
    , isSent: false
    , isClick: false
-   , serverError: Nothing }
+   , serverError: Nothing
+   , texts: Map.empty
+   , hash: mempty }
 
 component =
   H.mkComponent
     { initialState: const defState
     , render: render
     , eval: H.mkEval H.defaultEval
-      { handleAction = handleAction }
+      { handleAction = handleAction
+      , initialize = pure Initialize }
     }
     where 
+      handleAction Initialize = do 
+        void $ initTranslation loc \hash translation -> 
+          H.modify_ _ { 
+              hash = hash
+            , texts = Scaffold.getTranslationMessenger translation }
+        Translation.load loc $ \hash translation -> 
+          handleAction $ LangChange hash $ Scaffold.getTranslationMessenger translation
+        {texts, hash} <- H.get
+        logDebug $ loc <> " ---> " <> show texts
+        logDebug $ loc <> " hash: ---> " <> hash  
+      handleAction (LangChange hash xs) = do 
+        logDebug $ loc <> " ---> " <> show xs
+        logDebug $ loc <> " hash: ---> " <> hash
+        H.modify_ _ { hash = hash, texts = xs }
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
         { config: {scaffoldHost: host}, async, isCaptcha } <- getStore
@@ -118,7 +144,7 @@ component =
                           , personalization: name
                           , subject: "enquiry"
                           , body: enquiry }
-                  logDebug $ show state         
+                  -- logDebug $ show state       
                   resp <- Request.make host Scaffold.mkForeignApi $ runFn2 Scaffold.send req
                   onFailure resp failure (const ok) 
                 Left xs -> H.modify_ _ { isSent = false, error = pure $ xs, isClick = true })
@@ -148,7 +174,7 @@ validate nameM emailM enquiryM =
 
 imgUrl = "https://lh3.googleusercontent.com/-LvTWzTOL4c0/V2yhfueroyI/AAAAAAAAGZM/Ebwt4EO4YlIc03tw8wVsGrgoOFGgAsu4wCEw/w140-h140-p/43bf8578-86b8-4c1c-86a6-a556af8fba13"
 
-render {error, isSent, isClick } =
+render {error, isSent, isClick, texts } =
   HH.div [css "container"] 
   [
       HH.div [css "row"]
@@ -158,21 +184,21 @@ render {error, isSent, isClick } =
             whenElem (not isSent) $
               HH.div_ 
               [
-                  HH.p [css "title"] [HH.text "Send a message"]
+                  HH.p [css "title"] [HH.text (tranalate "headline" texts)]
               ,   HH.img [HPExt.src imgUrl, css "user-icon"]
-              ,   HH.div [HPExt.style "padding-top:20px"] [form error isClick]
+              ,   HH.div [HPExt.style "padding-top:20px"] [form error isClick texts]
               ]
           ] 
       ]
   ]
 
-form xs isClick = 
+form xs isClick texts = 
   HH.form [ HE.onSubmit MakeRequest, css "needs-validation"]
   [ 
       HH.div [css "form-group"]
       [
           HH.input  
-          [ HPExt.placeholder "What's you name"
+          [ HPExt.placeholder (tranalate "identity" texts)
           , HPExt.type_ HPExt.InputText
           , HE.onValueInput FillName
           , addClass isClick "name" xs
@@ -181,7 +207,7 @@ form xs isClick =
   ,   HH.div [css "form-group"] 
       [   
           HH.input 
-          [ HPExt.placeholder "Email"
+          [ HPExt.placeholder (tranalate "email" texts)
           , HPExt.type_ HPExt.InputEmail
           , HE.onValueInput FillEmail
           , addClass isClick "email" xs
@@ -190,7 +216,7 @@ form xs isClick =
   ,   HH.div [css "form-group"] 
       [ 
           HH.textarea
-          [ HPExt.placeholder "Message"
+          [ HPExt.placeholder (tranalate "body" texts)
           , HE.onValueInput FillEnquiry
           , HPExt.rows 10
           , HPExt.style "resize:none"
@@ -201,7 +227,7 @@ form xs isClick =
       [   
           HH.input 
           [ HPExt.type_ HPExt.InputSubmit
-          , HPExt.value "Sumbit"
+          , HPExt.value (tranalate "button" texts)
           , css "btn form-control"
           ]
       ]
@@ -214,3 +240,5 @@ addClass true field xs =
     Just e -> css "form-control is-invalid"
     Nothing -> css "form-control"
 addClass _ _ _ = css "form-control"
+
+tranalate key = fromMaybe "item cannot be translated" <<< Map.lookup key
