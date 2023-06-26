@@ -8,6 +8,7 @@ import TTHouse.Data.Config as Cfg
 import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit, getShaCommit, getCookiesInit)
 import TTHouse.Component.Cookie.Foreign as Cookie.Foreign
 import TTHouse.Component.Lang.Data (Lang (..))
+import TTHouse.Component.AppInitFailure as AppInitFailure 
 
 import Effect (Effect)
 import Halogen.Aff as HA
@@ -67,7 +68,7 @@ main cfg = do
       -- request the backend to send initial values (such as static content) required to get the app running
       initResp <- initAppStore (_.scaffoldHost cfg)
       case initResp of 
-        Left err -> throwError err
+        Left err -> void $ runUI AppInitFailure.component {error: err} body
         Right init -> do
       
           -- I am sick to the back teeth of changing css hash manualy
