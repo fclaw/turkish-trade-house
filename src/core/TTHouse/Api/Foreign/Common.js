@@ -10,7 +10,7 @@ export const mkApiClient = function(host) {
 
 export const _getDataFromObj = left => right => resp => {
     let success = resp.getSuccess();
-    
+
     let errMsg = (xs) => {
         tmp = '';
         xs.forEach(e => {

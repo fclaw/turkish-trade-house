@@ -127,9 +127,9 @@ render :: forall m
   => MonadStore Store.Action Store m
   => State
   -> H.ComponentHTML Action ChildSlots m
-render { route: Just r@Home, lang: l } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r l)) unit
+render { route: Just r@Home } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r)) unit
 render { route: Just Error500 } = HH.slot_ Page500.proxy unit Page500.component unit
-render { route: Just r@About, lang: l } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r l)) unit
-render { route: Just r@Service, lang: l } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r l)) unit
+render { route: Just r@About } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r)) unit
+render { route: Just r@Service } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r)) unit
 render { route: Just Error404 } = HH.slot_ Page404.proxy unit Page404.component unit
 render _ = HH.div_ [ HH.text $ "Oh no! That page wasn't found." ]

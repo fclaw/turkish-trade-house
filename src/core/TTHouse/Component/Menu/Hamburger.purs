@@ -37,7 +37,7 @@ type State =
 component =
   H.mkComponent
     { initialState:
-      \{ lang, route } -> { route: route, menu: Map.empty, hash: mempty }
+      \{ route } -> { route: route, menu: Map.empty, hash: mempty }
     , render: render
     , eval: H.mkEval H.defaultEval
       { handleAction = handleAction

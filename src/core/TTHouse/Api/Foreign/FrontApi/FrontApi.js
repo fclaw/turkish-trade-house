@@ -1,4 +1,3 @@
-
 import * as e from '../TTHouse.Api.Foreign.Scaffold/Scaffold/src/index';
 
 export const mkFrontApi = function(api) {
@@ -53,49 +52,59 @@ export const _loadTranslation =
     }
 
 export const mkLogReq = function(build, payload) {
-        let req = new e.FrontendLogRequest();
-        req.setBuild(build);
-        req.setPayload(payload);
-        return () => {
-            return req;
-        };
-    }
+    let req = new e.FrontendLogRequest();
+    req.setBuild(build);
+    req.setPayload(payload);
+    return () => {
+        return req;
+    };
+}
 
 export const sendLog = function(req, api) {
-        return function(onError, onOk) {
-            api.apiFrontendLogPut(req).then(onOk).catch(onError)
-        };
-    }
+    return function(onError, onOk) {
+        api.apiFrontendLogPut(req).then(onOk).catch(onError)
+    };
+}
 
 export const _showCookie = cookie => {
-        return cookie.getName()
-    }
-    
+    return cookie.getName()
+}
+
 export const getCookies = function(api) {
-        return function(onError, onOk) {
-            api.apiFrontendCookiesGet().then(onOk).catch(onError)
-        };
-    }
-    
+    return function(onError, onOk) {
+        api.apiFrontendCookiesGet().then(onOk).catch(onError)
+    };
+}
+
 export const _getMeta = function(page, api) {
-        return function(onError, onOk) {
-            api.apiFrontendMetaGet(page).then(onOk).catch(onError)
-        };
-    }
+    return function(onError, onOk) {
+        api.apiFrontendMetaGet(page).then(onOk).catch(onError)
+    };
+}
 
 export const getMetaDescription = meta => {
-        return meta.getDescription();
-    }
+    return meta.getDescription();
+}
 
-export const _getKeyText = obj => { return obj.getKey(); }
-export const _getValText = obj => { return obj.getValue(); }
+export const _getKeyText = obj => {
+    return obj.getKey();
+}
+export const _getValText = obj => {
+    return obj.getValue();
+}
 
 export const getCookiesInit = (obj) => {
     return obj.getCookies();
 }
 
-export const _getTranslationMenu = obj => { return obj.getMenu(); }
+export const _getTranslationMenu = obj => {
+    return obj.getMenu();
+}
 
-export const _getTranslationPage = obj => { return obj.getPage(); }
+export const _getTranslationPage = obj => {
+    return obj.getPage();
+}
 
-export const _showMapMenuText = menu => { return "{ key: " + menu.getKey() + ", value: " + menu.getValue() + " }";  }
+export const _showMapMenuText = menu => {
+    return "{ key: " + menu.getKey() + ", value: " + menu.getValue() + " }";
+}
