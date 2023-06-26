@@ -87,15 +87,15 @@ export const getMetaDescription = meta => {
         return meta.getDescription();
     }
 
-export const getKeyMenuText = obj => { return obj.getKey(); }
-export const getValMenuText = obj => { return obj.getValue(); }
+export const _getKeyText = obj => { return obj.getKey(); }
+export const _getValText = obj => { return obj.getValue(); }
 
 export const getCookiesInit = (obj) => {
     return obj.getCookies();
 }
 
-export const getTranslationMenu = obj => { return obj.getMenu(); }
+export const _getTranslationMenu = obj => { return obj.getMenu(); }
 
-export const getTranslationPage = obj => { return obj.getPage(); }
+export const _getTranslationPage = obj => { return obj.getPage(); }
 
 export const _showMapMenuText = menu => { return "{ key: " + menu.getKey() + ", value: " + menu.getValue() + " }";  }

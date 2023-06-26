@@ -1,4 +1,4 @@
-module TTHouse.Component.Menu.Navbar ( component, proxy, mkItem, transformToMenu ) where
+module TTHouse.Component.Menu.Navbar ( component, proxy, mkItem ) where
 
 import Prelude
 
@@ -27,7 +27,7 @@ proxy = Proxy :: _ "navbar"
 
 loc = "TTHouse.Component.HTML.Menu.Navbar"
 
-data Action = Initialize | LangChange String (Array Scaffold.MapMenuText)
+data Action = Initialize | LangChange String (Map.Map String String)
 
 type State = 
      { route :: Route
@@ -49,9 +49,7 @@ component =
       handleAction Initialize = do
         void $ initTranslation loc \hash translation -> 
           H.modify_ _ {
-              menu = 
-              transformToMenu $ 
-              Scaffold.getTranslationMenu translation
+              menu = Scaffold.getTranslationMenu translation
             , hash = hash }
         { menu, hash } <- H.get
         logDebug $ loc <> " menu: ---> " <> show (Map.keys menu)
@@ -61,7 +59,7 @@ component =
       handleAction (LangChange hash xs) = do 
         logDebug $ loc <> " ---> " <> show xs
         logDebug $ loc <> " hash: ---> " <> hash
-        H.modify_ _ { hash = hash, menu = transformToMenu xs }
+        H.modify_ _ { hash = hash, menu = xs }
 
 -- taken from: https://codepen.io/albizan/pen/mMWdWZ
 render { route, menu } =
@@ -92,6 +90,3 @@ mkItem route xs applyStyle idx =
     el = applyStyle $ HH.text title
 
 addFontStyle el = HH.div [HPExt.style "font-size: 20px; text-transform:uppercase;"] [el]
-
-transformToMenu :: Array Scaffold.MapMenuText -> Map.Map String String
-transformToMenu = Map.fromFoldable <<< map Scaffold.transformMenuTextToTpl

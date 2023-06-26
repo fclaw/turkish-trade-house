@@ -8,7 +8,7 @@ import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Component.Subscription.Translation as Translation
 import TTHouse.Component.Utils (initTranslation)
-import TTHouse.Component.Menu.Navbar ( mkItem, transformToMenu )
+import TTHouse.Component.Menu.Navbar ( mkItem )
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -26,7 +26,7 @@ proxy = Proxy :: _ "hamburger"
 
 loc = "TTHouse.Component.HTML.Menu.Hamburger"
 
-data Action = Initialize | LangChange String (Array Scaffold.MapMenuText)
+data Action = Initialize | LangChange String (Map.Map String String)
 
 type State = 
      { route :: Route
@@ -49,9 +49,7 @@ component =
         void $ initTranslation loc \hash translation -> 
           H.modify_ _ { 
               hash = hash
-            , menu = 
-              transformToMenu $ 
-              Scaffold.getTranslationMenu translation }
+            , menu = Scaffold.getTranslationMenu translation }
         { menu, hash } <- H.get
         logDebug $ loc <> " ---> " <> show (Map.keys menu)
         logDebug $ loc <> " hash: ---> " <> hash
@@ -60,7 +58,7 @@ component =
       handleAction (LangChange hash xs) = do 
         logDebug $ loc <> " ---> " <> show xs
         logDebug $ loc <> " hash: ---> " <> hash
-        H.modify_ _ { hash = hash, menu = transformToMenu xs }
+        H.modify_ _ { hash = hash, menu = xs }
      
 
 -- I piggyback on the following implementation https://codepen.io/alvarotrigo/pen/PoJGObg

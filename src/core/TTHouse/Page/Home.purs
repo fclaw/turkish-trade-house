@@ -39,6 +39,7 @@ import System.Time (getTimestamp)
 import Statistics (sendComponentTime) 
 import Data.List (head)
 import Cache (Cache)
+import Data.Map as Map
 
 import Undefined
 
@@ -49,13 +50,13 @@ loc = "TTHouse.Page.Home"
 data Action = 
        Initialize 
      | WinResize Int 
-     | LangChange String (Array Scaffold.MapPageText)
+     | LangChange String (Map.Map String String)
      | Finalize
 
 type State = 
      { winWidth :: Maybe Int
      , platform :: Maybe Platform
-     , body :: String
+     , body :: Maybe String
      , hash :: String
      , start :: Int
      }
@@ -65,7 +66,7 @@ component mkBody =
     { initialState: const 
       { winWidth: Nothing
       , platform: Nothing
-      , body: mempty
+      , body: Nothing
       , hash: mempty
       , start: 0 }
     , render: render
@@ -92,7 +93,7 @@ component mkBody =
           H.modify_ _ { 
               platform = pure platform
            ,  winWidth = pure w
-           , body = undefined $ Scaffold.getTranslationPage translation
+           , body = Map.lookup "home" $ Scaffold.getTranslationPage translation
            , hash = hash
            , start = tm  }
 
@@ -104,10 +105,11 @@ component mkBody =
           handleAction $ LangChange hash $ Scaffold.getTranslationPage translation
 
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
-      handleAction (LangChange _ _) = undefined 
+      handleAction (LangChange _ xs) = H.modify_ _ { body = Map.lookup "home" xs }
       handleAction Finalize = do
         end <- H.liftEffect getTimestamp
         {start} <- H.get
         sendComponentTime start end loc
 
-content = HH.text
+content (Just x ) = HH.text x
+content Nothing = HH.text "translation not found"

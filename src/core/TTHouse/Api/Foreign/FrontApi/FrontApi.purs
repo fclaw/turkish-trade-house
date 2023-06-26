@@ -15,7 +15,6 @@ module TTHouse.Api.Scaffold.FrontApi
   , getCookies
   , getCookiesInit
   , getHomeContent
-  , getKeyMenuText
   , getMeta
   , getMetaDescription
   , getServiceContent
@@ -23,13 +22,11 @@ module TTHouse.Api.Scaffold.FrontApi
   , getShaCommit
   , getTranslationMenu
   , getTranslationPage
-  , getValMenuText
   , init
   , loadTranslation
   , mkFrontApi
   , mkLogReq
   , sendLog
-  , transformMenuTextToTpl
   )
   where
 
@@ -50,6 +47,7 @@ import Data.Maybe (Maybe, fromMaybe)
 import Undefined
 import Foreign (Foreign)
 import Effect (Effect)
+import Data.Map as Map
 
 foreign import data MapMenuText :: Type
 foreign import data MapPageText :: Type
@@ -107,17 +105,22 @@ foreign import getMetaDescription :: Meta -> String
 loadTranslation :: Lang -> FrontApi -> (AC.EffectFnAff (Object ResponseTranslation))
 loadTranslation lang = runFn2 _loadTranslation (encodeJson lang)
 
-foreign import getTranslationMenu :: Translation -> Array MapMenuText
-foreign import getTranslationPage :: Translation -> Array MapPageText
+foreign import _getKeyText :: forall a . a -> String
+foreign import _getValText :: forall a . a -> String
 
-foreign import getKeyMenuText :: MapMenuText -> String
-foreign import getValMenuText :: MapMenuText -> String
+foreign import _getTranslationMenu :: Translation -> Array MapMenuText
+
+getTranslationMenu :: Translation -> Map.Map String String
+getTranslationMenu = Map.fromFoldable <<< map toTpl <<< _getTranslationMenu
+  where toTpl x = Tuple (_getKeyText x) (_getValText x) 
 
 foreign import _showMapMenuText :: MapMenuText -> String
 
 instance Show MapMenuText where
   show = _showMapMenuText
 
-transformMenuTextToTpl :: MapMenuText -> Tuple String String
-transformMenuTextToTpl x = Tuple (getKeyMenuText x) (getValMenuText x) 
+foreign import _getTranslationPage :: Translation -> Array MapPageText
 
+getTranslationPage :: Translation -> Map.Map String String
+getTranslationPage = Map.fromFoldable <<< map toTpl <<< _getTranslationPage
+  where toTpl x = Tuple (_getKeyText x) (_getValText x)
