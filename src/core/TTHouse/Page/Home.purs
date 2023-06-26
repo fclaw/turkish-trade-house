@@ -16,6 +16,8 @@ import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Data.Route as Route
 import TTHouse.Api.Foreign.Request.Handler (withError)
 import TTHouse.Document.Meta as Meta
+import TTHouse.Component.Utils (initTranslation)
+import TTHouse.Component.Subscription.Translation as Translation
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -36,23 +38,25 @@ import Data.Either (isLeft, fromLeft, Either (..))
 import System.Time (getTimestamp)
 import Statistics (sendComponentTime) 
 import Data.List (head)
-import Cache (readTranslation, Cache)
+import Cache (Cache)
+
+import Undefined
 
 proxy = Proxy :: _ "home"
 
-componentName = "TTHouse.Page.Home"
+loc = "TTHouse.Page.Home"
 
 data Action = 
        Initialize 
      | WinResize Int 
-     | LangChange Lang 
+     | LangChange String (Array Scaffold.MapPageText)
      | Finalize
 
 type State = 
      { winWidth :: Maybe Int
      , platform :: Maybe Platform
      , body :: String
-     , lang :: Lang
+     , hash :: String
      , start :: Int
      }
 
@@ -62,7 +66,7 @@ component mkBody =
       { winWidth: Nothing
       , platform: Nothing
       , body: mempty
-      , lang: Eng
+      , hash: mempty
       , start: 0 }
     , render: render
     , eval: H.mkEval H.defaultEval
@@ -77,55 +81,33 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "TTH"
-        { platform, init, langVar_, cache, config: {scaffoldHost: host}, async } <- getStore
+        { platform, config: {scaffoldHost: host }, async } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
 
         tm <- H.liftEffect getTimestamp
 
-        logDebug $ "(" <> componentName <> ") component has started at " <> show tm
+        logDebug $ loc <> " component has started at " <> show tm
 
-        let content = setContent cache $ Scaffold.getHomeContent init
-
-        H.modify_ _ { 
-            platform = pure platform
-          , winWidth = pure w
-          , body = content
-          , start = tm  }
+        void $ initTranslation loc \hash translation ->
+          H.modify_ _ { 
+              platform = pure platform
+           ,  winWidth = pure w
+           , body = undefined $ Scaffold.getTranslationPage translation
+           , hash = hash
+           , start = tm  }
 
         void $ H.subscribe =<< WinResize.subscribe WinResize
 
-        void $ H.fork $ forever $ do
-          H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
-          res <- H.liftEffect $ Async.tryRead langVar_
-          logDebug $ "(TTHouse.Page.Home) lang map" <> show res  
-          for_ res \langMap -> 
-            for_ (Map.lookup Home langMap) $ \inlang -> do
-              {lang} <- H.get 
-              let headm = head $ Map.values langMap
-              for_ headm \x -> 
-                when (x /= lang) $
-                  for_ (Map.lookup Home langMap) $ 
-                    handleAction <<< LangChange
-
         Meta.set host async $ pure $ Scaffold.MetaPage (show Route.Home)
 
+        Translation.load loc $ \hash translation -> 
+          handleAction $ LangChange hash $ Scaffold.getTranslationPage translation
+
       handleAction (WinResize w) = H.modify_ _ { winWidth = pure w }
-      handleAction (LangChange inLang) = do
-        logDebug $ "(TTHouse.Page.Home) language change to: " <> show inLang
-        { config: {scaffoldHost: host} } <- getStore
-        resp <- Request.make host Scaffold.mkFrontApi $ 
-                  Scaffold.loadTranslation 
-                  Scaffold.Content
-                  inLang 
-                  (Just (Scaffold.Location "home") )
-        withError resp \x -> H.modify_ _ { lang = inLang, body = Scaffold.getTranslatedContent x }
-      handleAction Finalize = do 
+      handleAction (LangChange _ _) = undefined 
+      handleAction Finalize = do
         end <- H.liftEffect getTimestamp
         {start} <- H.get
-        sendComponentTime start end componentName
+        sendComponentTime start end loc
 
 content = HH.text
-
-
-setContent :: Cache -> String -> String
-setContent cache = flip fromMaybe (readTranslation Route.Home cache)

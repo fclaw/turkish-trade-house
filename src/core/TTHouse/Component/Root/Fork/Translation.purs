@@ -14,10 +14,9 @@ import Effect.Aff as Aff
 import Effect.AVar as Async
 import Halogen.Store.Monad (getStore, updateStore)
 import Data.Traversable (for_)
-import Store (Action (WriteTranslationToCache))
 import Type.Proxy (Proxy (..))
 import Data.Maybe (Maybe (..), isNothing)
-import Store (Action (WriteTranslationToCacheV2))
+import Store (Action (WriteTranslationToCache))
 import Crypto.Hash (createHash)
 
 loc = "TTHouse.Component.Root.Fork.Translation:fork"
@@ -33,11 +32,11 @@ load goRootHandle =
     for_ res \income -> 
       when (curr /= income) $ do
         logDebug $ loc <> " ---> " <> show income
-        resp <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslationV2 income
+        resp <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation income
         Request.onFailure resp (Async.send <<< flip Async.mkException loc) 
           \translation -> do
            hash <- H.liftEffect $ createHash
-           updateStore $ WriteTranslationToCacheV2 translation hash
+           updateStore $ WriteTranslationToCache translation hash
            logDebug $ loc <> " ---> translation cache has been updated, hash: " <> hash
            goRootHandle income
 
@@ -45,7 +44,8 @@ init = do
  { langVar, config: {scaffoldHost: host} } <- getStore
  res <- H.liftEffect $ Async.tryRead langVar
  for_ res \lang -> do
-   resp <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslationV2 lang
+   resp <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation lang
    Request.withError resp $ \translation -> do 
      hash <- H.liftEffect $ createHash
-     updateStore $ WriteTranslationToCacheV2 translation hash
+     logDebug $ loc <> " ---> translation cache has been created, hash: " <> hash
+     updateStore $ WriteTranslationToCache translation hash

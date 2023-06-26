@@ -74,7 +74,6 @@ main cfg = do
           -- let's make the process a bit self-generating
           for_ (_.cssFiles cfg) $ H.liftEffect <<< setCssLink (getShaCSSCommit init) (_.cssLink cfg)
 
-          langVar_ <- H.liftEffect $ Async.new Map.empty
           langVar <- H.liftEffect $ Async.new Eng
 
           async <- H.liftEffect $ Async.newChannel
@@ -90,7 +89,6 @@ main cfg = do
                     undefined
                     platform 
                 , init: init
-                , langVar_: langVar_
                 , cache: Cache.init
                 , async: async
                 , cookies: getCookiesInit init

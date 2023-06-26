@@ -1,56 +1,33 @@
 module Cache
   ( Cache
   , init
-  , writeMenu
-  , readMenu
-  , readTranslation
   , writeTranslation
-  , writeTranslationV2
-  , readTranslationV2
+  , readTranslation
   ) 
  where
 
 import Prelude
 
-import TTHouse.Data.Route (Route)
-import TTHouse.Api.Foreign.Scaffold (Translation, getTranslatedContent)
+import TTHouse.Api.Foreign.Scaffold (Translation)
 
 import Data.Map as Map
 import Data.Maybe (Maybe (..))
 
-type Menu = { xs :: Map.Map String String }
-
-
 type TranslationValue = { value :: Translation, hash :: String }
 
 
-type CacheImpl = { menu :: Menu, translation :: Map.Map Route Translation, translationV2 :: Maybe TranslationValue }
+type CacheImpl = { translation :: Maybe TranslationValue }
 
 newtype Cache = Cache CacheImpl
 
 instance Show Cache where
-  show (Cache { menu, translation }) =
-    let { xs } = menu 
-    in "{ menu: " <> show xs <>
-       "translation: " <> show translation <> "}"
+  show _ = "<Cache>"
 
 init :: Cache
-init = Cache { menu: {xs: Map.empty }, translation: Map.empty, translationV2: Nothing }
+init = Cache { translation: Nothing }
 
-writeMenu :: Map.Map String String -> Cache -> Cache
-writeMenu xs (Cache impl) = Cache $ impl { menu = { xs: xs } }
+writeTranslation :: Translation -> String -> Cache -> Cache
+writeTranslation x hash (Cache impl) = Cache $ impl { translation = Just { value: x, hash: hash } }
 
-readMenu :: Cache -> Map.Map String String
-readMenu (Cache { menu: { xs } }) = xs
-
-writeTranslation :: Map.Map Route Translation -> Cache -> Cache
-writeTranslation xs (Cache impl) = Cache $ impl { translation = xs }
-
-writeTranslationV2 :: Translation -> String -> Cache -> Cache
-writeTranslationV2 x hash (Cache impl) = Cache $ impl { translationV2 = Just { value: x, hash: hash } }
-
-readTranslationV2 :: Cache -> Maybe TranslationValue
-readTranslationV2 (Cache {translationV2: val}) = val
-
-readTranslation :: Route -> Cache -> Maybe String
-readTranslation route (Cache { translation: xs }) = map getTranslatedContent $ Map.lookup route xs 
+readTranslation :: Cache -> Maybe TranslationValue
+readTranslation (Cache {translation: val}) = val

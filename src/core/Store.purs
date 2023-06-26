@@ -69,7 +69,6 @@ type Store =
      , error :: Maybe Error
      , platform :: Platform
      , init :: Scaffold.Init
-     , langVar_ :: AVar (Map.Map Recipients Lang)
      , cache :: Cache.Cache
      , async :: Async.Channel Async.Async Async.Async
      , cookies :: Array String
@@ -82,11 +81,11 @@ printStore store =
   ", affjaxError: " <> fromMaybe mempty (map message (_.error store)) <> 
   ", platform: " <> show (_.platform store) <> 
   ", init: " <> show (_.init store) <> 
-  ", langVar: <AVar (Map.Map Recipients Lang)>" <>
   ", cache: " <> show (_.cache store) <> 
   ", async: <AVar> "  <> 
   ", cookies: " <> show (_.cookies store) <> 
-  ", isCaptcha: " <> show (_.isCaptcha store) <> "}"
+  ", isCaptcha: " <> show (_.isCaptcha store) <> 
+  ", langVar: <AVar> }"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that
@@ -96,19 +95,15 @@ printStore store =
 -- | The log level and base URL should remain constant, but we'll need to be
 -- | able to set the current user.
 data Action = 
-       WriteError Error 
-     | WriteMenuToCache (Map.Map String String)
-     | WriteTranslationToCache (Map.Map Route Scaffold.Translation)
-     | WriteTranslationToCacheV2 Scaffold.Translation String
+       WriteError Error
+     | WriteTranslationToCache Scaffold.Translation String
 
 -- | Finally, we'll map this action to a state update in a function called a
 -- | 'reducer'. If you're curious to learn more, see the `halogen-store`
 -- | documentation!
 reduce :: Store -> Action -> Store
 reduce store (WriteError err) = store { error = Just err }
-reduce store (WriteMenuToCache xs) = store {  cache = Cache.writeMenu xs (_.cache store) }
-reduce store (WriteTranslationToCache xs) = store {  cache = Cache.writeTranslation xs (_.cache store) }
-reduce store (WriteTranslationToCacheV2 x hash) = store {  cache = Cache.writeTranslationV2 x hash (_.cache store) }
+reduce store (WriteTranslationToCache x hash) = store {  cache = Cache.writeTranslation x hash (_.cache store) }
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.Init)
 initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init

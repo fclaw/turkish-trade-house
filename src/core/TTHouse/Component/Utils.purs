@@ -16,7 +16,7 @@ import Effect.Aff as Aff
 import Effect.AVar as Async
 import Data.Traversable (for)
 import Data.Maybe (Maybe (..), isNothing)
-import Cache (readTranslationV2)
+import Cache (readTranslation)
 
 -- | When a component has no queries or messages, it has no public interface and can be
 -- | considered an "opaque" component. The only way for a parent to interact with the
@@ -46,7 +46,7 @@ initTranslation loc goCompHandle = do
         logDebug $ loc <> " ---> initialization attempt: " <> show c
         { cache } <- getStore
         { hash: compHash } <- H.get
-        let res = readTranslationV2 cache
+        let res = readTranslation cache
         case res of 
           Just { value, hash: cacheHash } -> do
             if compHash /= cacheHash

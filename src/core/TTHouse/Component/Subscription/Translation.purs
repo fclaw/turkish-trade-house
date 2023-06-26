@@ -10,7 +10,7 @@ import Effect.Aff as Aff
 import Effect.AVar as Async
 import Halogen.Store.Monad (getStore)
 import Data.Traversable (for_)
-import Cache (readTranslationV2)
+import Cache (readTranslation)
 import Data.Maybe (Maybe (..))
 
 load loc goCompHandle = 
@@ -18,7 +18,7 @@ load loc goCompHandle =
   H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
   { cache } <- getStore
   { hash: compHash } <- H.get
-  let res = readTranslationV2 cache
+  let res = readTranslation cache
   case res of
     Just { value, hash: cacheHash } ->
       when (compHash /= cacheHash) $

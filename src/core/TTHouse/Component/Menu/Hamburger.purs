@@ -4,9 +4,7 @@ import Prelude
 
 import TTHouse.Component.HTML.Utils (css, safeHref)
 import TTHouse.Data.Route (Route (..))
-import TTHouse.Component.Lang.Data (Lang (..))
-import TTHouse.Capability.LogMessages (logDebug, logError)
-import TTHouse.Component.Lang.Data (Recipients (Menu))
+import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Component.Subscription.Translation as Translation
 import TTHouse.Component.Utils (initTranslation)
@@ -19,26 +17,9 @@ import Data.Array ((..))
 import Data.Enum (fromEnum, toEnum)
 import DOM.HTML.Indexed.InputType
 import Type.Proxy (Proxy(..))
-import Halogen.Store.Monad (getStore, updateStore)
-import Control.Monad.Rec.Class (forever)
+import Halogen.Store.Monad (getStore)
 import Effect.Aff as Aff
-import Data.Foldable (for_)
-import Effect.AVar as Async
 import Data.Map as Map
-import Data.Maybe
-import Data.Array.NonEmpty (fromArray)
-import Data.Traversable (for, traverse)
-import Data.Either (Either (..), isLeft, fromLeft)
-import Control.Monad.Except.Trans (runExceptT, except, withExceptT)
-import Control.Monad.Trans.Class (lift)
-import Data.Bifunctor (bimap, lmap)
-import Foreign (readArray)
-import Data.Tuple (Tuple (..))
-import Data.List (head)
-import Store (Action (WriteMenuToCache))
-import Cache as Cache
-
-import Undefined
 
 
 proxy = Proxy :: _ "hamburger"
