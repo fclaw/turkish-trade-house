@@ -9,12 +9,8 @@ import Prelude
 
 import TTHouse.Page.Subscription.WinResize as WinResize 
 import TTHouse.Api.Foreign.Scaffold as Scaffold
-import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Capability.LogMessages (logDebug)
-import TTHouse.Component.Lang.Data (Recipients (Home))
-import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Data.Route as Route
-import TTHouse.Api.Foreign.Request.Handler (withError)
 import TTHouse.Document.Meta as Meta
 import TTHouse.Component.Utils (initTranslation)
 import TTHouse.Component.Subscription.Translation as Translation
@@ -28,18 +24,9 @@ import Type.Proxy (Proxy(..))
 import Store (Platform, Action (WriteError))
 import Data.Maybe
 import Halogen.Store.Monad (getStore)
-import Control.Monad.Rec.Class (forever)
-import Effect.Aff as Aff
-import Data.Foldable (for_)
-import Effect.AVar as Async
 import Data.Map as Map
-import Data.Traversable (for)
-import Data.Either (isLeft, fromLeft, Either (..))
 import System.Time (getTimestamp)
 import Statistics (sendComponentTime) 
-import Data.List (head)
-import Cache (Cache)
-import Data.Map as Map
 
 import Undefined
 

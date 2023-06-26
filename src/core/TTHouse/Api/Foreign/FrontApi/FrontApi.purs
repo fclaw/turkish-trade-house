@@ -12,13 +12,10 @@ module TTHouse.Api.Scaffold.FrontApi
   , ResponseMeta
   , ResponseTranslation
   , Translation
-  , getAboutContent
   , getCookies
   , getCookiesInit
-  , getHomeContent
   , getMeta
   , getMetaDescription
-  , getServiceContent
   , getShaCSSCommit
   , getShaCommit
   , getTranslationCopyright
@@ -74,9 +71,6 @@ instance Show Init where
 
 foreign import _showInit :: Init -> String
 
-foreign import getHomeContent :: Init -> String
-foreign import getAboutContent :: Init -> String
-foreign import getServiceContent :: Init -> String
 foreign import getShaCommit :: Init -> String
 foreign import getShaCSSCommit :: Init -> String
 foreign import getCookiesInit :: Init -> Array String

@@ -15,26 +15,10 @@ export const init =
 
 export const _showInit =
     function(obj) {
-        let msg =
-            "{ content: " +
-            obj.getContent().getHome() + ", " +
-            obj.getContent().getAbout() + ", " +
-            obj.getContent().getService() +
-            ", shaCommit: " + obj.getShaCommit() + "}";
+        let msg = "{ shaCommit: " + obj.getShaCommit() + "}";
         return msg
     }
 
-export const getHomeContent = (obj) => {
-    return obj.getContent().getHome();
-}
-
-export const getAboutContent = (obj) => {
-    return obj.getContent().getHome();
-}
-
-export const getServiceContent = (obj) => {
-    return obj.getContent().getHome();
-}
 
 export const getShaCommit = (obj) => {
     return obj.getShaCommit();
