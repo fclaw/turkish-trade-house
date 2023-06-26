@@ -17,6 +17,7 @@ pkgs.mkShell {
     npm install js-beautify
     npm install querystring
     npm install superagent
+    npm install crypto-js
     export PATH="./node_modules/.bin:$PATH"
    '';
   }
