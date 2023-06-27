@@ -35,7 +35,7 @@ load goRootHandle =
         resp <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation income
         Request.onFailure resp (Async.send <<< flip Async.mkException loc) 
           \translation -> do
-           hash <- H.liftEffect $ createHash
+           hash <- H.liftEffect $ createHash translation
            updateStore $ WriteTranslationToCache translation hash
            logDebug $ loc <> " ---> translation cache has been updated, hash: " <> hash
            goRootHandle income
@@ -46,6 +46,6 @@ init = do
  for_ res \lang -> do
    resp <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation lang
    Request.withError resp $ \translation -> do 
-     hash <- H.liftEffect $ createHash
+     hash <- H.liftEffect $ createHash translation
      logDebug $ loc <> " ---> translation cache has been created, hash: " <> hash
      updateStore $ WriteTranslationToCache translation hash

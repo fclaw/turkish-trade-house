@@ -5,9 +5,9 @@ import Prelude
 import System.Time (getTimestamp)
 import Effect (Effect)
 
-foreign import _createHash :: String -> Effect String
+foreign import _createHash :: forall a . a -> String -> Effect String
 
-createHash :: Effect String
-createHash = do
+createHash :: forall a . a -> Effect String
+createHash a = do
   tm <- getTimestamp 
-  _createHash $ show tm
+  _createHash a $ show tm
