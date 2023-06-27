@@ -41,7 +41,6 @@ import Effect.Aff.Class
 import Control.Monad.Error.Class (class MonadError)
 import Effect.Exception as E
 import Concurrent.Channel as Async
-import Control.Monad.Fork.Class (fork)
 
 import Effect.Console
 
@@ -128,7 +127,7 @@ instance logMessagesAppM :: LogMessages AppM where
     let telegramLevel = reason log == Error || reason log == Info
     when (toTelegram && 
           telegramLevel) $ 
-      void $ liftAff $ fork $ void $ Async.send (_.output telegramVar) $ message log
+      void $ liftAff $ void $ Async.send (_.output telegramVar) $ message log
     let mkLog = 
           case reason log of
             Error -> C.errorShow

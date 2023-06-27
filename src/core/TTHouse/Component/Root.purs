@@ -31,6 +31,7 @@ import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Component.Async as Async
 import TTHouse.Component.Root.Fork.Translation as Fork.Translation 
 import TTHouse.Component.Root.Fork.Telegram as Fork.Telegram
+import TTHouse.Component.HTML.LoadSpinner as Load
 
 import Data.Either (hush, Either (..))
 import Data.Foldable (elem)
@@ -91,6 +92,7 @@ component = H.mkComponent
   where
   handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
   handleAction Initialize = do
+  
     logDebug $ loc <> " ---> root component init start .."
     store@{ config: {isCaptcha} } <- getStore
     logDebug $ printStore store
@@ -98,6 +100,7 @@ component = H.mkComponent
     -- show up info if captcha is disabled
     when (not isCaptcha) $
       Async.send $ Async.mkOrdinary "captcha is disabled" Async.Info Nothing
+
 
     Fork.Telegram.init >>= Fork.Telegram.fork
 
@@ -138,4 +141,4 @@ render { route: Just Error500 } = HH.slot_ Page500.proxy unit Page500.component 
 render { route: Just r@About } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r)) unit
 render { route: Just r@Service } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r)) unit
 render { route: Just Error404 } = HH.slot_ Page404.proxy unit Page404.component unit
-render _ = HH.div_ [ HH.text $ "Oh no! That page wasn't found." ]
+render _ = Load.html
