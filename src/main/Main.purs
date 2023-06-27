@@ -34,7 +34,7 @@ import TTHouse.Api.Foreign.Scaffold as Scaffold
 import Data.Either
 import Effect.AVar as Async
 import Data.Map as Map
-import Effect.Console (errorShow, logShow)
+import Effect.Console (errorShow, infoShow, logShow)
 import Web.DOM.Document (getElementsByTagName, createElement)
 import Web.DOM.HTMLCollection (item)
 import Web.DOM.Element (setAttribute)
@@ -79,21 +79,27 @@ main cfg = do
 
           async <- H.liftEffect $ Async.newChannel
 
+          H.liftEffect $ infoShow $ "init --> " <> show init
+
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
           -- fields. If our environment type ever changes, we'll get a compiler error here.
           let initialStore = 
-                { config: cfg { sha256Commit = getShaCommit init }
+                { config: 
+                  cfg { 
+                      sha256Commit = getShaCommit init
+                    , isCaptcha = fromMaybe false (Scaffold.getIsCaptcha init)
+                    , toTelegram = fromMaybe false (Scaffold.getToTelegram init)
+                    }
                 , error: Nothing
                 , platform:
                   fromMaybe 
                     undefined
-                    platform 
+                    platform
                 , init: init
                 , cache: Cache.init
                 , async: async
                 , cookies: getCookiesInit init
-                , isCaptcha: _.isCaptcha cfg
                 , langVar: langVar
                 }
 

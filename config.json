@@ -2,9 +2,7 @@
     "telegramBot": "bot2096396660:AAFgPJkIGmBOgbWuzvyejPJJo7-HpFgr2CY",
     "telegramChat": "-934720023",
     "telegramHost": "https://api.telegram.org/",
-    "toTelegram": false,
     "scaffoldHost": "https://back-g52bgv5bua-ew.a.run.app",
     "cssLink": "https://cdn.jsdelivr.net/gh/fclaw/turkish-trade-house-style-and-css@",
-    "cssFiles": ["style", "error", "cookie", "alert"],
-    "isCaptcha": false
+    "cssFiles": ["style", "error", "cookie", "alert"]
 }

@@ -72,19 +72,17 @@ type Store =
      , cache :: Cache.Cache
      , async :: Async.Channel Async.Async Async.Async
      , cookies :: Array String
-     , isCaptcha :: Boolean
      , langVar ::  AVar Lang
      }
 
 printStore store = 
   "{config: " <> stringify (encodeJson (_.config store)) <> 
-  ", affjaxError: " <> fromMaybe mempty (map message (_.error store)) <> 
+  ", error: " <> fromMaybe mempty (map message (_.error store)) <> 
   ", platform: " <> show (_.platform store) <> 
   ", init: " <> show (_.init store) <> 
   ", cache: " <> show (_.cache store) <> 
   ", async: <AVar> "  <> 
-  ", cookies: " <> show (_.cookies store) <> 
-  ", isCaptcha: " <> show (_.isCaptcha store) <> 
+  ", cookies: " <> show (_.cookies store) <>
   ", langVar: <AVar> }"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct

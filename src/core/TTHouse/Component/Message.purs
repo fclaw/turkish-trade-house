@@ -103,7 +103,7 @@ component =
         H.modify_ _ { hash = hash, texts = xs }
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
-        { config: {scaffoldHost: host}, async, isCaptcha } <- getStore
+        { config: {scaffoldHost: host, isCaptcha}, async } <- getStore
         let ok = do
               H.modify_ _ { 
                   isSent = true

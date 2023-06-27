@@ -14,10 +14,12 @@ module TTHouse.Api.Scaffold.FrontApi
   , Translation
   , getCookies
   , getCookiesInit
+  , getIsCaptcha
   , getMeta
   , getMetaDescription
   , getShaCSSCommit
   , getShaCommit
+  , getToTelegram
   , getTranslationCopyright
   , getTranslationMenu
   , getTranslationMessenger
@@ -43,7 +45,7 @@ import Data.Argonaut.Core (Json)
 import Data.Argonaut.Encode.Combinators
 import Data.Argonaut.Core (jsonEmptyObject)
 import Data.Tuple (Tuple (..))
-import Data.Maybe (Maybe, fromMaybe)
+import Data.Maybe (Maybe (..), fromMaybe)
 import Undefined
 import Foreign (Foreign)
 import Effect (Effect)
@@ -74,6 +76,14 @@ foreign import _showInit :: Init -> String
 foreign import getShaCommit :: Init -> String
 foreign import getShaCSSCommit :: Init -> String
 foreign import getCookiesInit :: Init -> Array String
+foreign import _getIsCaptcha :: Maybe Boolean -> (Boolean -> Maybe Boolean) -> Init -> Maybe Boolean
+foreign import _getToTelegram :: Maybe Boolean -> (Boolean -> Maybe Boolean) -> Init -> Maybe Boolean
+
+getIsCaptcha :: Init -> Maybe Boolean
+getIsCaptcha = _getIsCaptcha Nothing Just
+
+getToTelegram :: Init -> Maybe Boolean
+getToTelegram = _getToTelegram Nothing Just
 
 foreign import _loadTranslation :: Fn2 Json FrontApi (AC.EffectFnAff (Object ResponseTranslation))
 

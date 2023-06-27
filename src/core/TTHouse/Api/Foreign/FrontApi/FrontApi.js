@@ -15,8 +15,7 @@ export const init =
 
 export const _showInit =
     function(obj) {
-        let msg = "{ shaCommit: " + obj.getShaCommit() + "}";
-        return msg
+        return  JSON.stringify(obj);
     }
 
 
@@ -26,6 +25,16 @@ export const getShaCommit = (obj) => {
 
 export const getShaCSSCommit = (obj) => {
     return obj.getShaCommitCss();
+}
+
+export const _getIsCaptcha = nothing => just => obj => {
+    let env = obj.getEnv();
+    return env !== undefined ? just(env.setIscaptcha()) : nothing;
+}
+
+export const _getToTelegram = nothing => just => obj => {
+    let env = obj.getEnv();
+    return env !== undefined ? just(env.getTotelegram()) : nothing;
 }
 
 export const _loadTranslation =
@@ -93,7 +102,9 @@ export const _showMapMenuText = menu => {
     return "{ key: " + menu.getKey() + ", value: " + menu.getValue() + " }";
 }
 
-export const getTranslationCopyright = obj => { return obj.getCopyright(); }
+export const getTranslationCopyright = obj => {
+    return obj.getCopyright();
+}
 
 export const _getTranslationMessenger = obj => {
     return obj.getMessenger();
