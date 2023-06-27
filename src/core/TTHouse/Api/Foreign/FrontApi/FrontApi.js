@@ -15,7 +15,7 @@ export const init =
 
 export const _showInit =
     function(obj) {
-        return  JSON.stringify(obj);
+        return JSON.stringify(obj);
     }
 
 
@@ -29,12 +29,12 @@ export const getShaCSSCommit = (obj) => {
 
 export const _getIsCaptcha = nothing => just => obj => {
     let env = obj.getEnv();
-    return env !== undefined ? just(env.setIscaptcha()) : nothing;
+    return env !== undefined ? just(env.getIsCaptcha()) : nothing;
 }
 
 export const _getToTelegram = nothing => just => obj => {
     let env = obj.getEnv();
-    return env !== undefined ? just(env.getTotelegram()) : nothing;
+    return env !== undefined ? just(env.getToTelegram()) : nothing;
 }
 
 export const _loadTranslation =
