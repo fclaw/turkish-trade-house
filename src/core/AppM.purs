@@ -23,8 +23,6 @@ import TTHouse.Data.Config
 import TTHouse.Capability.LogMessages
 import TTHouse.Capability.Now
 import TTHouse.Data.Log
-import TTHouse.Component.Async (mkException)
-import TTHouse.Component.Async (withAffjax)
 
 import Store as Store
 import Effect.Aff (Aff)
@@ -35,22 +33,15 @@ import Halogen.Store.Monad (class MonadStore, StoreT, getStore, runStoreT, updat
 import Safe.Coerce (coerce)
 import Routing.Hash (setHash)
 import Routing.Duplex (print)
-import Undefined
-import Affjax.Web as AX
-import Affjax.ResponseFormat as AX
 import Effect.Now as Now
-import Affjax.RequestBody as AXB
-import Data.FormURLEncoded as AXD
-import Data.Tuple
 import Effect.Console as C
 import Data.Maybe
 import Data.Function.Uncurried (runFn2)
 import Effect.Aff.Class
 import Control.Monad.Error.Class (class MonadError)
 import Effect.Exception as E
-import Data.Either
-import Control.Monad.Fork.Class (fork)
 import Concurrent.Channel as Async
+import Control.Monad.Fork.Class (fork)
 
 import Effect.Console
 
@@ -133,21 +124,11 @@ instance navigateAppM :: Navigate AppM where
 -- | (`Dev`) or just important messages (`Prod`).
 instance logMessagesAppM :: LogMessages AppM where
   logMessage log = do
-    { config, async } <- getStore
-    let { telegramHost, telegramBot, telegramChat, toTelegram } = config
-    let url_msg = telegramHost <> telegramBot <> "/sendMessage"
-    let
-      body =
-        AXB.FormURLEncoded $
-          AXD.FormURLEncoded
-            [ Tuple "chat_id" (pure telegramChat)
-            , Tuple "text" (pure ("`" <> message log <> "`"))
-            , Tuple "parse_mode" (pure "markdown")
-            ] 
-
-    when toTelegram $ void $ H.liftAff $ fork $ do 
-      resp <- AX.post AX.json url_msg (pure body)
-      withAffjax "AppM:logMessage (col:148)" async resp $ const (pure unit)
+    { config: {toTelegram}, telegramVar } <- getStore
+    let telegramLevel = reason log == Error || reason log == Info
+    when (toTelegram && 
+          telegramLevel) $ 
+      void $ liftAff $ fork $ void $ Async.send (_.output telegramVar) $ message log
     let mkLog = 
           case reason log of
             Error -> C.errorShow

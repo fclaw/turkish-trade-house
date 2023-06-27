@@ -79,6 +79,8 @@ main cfg = do
 
           async <- H.liftEffect $ Async.newChannel
 
+          telVar <- H.liftEffect $ Async.newChannel
+
           H.liftEffect $ infoShow $ "init --> " <> show init
 
           -- We now have the three pieces of information necessary to configure our app. Let's create
@@ -101,6 +103,7 @@ main cfg = do
                 , async: async
                 , cookies: getCookiesInit init
                 , langVar: langVar
+                , telegramVar: telVar
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.

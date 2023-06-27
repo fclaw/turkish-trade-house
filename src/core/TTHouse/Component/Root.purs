@@ -30,6 +30,7 @@ import TTHouse.Component.HTML.Body as Body
 import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Component.Async as Async
 import TTHouse.Component.Root.Fork.Translation as Fork.Translation 
+import TTHouse.Component.Root.Fork.Telegram as Fork.Telegram
 
 import Data.Either (hush, Either (..))
 import Data.Foldable (elem)
@@ -53,6 +54,8 @@ import Data.Foldable (for_)
 import Data.List (head)
 import Data.Map as Map
 import Routing.Duplex.Parser (RouteError (EndOfPath))
+
+loc = " TTHouse.Component.Root"
 
 data Query a = Navigate Route a
 
@@ -88,20 +91,23 @@ component = H.mkComponent
   where
   handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
   handleAction Initialize = do
+    logDebug $ loc <> " ---> root component init start .."
     store@{ config: {isCaptcha} } <- getStore
     logDebug $ printStore store
 
     -- show up info if captcha is disabled
     when (not isCaptcha) $
       Async.send $ Async.mkOrdinary "captcha is disabled" Async.Info Nothing
-      
-    Fork.Translation.init
 
-    Fork.Translation.load $ handleAction <<< LangChange
+    Fork.Telegram.init >>= Fork.Telegram.fork
+
+    Fork.Translation.init
+    Fork.Translation.fork $ handleAction <<< LangChange
 
     -- first we'll get the route the user landed on
     from <-(RD.parse routeCodec) <$> liftEffect getHash
     -- then we'll navigate to the new route (also setting the hash)
+    logDebug $ loc <> " ---> root component init is about to be completed .."
     case from of 
       Right route -> navigate route 
       Left EndOfPath -> navigate Home

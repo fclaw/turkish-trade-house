@@ -73,6 +73,7 @@ type Store =
      , async :: Async.Channel Async.Async Async.Async
      , cookies :: Array String
      , langVar ::  AVar Lang
+     , telegramVar :: Async.Channel String String
      }
 
 printStore store = 
@@ -83,7 +84,8 @@ printStore store =
   ", cache: " <> show (_.cache store) <> 
   ", async: <AVar> "  <> 
   ", cookies: " <> show (_.cookies store) <>
-  ", langVar: <AVar> }"
+  ", langVar: <AVar>" <>
+  ", telegramVar: <AVar>}"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that

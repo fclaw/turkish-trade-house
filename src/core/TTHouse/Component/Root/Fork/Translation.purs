@@ -1,4 +1,4 @@
-module TTHouse.Component.Root.Fork.Translation (load, init) where
+module TTHouse.Component.Root.Fork.Translation (fork, init) where
 
 import Prelude
 
@@ -23,7 +23,7 @@ loc = "TTHouse.Component.Root.Fork.Translation:fork"
 
 translation = Proxy :: _ "translation"
 
-load goRootHandle = 
+fork goRootHandle = 
   void $ H.fork $ forever $ do
     H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
     { langVar, config: {scaffoldHost: host} } <- getStore
