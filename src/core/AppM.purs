@@ -23,6 +23,8 @@ import TTHouse.Data.Config
 import TTHouse.Capability.LogMessages
 import TTHouse.Capability.Now
 import TTHouse.Data.Log
+import TTHouse.Component.Async (mkException)
+import TTHouse.Component.Async (withAffjax)
 
 import Store as Store
 import Effect.Aff (Aff)
@@ -48,6 +50,7 @@ import Control.Monad.Error.Class (class MonadError)
 import Effect.Exception as E
 import Data.Either
 import Control.Monad.Fork.Class (fork)
+import Concurrent.Channel as Async
 
 import Effect.Console
 
@@ -130,7 +133,7 @@ instance navigateAppM :: Navigate AppM where
 -- | (`Dev`) or just important messages (`Prod`).
 instance logMessagesAppM :: LogMessages AppM where
   logMessage log = do
-    { config } <- getStore
+    { config, async } <- getStore
     let { telegramHost, telegramBot, telegramChat, toTelegram } = config
     let url_msg = telegramHost <> telegramBot <> "/sendMessage"
     let
@@ -142,7 +145,9 @@ instance logMessagesAppM :: LogMessages AppM where
             , Tuple "parse_mode" (pure "markdown")
             ] 
 
-    when toTelegram $ void $ H.liftAff $ fork $ AX.post AX.json url_msg (pure body)
+    when toTelegram $ void $ H.liftAff $ fork $ do 
+      resp <- AX.post AX.json url_msg (pure body)
+      withAffjax "AppM:logMessage (col:148)" async resp $ const (pure unit)
     let mkLog = 
           case reason log of
             Error -> C.errorShow

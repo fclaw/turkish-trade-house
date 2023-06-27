@@ -1,12 +1,13 @@
 module TTHouse.Component.Async
   ( Async
+  , Level(..)
   , Value
-  , Level (..)
   , component
   , mkException
   , mkOrdinary
   , proxy
   , send
+  , withAffjax
   )
   where
 
@@ -24,7 +25,7 @@ import Halogen.HTML.Events (onClick)
 import Effect.Aff as Aff
 import Data.Foldable (for_)
 import Concurrent.Channel as Async
-import Effect.Exception (Error, message)
+import Effect.Exception (Error, message, error)
 import Halogen.Store.Monad (getStore)
 import Control.Monad.Rec.Class (forever)
 import Data.Maybe (Maybe (..), maybe)
@@ -34,6 +35,9 @@ import Data.Tuple (Tuple (..))
 import Data.List (zip, fromFoldable, length)
 import Data.Array ((..))
 import System.Time (getTimestamp, timestampToDate)
+import Affjax.Web as AX
+import Affjax.StatusCode as AX
+import Data.Either (Either (..))
 
 import Undefined
 
@@ -113,3 +117,9 @@ recalculateIdx xs =
 send val = do 
   { async } <- getStore
   void $ H.liftAff $ Async.send (_.output async) val
+
+withAffjax :: forall a . String -> Async.Channel Async Async -> Either AX.Error (AX.Response a) -> (a -> Aff.Aff Unit) -> Aff.Aff Unit
+withAffjax loc async (Left e) _ = void $ Async.send (_.output async) $ mkException (error (AX.printError e)) loc
+withAffjax _ _ (Right {body, status: (AX.StatusCode 200)}) goWithResp = goWithResp body
+withAffjax _ _ (Right {body, status: (AX.StatusCode 202)}) goWithResp = goWithResp body
+withAffjax loc async (Right {status: (AX.StatusCode code)}) _ = void $ Async.send (_.output async) $ mkException (error ("telegram has responded with status " <> show code)) loc
