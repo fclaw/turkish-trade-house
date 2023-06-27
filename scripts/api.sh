@@ -4,6 +4,27 @@ url=$1
 file=$2
 api=$3
 
+abort()
+{
+    echo >&2 '
+***************
+*** ABORTED ***
+***************
+'
+    echo "An error occurred. Exiting..." >&2
+    exit 1
+}
+
+trap 'abort' 0
+
+set -e
+
+echo >&2 '
+************
+*** START *** 
+************
+'
+
 generate() { 
   node api-downloader.mjs $url $file
   openapi-generator-cli \
@@ -13,3 +34,11 @@ generate() {
 }
 
 generate
+
+trap : 0
+
+echo >&2 '
+************
+*** DONE *** 
+************
+'

@@ -2,6 +2,27 @@
 
 dir="$(dirname "$0")"
 
+abort()
+{
+    echo >&2 '
+***************
+*** ABORTED ***
+***************
+'
+    echo "An error occurred. Exiting..." >&2
+    exit 1
+}
+
+trap 'abort' 0
+
+set -e
+
+echo >&2 '
+************
+*** START *** 
+************
+'
+
 "$dir/bowser.sh"
 
 go() {
@@ -16,3 +37,11 @@ go() {
 }
 
 go
+
+trap : 0
+
+echo >&2 '
+************
+*** DONE *** 
+************
+'

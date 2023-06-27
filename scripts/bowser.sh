@@ -13,7 +13,7 @@ check_for_existence() {
   if [ -d "$unpack/Bowser" ]; then
       ### Take action if $DIR exists ###
      echo "Bowser is installed skip..."
-     exit 1
+     exit 0
   fi
 }
 
