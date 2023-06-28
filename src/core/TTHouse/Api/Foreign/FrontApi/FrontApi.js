@@ -18,10 +18,16 @@ export const _showInit =
         return JSON.stringify(obj);
     }
 
+export const _showTranslation = 
+    function(obj) {
+        return JSON.stringify(obj);
+    }
 
 export const getShaCommit = (obj) => {
     return obj.getShaCommit();
 }
+
+export const _getLogLevel = obj => { return obj.getEnv().getLogLevel(); }
 
 export const getShaCSSCommit = (obj) => {
     return obj.getShaCommitCss();

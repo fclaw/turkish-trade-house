@@ -21,7 +21,8 @@ type CacheImpl = { translation :: Maybe TranslationValue }
 newtype Cache = Cache CacheImpl
 
 instance Show Cache where
-  show _ = "<Cache>"
+  show (Cache {translation: Nothing}) = "{cache: empty}"
+  show (Cache {translation: Just { value, hash}}) = "{ cache: translation: { value: " <> show value <> ", hash: " <> hash <> " } }"
 
 init :: Cache
 init = Cache { translation: Nothing }

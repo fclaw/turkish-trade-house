@@ -12,7 +12,7 @@ import TTHouse.Data.Route (Route)
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import Halogen.HTML.Properties.Extended as HPExt
-import Store (Platform (..))
+import Store.Types (Platform (..))
 import Data.Map as Map
 
 html route pl w = 

@@ -25,6 +25,7 @@ import TTHouse.Capability.Now
 import TTHouse.Data.Log
 
 import Store as Store
+import Store.Types (LogLevel (Prod))
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect, liftEffect)
@@ -123,7 +124,7 @@ instance navigateAppM :: Navigate AppM where
 -- | (`Dev`) or just important messages (`Prod`).
 instance logMessagesAppM :: LogMessages AppM where
   logMessage log = do
-    { config: {toTelegram}, telegramVar } <- getStore
+    { config: {toTelegram}, telegramVar, logLevel } <- getStore
     let telegramLevel = reason log == Error || reason log == Info
     when (toTelegram && 
           telegramLevel) $ 
@@ -131,11 +132,16 @@ instance logMessagesAppM :: LogMessages AppM where
     let mkLog = 
           case reason log of
             Error -> C.errorShow
-            Info -> C.infoShow
-            Debug -> C.logShow
+            Info ->
+              if logLevel == Prod 
+              then const (pure unit)  
+              else C.infoShow
+            Debug -> 
+              if logLevel == Prod 
+              then const (pure unit) 
+              else C.logShow
             Warn -> C.warnShow
     H.liftEffect $ mkLog $ message log <> ", loc: " <> loc log
-
 
 -- | We're finally ready to write concrete implementations for each of our abstract capabilities.
 -- | For an in-depth description of each capability, please refer to the relevant `Capability.*`

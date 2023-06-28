@@ -25,7 +25,8 @@ import Data.Function.Uncurried (runFn1)
 import Web.HTML.Navigator (userAgent)
 import Web.HTML.Window (navigator, document)
 import Web.HTML (window)
-import Store (readPlatform, initAppStore)
+import Store (initAppStore)
+import Store.Types (readPlatform)
 import Effect.Exception as Excep
 import Undefined (undefined)
 import TTHouse.Api.Foreign.Scaffold as Scaffold
@@ -48,10 +49,8 @@ main :: Cfg.Config -> Effect Unit
 main cfg = do 
  
   ua <- window >>= navigator >>= userAgent
-  platform <- map readPlatform $ runFn1 getPlatform ua
+  _platform <- map readPlatform $ runFn1 getPlatform ua
   
-  when (isNothing platform) $ throwError $ Excep.error "platform type is unknown"
-
   HA.runHalogenAff do
       -- To run our Halogen app, we'll need two things:
       -- 1. An HTML element for Halogen to control
@@ -79,6 +78,10 @@ main cfg = do
 
           H.liftEffect $ infoShow $ "init --> " <> show init
 
+          logLevel <- H.liftEffect $ withMaybe $ Scaffold.getLogLevel init
+
+          platform <- H.liftEffect $ withMaybe _platform
+
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
           -- fields. If our environment type ever changes, we'll get a compiler error here.
@@ -90,16 +93,14 @@ main cfg = do
                     , toTelegram = fromMaybe false (Scaffold.getToTelegram init)
                     }
                 , error: Nothing
-                , platform:
-                  fromMaybe 
-                    undefined
-                    platform
+                , platform: platform
                 , init: init
                 , cache: Cache.init
                 , async: async
                 , cookies: getCookiesInit init
                 , langVar: langVar
                 , telegramVar: telVar
+                , logLevel: logLevel
                 }
 
           -- With our app environment ready to go, we can prepare the router to run as our root component.
@@ -173,5 +174,6 @@ setCssLink sha mkHref file = do
   when (isNothing res) $ throwError $ Excep.error "cannot append link to head"
 
 
-    
-
+withMaybe :: forall a . Maybe a -> Effect a
+withMaybe Nothing = throwError $ Excep.error "value has been resolved into nothing"
+withMaybe (Just a) = pure a

@@ -19,7 +19,7 @@ import Web.HTML.HTMLDocument (setTitle)
 import Web.HTML.Window (document, innerWidth)
 import Web.HTML (window)
 import Type.Proxy (Proxy(..))
-import Store (Platform)
+import Store.Types (Platform)
 import Data.Maybe
 import Halogen.Store.Monad (getStore)
 import System.Time (getTimestamp)

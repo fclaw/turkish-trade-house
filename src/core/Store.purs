@@ -4,11 +4,9 @@
 -- | called a "store" by convention.
 module Store
   ( Action(..)
-  , Platform(..)
   , Store(..)
   , initAppStore
   , printStore
-  , readPlatform
   , reduce
   )
   where
@@ -22,6 +20,7 @@ import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Component.Lang.Data (Lang, Recipients)
 import TTHouse.Data.Route (Route)
 import TTHouse.Component.Async as Async
+import Store.Types
 
 import Data.Maybe (Maybe(..))
 import Effect.Exception (Error, message)
@@ -45,19 +44,6 @@ import Data.Map as Map
 import Cache as Cache
 import Concurrent.Channel as Async
 
-data Platform = Desktop | Mobile
-
-derive instance eqPlatform :: Eq Platform
-derive instance ordPlatform :: Ord Platform
-
-readPlatform "desktop" = Just Desktop
-readPlatform "mobile" = Just Mobile
-readPlatform _ = Nothing
-
-instance showPlatform :: Show Platform where
-  show Desktop = "desktop"
-  show Mobile = "mobile" 
-
 -- | We can now construct our central state which will be available to all
 -- | components (if they opt-in).
 -- |
@@ -74,10 +60,11 @@ type Store =
      , cookies :: Array String
      , langVar ::  AVar Lang
      , telegramVar :: Async.Channel String String
+     , logLevel :: LogLevel
      }
 
 printStore store = 
-  "{config: " <> stringify (encodeJson (_.config store)) <> 
+  "{ config: " <> stringify (encodeJson (_.config store)) <> 
   ", error: " <> fromMaybe mempty (map message (_.error store)) <> 
   ", platform: " <> show (_.platform store) <> 
   ", init: " <> show (_.init store) <> 
@@ -85,7 +72,8 @@ printStore store =
   ", async: <AVar> "  <> 
   ", cookies: " <> show (_.cookies store) <>
   ", langVar: <AVar>" <>
-  ", telegramVar: <AVar>}"
+  ", telegramVar: <AVar>" <>
+  ", logLevel: " <> show (_.logLevel store) <> " }"
 
 -- | Ordinarily we'd write an initialStore function, but in our case we construct
 -- | all three values in our initial store during app initialization. For that
@@ -107,4 +95,3 @@ reduce store (WriteTranslationToCache x hash) = store {  cache = Cache.writeTran
 
 initAppStore :: String -> Aff (Either Excep.Error Scaffold.Init)
 initAppStore host = Request.make host Scaffold.mkFrontApi $ runFn1 Scaffold.init
-  

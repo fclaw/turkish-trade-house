@@ -48,8 +48,9 @@ import Routing.Hash (getHash)
 import Type.Proxy (Proxy(..))
 import Undefined
 import Halogen.HTML.Properties as HP
-import Store (Store, printStore, Platform)
+import Store (Store, printStore)
 import Store as Store
+import Store.Types (Platform)
 import Effect.AVar as Async
 import Data.Foldable (for_)
 import Data.List (head)

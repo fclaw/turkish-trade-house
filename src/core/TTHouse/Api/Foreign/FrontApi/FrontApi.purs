@@ -15,6 +15,7 @@ module TTHouse.Api.Scaffold.FrontApi
   , getCookies
   , getCookiesInit
   , getIsCaptcha
+  , getLogLevel
   , getMeta
   , getMetaDescription
   , getShaCSSCommit
@@ -36,6 +37,7 @@ import Prelude
 
 import TTHouse.Api.Foreign.Common
 import TTHouse.Component.Lang.Data (Lang)
+import Store.Types (LogLevel, readLogLevel)
 
 import Data.Function.Uncurried (Fn2, Fn1, runFn2)
 import Effect.Aff.Compat as AC
@@ -78,6 +80,10 @@ foreign import getShaCSSCommit :: Init -> String
 foreign import getCookiesInit :: Init -> Array String
 foreign import _getIsCaptcha :: Maybe Boolean -> (Boolean -> Maybe Boolean) -> Init -> Maybe Boolean
 foreign import _getToTelegram :: Maybe Boolean -> (Boolean -> Maybe Boolean) -> Init -> Maybe Boolean
+foreign import _getLogLevel :: Init -> String
+
+getLogLevel :: Init -> Maybe LogLevel
+getLogLevel = readLogLevel <<< _getLogLevel
 
 getIsCaptcha :: Init -> Maybe Boolean
 getIsCaptcha = _getIsCaptcha Nothing Just
@@ -112,6 +118,11 @@ foreign import getMetaDescription :: Meta -> String
 
 loadTranslation :: Lang -> FrontApi -> (AC.EffectFnAff (Object ResponseTranslation))
 loadTranslation lang = runFn2 _loadTranslation (encodeJson lang)
+
+foreign import _showTranslation :: Translation -> String
+
+instance Show Translation where
+  show = _showTranslation
 
 foreign import _getKeyText :: forall a . a -> String
 foreign import _getValText :: forall a . a -> String
