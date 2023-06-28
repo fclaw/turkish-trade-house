@@ -27,3 +27,17 @@ export const _getDataFromObj = left => right => resp => {
 export const _printError = (err) => {
     return err.getMessage();
 }
+
+export const withError = function(resp, onError) {
+    let e = new Error();
+    let mkMsg = '';
+    if (resp['body']['combinator'] !== undefined) {
+        mkMsg += "combinator " + resp['body']['combinator'] + " has failed with error " + resp['body']['error'];
+    } else if (resp['body'] != undefined) {
+        mkMsg += "server responded with " + resp['body'];
+    } else {
+        mkMsg += 'server responded with an unknown error';
+    }
+    e.message = "status: " + resp['status'] + ". error: " + mkMsg;
+    onError(e);
+}

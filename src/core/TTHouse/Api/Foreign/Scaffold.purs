@@ -24,10 +24,13 @@ import TTHouse.Api.Foreign.Common
 import TTHouse.Api.Scaffold.FrontApi as FrontApi
 
 
-import Data.Function.Uncurried (Fn1, Fn2)
+import Data.Function.Uncurried (Fn1, Fn2, Fn3, runFn3)
 import Effect (Effect)
 import Effect.Aff.Compat as AC
 import Foreign.Object (Object)
+import Foreign (Foreign)
+import Data.Either (Either)
+import Effect.Exception as E
 
 foreign import data ForeignApi :: Type
 foreign import data SendGridSendMailRequest :: Type
@@ -45,7 +48,10 @@ foreign import send :: forall a . Fn2 SendGridSendMailRequest ForeignApi (AC.Eff
 
 foreign import mkReCaptchaApi :: Fn1 ApiClient (Effect ReCaptchaApi)
 
-foreign import goReCaptcha :: Fn2 String ReCaptchaApi (AC.EffectFnAff (Object (ResponseReCaptcha)))
+foreign import _goReCaptcha :: Fn3 (forall a . Foreign -> (Foreign -> Either E.Error a) -> Either E.Error a) String ReCaptchaApi (AC.EffectFnAff (Object (ResponseReCaptcha)))
+
+goReCaptcha :: String -> ReCaptchaApi -> AC.EffectFnAff (Object (ResponseReCaptcha))
+goReCaptcha = runFn3 _goReCaptcha Common.withError
 
 foreign import getSuccessReCaptcha :: ReCaptcha -> Boolean
 

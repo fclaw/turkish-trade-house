@@ -4,6 +4,7 @@ module TTHouse.Api.Foreign.Common
   , Response
   , getDataFromObj
   , mkApiClient
+  , withError
   )
   where
 
@@ -14,6 +15,7 @@ import Effect
 import Foreign.Object (Object)
 import Data.Either
 import Data.Function.Uncurried (Fn1)
+import Foreign (Foreign)
 
 foreign import data ApiClient :: Type
 foreign import data Response :: Type -> Type
@@ -35,3 +37,5 @@ getDataFromObj :: forall a b . Object a -> Effect (Either E.Error b)
 getDataFromObj = _getDataFromObj (Left <<< E.error) Right
 
 foreign import mkApiClient :: Fn1 String (Effect ApiClient)
+
+foreign import withError :: forall a . Foreign -> (Foreign -> Either E.Error a) -> Either E.Error a 

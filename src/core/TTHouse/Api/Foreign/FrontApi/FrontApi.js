@@ -6,10 +6,10 @@ export const mkFrontApi = function(api) {
     }
 }
 
-export const init =
-    function(api) {
+export const _init =
+    function(withError, api) {
         return function(onError, onOk) {
-            api.apiFrontendInitGet().then(onOk).catch(onError)
+            api.apiFrontendInitGet().then(onOk).catch(resp => { return withError(resp, onError) })
         };
     }
 
@@ -44,9 +44,9 @@ export const _getToTelegram = nothing => just => obj => {
 }
 
 export const _loadTranslation =
-    function(lang, api) {
+    function(withError, lang, api) {
         return function(onError, onOk) {
-            api.apiFrontendTranslateLangGet(lang).then(onOk).catch(onError)
+            api.apiFrontendTranslateLangGet(lang).then(onOk).catch(resp => { return withError(resp, onError) })
         };
     }
 
@@ -59,9 +59,9 @@ export const mkLogReq = function(build, payload) {
     };
 }
 
-export const sendLog = function(req, api) {
+export const _sendLog = function(withError, req, api) {
     return function(onError, onOk) {
-        api.apiFrontendLogPut(req).then(onOk).catch(onError)
+        api.apiFrontendLogPut(req).then(onOk).catch(resp => { return withError(resp, onError) })
     };
 }
 
@@ -69,15 +69,15 @@ export const _showCookie = cookie => {
     return cookie.getName()
 }
 
-export const getCookies = function(api) {
+export const _getCookies = function(withError, api) {
     return function(onError, onOk) {
-        api.apiFrontendCookiesGet().then(onOk).catch(onError)
+        api.apiFrontendCookiesGet().then(onOk).catch(resp => { return withError(resp, onError) })
     };
 }
 
-export const _getMeta = function(page, api) {
+export const _getMeta = function(withError, page, api) {
     return function(onError, onOk) {
-        api.apiFrontendMetaGet(page).then(onOk).catch(onError)
+        api.apiFrontendMetaGet(page).then(onOk).catch(resp => { return withError(resp, onError) })
     };
 }
 

@@ -1,6 +1,5 @@
 import * as e from './Scaffold/src/index';
 
-
 export const mkForeignApi = function(api) {
     return () => {
         return new e.ForeignApi(api);
@@ -29,13 +28,13 @@ export const mkReCaptchaApi = function(api) {
     }
 }
 
-export const goReCaptcha = function(key, api) {
+export const _goReCaptcha = function(withError, key, api) {
     return function(onError, onOk) {
         grecaptcha.ready(function() {
             grecaptcha.execute(key, {
                 action: 'submit'
             }).then(function(token) {
-                api.apiCaptchaVerifyPost('\"' + token + '\"').then(onOk).catch(onError)
+                api.apiCaptchaVerifyPost('\"' + token + '\"').then(onOk).catch(resp => { return withError(resp, onError) });
             });
         });
     }
