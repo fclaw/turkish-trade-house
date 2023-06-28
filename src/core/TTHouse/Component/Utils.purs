@@ -27,7 +27,7 @@ type OpaqueSlot slot = forall query. H.Slot query Void slot
 withCaptcha true onFailure onSuccess = do 
   { config: {scaffoldHost: host} } <- getStore
   resp <- Request.make host Scaffold.mkReCaptchaApi $ 
-    runFn2 Scaffold.goReCaptcha "6Ld138ImAAAAAEB8Ba7V5QTvfFhq433MsF5hZV4v"
+    Scaffold.goReCaptcha "6Ld138ImAAAAAEB8Ba7V5QTvfFhq433MsF5hZV4v"
   logDebug $ "captcha resp --> " <> show resp
   withError resp \(captcha :: Scaffold.ReCaptcha) -> do 
     let res = Scaffold.getSuccessReCaptcha captcha

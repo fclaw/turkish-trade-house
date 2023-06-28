@@ -24,7 +24,7 @@ sendComponentTime start end component = do
          ~> "totalTime" := (end - start)
          ~> jsonEmptyObject
   req <- H.liftEffect $ runFn2 Scaffold.mkLogReq sha256Commit (unsafeToForeign payload)
-  resp <- makeWithResp scaffoldHost Scaffold.mkFrontApi $ runFn2 Scaffold.sendLog req
+  resp <- makeWithResp scaffoldHost Scaffold.mkFrontApi $ Scaffold.sendLog req
   case resp of 
     Right _ -> logDebug "ok"
     Left err -> logDebug $ "errr- >" <> message err
