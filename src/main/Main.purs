@@ -1,12 +1,11 @@
 module Main (main) where
 
-import Prelude
+import Prelude (Unit, bind, discard, flip, map, pure, show, unit, void, when, ($), (/=), (<<<), (<>), (>>=))
 
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
 import TTHouse.Data.Config as Cfg
 import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit, getShaCommit, getCookiesInit)
-import TTHouse.Component.Cookie.Foreign as Cookie.Foreign
 import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Component.AppInitFailure as AppInitFailure 
 
@@ -14,11 +13,10 @@ import Effect (Effect)
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
 import Data.Maybe (Maybe (..), isNothing, fromMaybe)
-import Effect.Aff (launchAff_, runSuspendedAff)
+import Effect.Aff (launchAff_)
 import Halogen (liftEffect)
 import Halogen as H
 import AppM as AppM
-import Data.Unit
 import Routing.Hash (matchesWith)
 import Routing.Duplex (parse)
 import Control.Monad.Error.Class (catchError, throwError)
@@ -29,12 +27,11 @@ import Web.HTML.Window (navigator, document)
 import Web.HTML (window)
 import Store (readPlatform, initAppStore)
 import Effect.Exception as Excep
-import Undefined
+import Undefined (undefined)
 import TTHouse.Api.Foreign.Scaffold as Scaffold
-import Data.Either
-import Effect.AVar as Async
-import Data.Map as Map
-import Effect.Console (errorShow, infoShow, logShow)
+import Data.Either (Either (..))
+import Effect.AVar (new) as Async
+import Effect.Console (infoShow, logShow)
 import Web.DOM.Document (getElementsByTagName, createElement)
 import Web.DOM.HTMLCollection (item)
 import Web.DOM.Element (setAttribute)
@@ -44,9 +41,8 @@ import Web.HTML.HTMLDocument (toDocument, toNode)
 import Web.DOM.Internal.Types (Element)
 import Unsafe.Coerce (unsafeCoerce)
 import Cache as Cache
-import Halogen.Store.Monad (getStore)
 import Data.Foldable (for_)
-import Concurrent.Channel as Async
+import Concurrent.Channel (newChannel) as Async
 
 main :: Cfg.Config -> Effect Unit
 main cfg = do 

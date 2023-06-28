@@ -31,7 +31,7 @@ import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Component.Async as Async
 import TTHouse.Component.Root.Fork.Translation as Fork.Translation 
 import TTHouse.Component.Root.Fork.Telegram as Fork.Telegram
-import TTHouse.Component.HTML.LoadSpinner as Load
+import TTHouse.Component.HTML.Loading as HTML.Loading
 
 import Data.Either (hush, Either (..))
 import Data.Foldable (elem)
@@ -93,6 +93,8 @@ component = H.mkComponent
   handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
   handleAction Initialize = do
   
+    _ <- undefined
+
     logDebug $ loc <> " ---> root component init start .."
     store@{ config: {isCaptcha} } <- getStore
     logDebug $ printStore store
@@ -118,7 +120,7 @@ component = H.mkComponent
   handleAction (LangChange lang) = H.modify_ _ { lang = lang }
   handleQuery :: forall a. Query a -> H.HalogenM State Action ChildSlots Void m (Maybe a)
   handleQuery (Navigate dest a) = do
-    store@{langVar} <- getStore
+    store <- getStore
     logDebug $ printStore store
     H.modify_ _ { route = pure dest }
     pure $ Just a
@@ -136,9 +138,9 @@ render :: forall m
   => MonadStore Store.Action Store m
   => State
   -> H.ComponentHTML Action ChildSlots m
+render { route: Nothing } = HTML.Loading.html  
 render { route: Just r@Home } = HH.slot_ Home.proxy unit (Home.component (Body.mkBodyHtml params r)) unit
 render { route: Just Error500 } = HH.slot_ Page500.proxy unit Page500.component unit
 render { route: Just r@About } = HH.slot_ About.proxy unit (About.component (Body.mkBodyHtml params r)) unit
 render { route: Just r@Service } = HH.slot_ Service.proxy unit (Service.component (Body.mkBodyHtml params r)) unit
 render { route: Just Error404 } = HH.slot_ Page404.proxy unit Page404.component unit
-render _ = Load.html
