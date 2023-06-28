@@ -92,9 +92,6 @@ component = H.mkComponent
   where
   handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
   handleAction Initialize = do
-  
-    _ <- undefined
-
     logDebug $ loc <> " ---> root component init start .."
     store@{ config: {isCaptcha} } <- getStore
     logDebug $ printStore store
