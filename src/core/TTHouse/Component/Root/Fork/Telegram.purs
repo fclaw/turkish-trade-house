@@ -4,6 +4,7 @@ import Prelude
 
 import TTHouse.Component.Async (withAffjax)
 import TTHouse.Capability.LogMessages (logDebug)
+import TTHouse.Data.Config
 
 import Halogen as H
 import Control.Monad.Rec.Class (forever)
@@ -32,7 +33,7 @@ fork { mkBody, url_msg } = do
 
 init = do 
   logDebug $ (loc <> "init") <> " ---> telegram init start"
-  { config: {telegramHost, telegramBot, telegramChat, toTelegram }} <- getStore
+  { config: Config {telegramHost, telegramBot, telegramChat, toTelegram }} <- getStore
   let url_msg = telegramHost <> telegramBot <> "/sendMessage"
   let mkBody msg =
         AXB.FormURLEncoded $

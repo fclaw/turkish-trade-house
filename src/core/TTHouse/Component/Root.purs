@@ -32,6 +32,7 @@ import TTHouse.Component.Async as Async
 import TTHouse.Component.Root.Fork.Translation as Fork.Translation 
 import TTHouse.Component.Root.Fork.Telegram as Fork.Telegram
 import TTHouse.Component.HTML.Loading as HTML.Loading
+import TTHouse.Data.Config
 
 import Data.Either (hush, Either (..))
 import Data.Foldable (elem)
@@ -94,7 +95,7 @@ component = H.mkComponent
   handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
   handleAction Initialize = do
     logDebug $ loc <> " ---> root component init start .."
-    store@{ config: {isCaptcha} } <- getStore
+    store@{ config: Config {isCaptcha} } <- getStore
     logDebug $ printStore store
 
     -- show up info if captcha is disabled

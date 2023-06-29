@@ -5,6 +5,7 @@ import Prelude
 import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Api.Foreign.Request (makeWithResp)
 import TTHouse.Api.Foreign.Scaffold as Scaffold
+import TTHouse.Data.Config
 
 import Effect
 import Halogen as H
@@ -18,7 +19,7 @@ import Effect.Exception (message)
 
 sendComponentTime start end component = do 
   logDebug "sendComponentTime enter .."
-  { config: {scaffoldHost, sha256Commit} } <- getStore
+  { config: Config {scaffoldHost, sha256Commit} } <- getStore
   let payload =  
             "component" := component
          ~> "totalTime" := (end - start)

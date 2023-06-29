@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Prelude (Unit, bind, discard, flip, map, pure, show, unit, void, when, ($), (/=), (<<<), (<>), (>>=))
+import Prelude (Unit, bind, discard, flip, map, pure, show, unit, void, when, ($), (/=), (<<<), (<>), (>>=), (==), (>>>))
 
 import TTHouse.Data.Route (routeCodec)
 import TTHouse.Component.Root as Root
@@ -8,6 +8,7 @@ import TTHouse.Data.Config as Cfg
 import TTHouse.Api.Foreign.Scaffold (getShaCSSCommit, getShaCommit, getCookiesInit)
 import TTHouse.Component.Lang.Data (Lang (..))
 import TTHouse.Component.AppInitFailure as AppInitFailure 
+import TTHouse.Data.Config
 
 import Effect (Effect)
 import Halogen.Aff as HA
@@ -44,9 +45,12 @@ import Unsafe.Coerce (unsafeCoerce)
 import Cache as Cache
 import Data.Foldable (for_)
 import Concurrent.Channel (newChannel) as Async
+import Store.Types (LogLevel (Dev))
+import Data.Argonaut.Encode (encodeJson)
+import Data.Argonaut.Core (stringifyWithIndent)
 
 main :: Cfg.Config -> Effect Unit
-main cfg = do 
+main cfg = do
  
   ua <- window >>= navigator >>= userAgent
   _platform <- map readPlatform $ runFn1 getPlatform ua
@@ -61,14 +65,14 @@ main cfg = do
       body <- HA.awaitBody 
 
       -- request the backend to send initial values (such as static content) required to get the app running
-      initResp <- initAppStore (_.scaffoldHost cfg)
+      initResp <- initAppStore (_.scaffoldHost (getVal cfg))
       case initResp of 
         Left err -> void $ runUI AppInitFailure.component {error: err} body
         Right init -> do
       
           -- I am sick to the back teeth of changing css hash manualy
           -- let's make the process a bit self-generating
-          for_ (_.cssFiles cfg) $ H.liftEffect <<< setCssLink (getShaCSSCommit init) (_.cssLink cfg)
+          for_ (_.cssFiles (getVal cfg)) $ H.liftEffect <<< setCssLink (getShaCSSCommit init) (_.cssLink (getVal cfg))
 
           langVar <- H.liftEffect $ Async.new Eng
 
@@ -76,22 +80,23 @@ main cfg = do
 
           telVar <- H.liftEffect $ Async.newChannel
 
-          H.liftEffect $ infoShow $ "init --> " <> show init
-
           logLevel <- H.liftEffect $ withMaybe $ Scaffold.getLogLevel init
 
           platform <- H.liftEffect $ withMaybe _platform
+
+          when (logLevel == Dev) $ 
+            H.liftEffect $ do 
+              infoShow $ "init --> " <> show init
+              infoShow $ "cfg --> " <> stringifyWithIndent 4 (encodeJson cfg)
 
           -- We now have the three pieces of information necessary to configure our app. Let's create
           -- a record that matches the `Store` type our application requires by filling in these three
           -- fields. If our environment type ever changes, we'll get a compiler error here.
           let initialStore = 
                 { config: 
-                  cfg { 
-                      sha256Commit = getShaCommit init
-                    , isCaptcha = fromMaybe false (Scaffold.getIsCaptcha init)
-                    , toTelegram = fromMaybe false (Scaffold.getToTelegram init)
-                    }
+                   setShaCommit (getShaCommit init) $
+                   setIsCaptcha (fromMaybe false (Scaffold.getIsCaptcha init)) $
+                   setToTelegram (fromMaybe false (Scaffold.getToTelegram init)) cfg
                 , error: Nothing
                 , platform: platform
                 , init: init

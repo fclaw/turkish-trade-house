@@ -13,6 +13,7 @@ import TTHouse.Api.Foreign.Request.Handler (onFailure, withError)
 import TTHouse.Component.Utils ( withCaptcha )
 import TTHouse.Component.Utils (initTranslation)
 import TTHouse.Component.Subscription.Translation as Translation
+import TTHouse.Data.Config
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -103,7 +104,7 @@ component =
         H.modify_ _ { hash = hash, texts = xs }
       handleAction (MakeRequest ev) = do 
         H.liftEffect $ preventDefault ev
-        { config: {scaffoldHost: host, isCaptcha}, async } <- getStore
+        { config: Config {scaffoldHost: host, isCaptcha}, async } <- getStore
         let ok = do
               H.modify_ _ { 
                   isSent = true

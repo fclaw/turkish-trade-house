@@ -12,6 +12,7 @@ import  TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Data.Route as Route
 import TTHouse.Document.Meta as Meta
 import TTHouse.Api.Foreign.Scaffold as Scaffold
+import TTHouse.Data.Config
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -49,7 +50,7 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "Service | TTH"
-        { platform, async, config: {scaffoldHost: host} } <- getStore
+        { platform, async, config: Config {scaffoldHost: host} } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
 
         tm <- H.liftEffect getTimestamp

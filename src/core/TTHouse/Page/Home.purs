@@ -14,6 +14,7 @@ import TTHouse.Data.Route as Route
 import TTHouse.Document.Meta as Meta
 import TTHouse.Component.Utils (initTranslation)
 import TTHouse.Component.Subscription.Translation as Translation
+import TTHouse.Data.Config
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -70,7 +71,7 @@ component mkBody =
       render _ = HH.div_ []
       handleAction Initialize = do
         H.liftEffect $ window >>= document >>= setTitle "TTH"
-        { platform, config: {scaffoldHost: host }, async } <- getStore
+        { platform, config: Config {scaffoldHost: host}, async } <- getStore
         w <- H.liftEffect $ window >>= innerWidth
 
         tm <- H.liftEffect getTimestamp

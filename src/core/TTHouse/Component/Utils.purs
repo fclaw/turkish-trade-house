@@ -7,6 +7,7 @@ import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Api.Foreign.Request.Handler (withError)
+import TTHouse.Data.Config
 
 import Halogen as H
 import Data.Function.Uncurried (runFn2)
@@ -25,7 +26,7 @@ type OpaqueSlot slot = forall query. H.Slot query Void slot
 
 
 withCaptcha true onFailure onSuccess = do 
-  { config: {scaffoldHost: host} } <- getStore
+  { config: Config {scaffoldHost: host} } <- getStore
   resp <- Request.make host Scaffold.mkReCaptchaApi $ 
     Scaffold.goReCaptcha "6Ld138ImAAAAAEB8Ba7V5QTvfFhq433MsF5hZV4v"
   logDebug $ "captcha resp --> " <> show resp

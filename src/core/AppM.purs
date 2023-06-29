@@ -23,6 +23,7 @@ import TTHouse.Data.Config
 import TTHouse.Capability.LogMessages
 import TTHouse.Capability.Now
 import TTHouse.Data.Log
+import TTHouse.Data.Config
 
 import Store as Store
 import Store.Types (LogLevel (Prod))
@@ -101,30 +102,30 @@ runAppM store = runStoreT store Store.reduce <<< coerce
 -- | With the compiler by your side, you don't need to know how to implement a monad from scratch.
 -- | You can derive everything you need! We can now focus just on the instances that matter to us:
 -- | our app environment and our capabilities.
-derive newtype instance functorAppM :: Functor AppM
+derive newtype instance Functor AppM
 
-derive newtype instance applyAppM :: Apply AppM
-derive newtype instance applicativeAppM :: Applicative AppM
-derive newtype instance bindAppM :: Bind AppM
-derive newtype instance monadAppM :: Monad AppM
-derive newtype instance monadEffectAppM :: MonadEffect AppM
-derive newtype instance monadAffAppM :: MonadAff AppM
-derive newtype instance monadStoreAppM :: MonadStore Store.Action Store.Store AppM
-derive newtype instance monadErrorAppM :: MonadError E.Error AppM 
+derive newtype instance Apply AppM
+derive newtype instance Applicative AppM
+derive newtype instance Bind AppM
+derive newtype instance Monad AppM
+derive newtype instance MonadEffect AppM
+derive newtype instance MonadAff AppM
+derive newtype instance MonadStore Store.Action Store.Store AppM
+derive newtype instance MonadError E.Error AppM 
 
 -- | Our app uses hash-based routing, so to navigate from place to place, we'll just set the hash.
 -- | Note how our navigation capability uses our routing data type rather than let you set any
 -- | arbitrary hash. Logging out is a little more involved, because we need to clean up things like
 -- | the auth token. Navigating home will take care of emptying the reference to the current user.
-instance navigateAppM :: Navigate AppM where
+instance Navigate AppM where
   navigate = liftEffect <<< setHash <<< print Route.routeCodec
 
 -- | Next up: logging. Ideally we'd use a logging service, but for the time being, we'll just log
 -- | to the console. We'll rely on our global environment to decide whether to log all messages
 -- | (`Dev`) or just important messages (`Prod`).
-instance logMessagesAppM :: LogMessages AppM where
+instance LogMessages AppM where
   logMessage log = do
-    { config: {toTelegram}, telegramVar, logLevel } <- getStore
+    { config: Config {toTelegram}, telegramVar, logLevel } <- getStore
     let telegramLevel = reason log == Error || reason log == Info
     when (toTelegram && 
           telegramLevel) $ 
@@ -158,7 +159,7 @@ instance logMessagesAppM :: LogMessages AppM where
 -- |
 -- | In our test monad, we won't perform effects -- we'll just return a hard-coded time so that we
 -- | can ensure tests are reproducible.
-instance nowAppM :: Now AppM where
+instance Now AppM where
   now = liftEffect Now.now
   nowDate = liftEffect Now.nowDate
   nowTime = liftEffect Now.nowTime

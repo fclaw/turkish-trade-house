@@ -8,6 +8,7 @@ import TTHouse.Api.Foreign.Request as Request
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Capability.LogMessages (logDebug)
 import TTHouse.Api.Foreign.Request.Handler (withError)
+import TTHouse.Data.Config
 
 import Halogen as H
 import Halogen.HTML as HH
@@ -44,7 +45,7 @@ component =
               res :: Maybe (Array String) <- map sequence $ for cookies $ H.liftEffect <<< Cookie.get
               when (isJust res) $ H.modify_ _ { close = true }
             Close -> do
-              { config: {scaffoldHost: host} } <- getStore
+              { config: Config {scaffoldHost: host} } <- getStore
               resp :: Either Error (Array Scaffold.Cookie) <- 
                 Request.make host Scaffold.mkFrontApi $ Scaffold.getCookies
               withError resp \xs -> do

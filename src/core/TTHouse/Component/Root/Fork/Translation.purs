@@ -7,6 +7,7 @@ import TTHouse.Api.Foreign.Request.Handler as Request
 import TTHouse.Api.Foreign.Scaffold as Scaffold
 import TTHouse.Component.Async as Async
 import TTHouse.Capability.LogMessages (logDebug, logInfo)
+import TTHouse.Data.Config
 
 import Halogen as H
 import Control.Monad.Rec.Class (forever)
@@ -26,7 +27,7 @@ translation = Proxy :: _ "translation"
 fork goRootHandle = 
   void $ H.fork $ forever $ do
     H.liftAff $ Aff.delay $ Aff.Milliseconds 500.0
-    { langVar, config: {scaffoldHost: host} } <- getStore
+    { langVar, config: Config {scaffoldHost: host} } <- getStore
     res <- H.liftEffect $ Async.tryRead langVar
     { lang: curr } <- H.get 
     for_ res \income -> 
@@ -41,7 +42,7 @@ fork goRootHandle =
            goRootHandle income
 
 init = do
- { langVar, config: {scaffoldHost: host} } <- getStore
+ { langVar, config: Config {scaffoldHost: host} } <- getStore
  res <- H.liftEffect $ Async.tryRead langVar
  for_ res \lang -> do
    resp <- Request.make host Scaffold.mkFrontApi $ Scaffold.loadTranslation lang
