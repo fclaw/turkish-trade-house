@@ -38,6 +38,7 @@ import System.Time (getTimestamp, timestampToDate)
 import Affjax.Web as AX
 import Affjax.StatusCode as AX
 import Data.Either (Either (..))
+import Store.Types (LogLevel (..))
 
 import Undefined
 
@@ -73,18 +74,23 @@ component =
         H.liftAff $ Aff.delay $ Aff.Milliseconds 1000.0
         val <- H.liftAff $ Async.recv $ _.input async
         for_ val $ handleAction <<< Add 
-    handleAction (Add e) = do
-      tm <- H.liftEffect $ timestampToDate =<< getTimestamp 
-      H.modify_ \s -> do
-        let m = Map.findMax (_.xs s)
-        let newXs = 
-             case m of 
-               Just { key } -> 
-                 if key + 1 < 10 
-                 then Map.insert (key + 1) {async: e, tm: tm} (_.xs s)
-                 else Map.insert key {async: e, tm: tm} $ recalculateIdx $ Map.delete 1 (_.xs s)
-               Nothing -> Map.singleton 1 {async: e, tm: tm}
-        s { xs = newXs }
+    handleAction (Add e@{val: v} ) = do
+      let isAdded (Exception _) _ = true
+          isAdded (Ordinary _ _) Dev = true
+          isAdded (Ordinary _ _) Prod = false
+      { logLevel } <- getStore
+      when (isAdded v logLevel) $ do
+        tm <- H.liftEffect $ timestampToDate =<< getTimestamp
+        H.modify_ \s -> do
+          let m = Map.findMax (_.xs s)
+          let newXs = 
+                case m of 
+                  Just { key } -> 
+                    if key + 1 < 10 
+                    then Map.insert (key + 1) {async: e, tm: tm} (_.xs s)
+                    else Map.insert key {async: e, tm: tm} $ recalculateIdx $ Map.delete 1 (_.xs s)
+                  Nothing -> Map.singleton 1 {async: e, tm: tm}
+          s { xs = newXs }
     handleAction (Close idx) = H.modify_ \s -> s { xs = recalculateIdx $ Map.delete idx (_.xs s) }
 
 render { xs } = 
